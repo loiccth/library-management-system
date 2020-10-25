@@ -33,9 +33,10 @@ router.post('/login', (req, res) => {
                     if (err) throw err
 
                     if (isMatch) {
-                        const { userid, memberType, temporaryPassword } = user
+                        const { _id, userid, memberType, temporaryPassword } = user
                         const { email, udmType, phone } = user.udmid
                         const token = jsonwebtoken.sign({
+                            _id,
                             userid,
                             email,
                             phone,
@@ -51,7 +52,7 @@ router.post('/login', (req, res) => {
                             sameSite: 'strict'
                         })
 
-                        res.cookie('user', JSON.stringify({ isLoggedIn: true, userid, email, phone, memberType, udmType, temporaryPassword }), {
+                        res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, udmType, temporaryPassword }), {
                             expires: new Date(Date.now() + 604800000),
                             secure: false,
                             httpOnly: false,
@@ -60,6 +61,7 @@ router.post('/login', (req, res) => {
 
                         res.json({
                             'success': true,
+                            _id,
                             userid,
                             email,
                             phone,
@@ -146,8 +148,8 @@ router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req)
     if (req.user === null) return res.json({ 'success': false })
 
     else {
-        const { userid, email, phone, memberType, udmType, temporaryPassword } = req.user
-        res.json({ 'success': true, userid, email, phone, memberType, udmType, temporaryPassword })
+        const { _id, userid, email, phone, memberType, udmType, temporaryPassword } = req.user
+        res.json({ 'success': true, _id, userid, email, phone, memberType, udmType, temporaryPassword })
     }
 })
 
@@ -193,27 +195,39 @@ router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) 
 })
 
 // Update password
-router.patch('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (req.body.password === undefined)
+router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.body.password === undefined || req.body.oldPassword === undefined)
         return res.status(400).json({
             'success': false,
             'error': 'Missing password param'
         })
 
-    // TODO: Change to userid in cookie
-    User.findOne({ 'userid': req.params.userid })
+    User.findOne({ _id: req.user._id })
         .then(user => {
-            user.password = req.body.password
-            user.temporaryPassword = false
-            user.save()
-                .then(user => res.json({
-                    'success': true,
-                    user
-                }))
-                .catch(err => res.status(400).json({
-                    'success': false,
-                    'error': err.message
-                }))
+
+            user.comparePassword(req.body.oldPassword, function (err, isMatch) {
+                if (err) throw err
+
+                if (isMatch) {
+                    user.password = req.body.password
+                    user.temporaryPassword = false
+                    user.save()
+                        .then(user => res.json({
+                            'success': true,
+                            user
+                        }))
+                        .catch(err => res.status(400).json({
+                            'success': false,
+                            'error': err.message
+                        }))
+                }
+                else {
+                    return res.status(403).json({
+                        'success': false,
+                        'error': 'Invalid password'
+                    })
+                }
+            })
         })
         .catch(err => res.status(400).json({
             'success': false,

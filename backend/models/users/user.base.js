@@ -12,7 +12,7 @@ const baseOptions = {
 const baseUserSchema = new Schema({
     udmid: { type: Schema.Types.ObjectId, ref: 'UDM', required: true, unique: true },
     userid: { type: String, required: true, unique: true, trim: true },
-    password: { type: String, min: 4, required: true },
+    password: { type: String, required: true },
     temporaryPassword: { type: Boolean, required: true, default: true },
     createdAt: { type: Date, default: Date() },
     updatedOn: { type: Date }

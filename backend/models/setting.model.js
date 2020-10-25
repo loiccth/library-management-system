@@ -4,9 +4,7 @@ const Schema = mongoose.Schema
 
 const settingSchema = new Schema({
     setting: { type: String, required: true },
-    option: { type: String, required: true },
-    additionalOption: { type: String },
-    createdAt: { type: Date, default: Date() }
+    option: { type: String, required: true }
 })
 
 const Setting = mongoose.model('Setting', settingSchema)

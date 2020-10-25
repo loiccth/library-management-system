@@ -14,10 +14,20 @@ const bookSchema = new Schema({
     noOfPages: { type: Number },
     location: { type: String, required: true },
     campus: { type: String, required: true, enum: ['pam', 'rhill'] },
+    noOfBooksOnLoan: { type: Number, required: true, default: 0 },
     copies: [{
         _id: { type: mongoose.ObjectId, default: mongoose.Types.ObjectId, unique: true },
-        availability: { type: String, required: true, default: 'available', enum: ['available', 'onloan', 'reserved'] },
-        purchasedOn: { type: Date, default: Date() }
+        availability: { type: String, required: true, default: 'available', enum: ['available', 'onloan'] },
+        borrower: {
+            userid: { type: Schema.Types.ObjectId, ref: 'User' },
+            borrowAt: { type: Date },
+            dueDate: { type: Date },
+            renews: { type: Number }
+        },
+    }],
+    reservation: [{
+        userid: { type: Schema.Types.ObjectId, ref: 'User' },
+        reservedAt: { type: Date }
     }]
 })
 
