@@ -5,6 +5,8 @@ const jwt = require('express-jwt');
 const generator = require('generate-password')
 const User = require('../models/users/user.base')
 const Member = require('../models/users/member.model')
+const MemberA = require('../models/users/member_accademic.model')
+const MemberNA = require('../models/users/member_non_accademic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
 const UDM = require('../models/udm/udm.base')
@@ -34,14 +36,13 @@ router.post('/login', (req, res) => {
 
                     if (isMatch) {
                         const { _id, userid, memberType, temporaryPassword } = user
-                        const { email, udmType, phone } = user.udmid
+                        const { email, phone } = user.udmid
                         const token = jsonwebtoken.sign({
                             _id,
                             userid,
                             email,
                             phone,
                             memberType,
-                            udmType,
                             temporaryPassword
                         }, secret, { expiresIn: '7d' })
 
@@ -52,7 +53,7 @@ router.post('/login', (req, res) => {
                             sameSite: 'strict'
                         })
 
-                        res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, udmType, temporaryPassword }), {
+                        res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
                             expires: new Date(Date.now() + 604800000),
                             secure: false,
                             httpOnly: false,
@@ -66,7 +67,7 @@ router.post('/login', (req, res) => {
                             email,
                             phone,
                             memberType,
-                            udmType,
+
                             temporaryPassword
                         })
                     }
@@ -110,11 +111,16 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
                                 userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.random() * (100 - 10) + 10
                             }
 
-                            const newMember = new Member({
+                            let newMember = new User({
                                 udmid: udm._id,
                                 userid,
                                 password
                             })
+
+                            if (udm.udmType === 'Student') newMember.memberType = 'Member'
+                            else if (udm.udmType === 'Staff' && udm.accademic === true) newMember.memberType = 'MemberA'
+                            else if (udm.udmType === 'Staff' && udm.accademic === false) newMember.memberType = 'MemberNA'
+
                             newMember.save()
                                 .then(member => {
                                     res.json({
@@ -148,8 +154,8 @@ router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req)
     if (req.user === null) return res.json({ 'success': false })
 
     else {
-        const { _id, userid, email, phone, memberType, udmType, temporaryPassword } = req.user
-        res.json({ 'success': true, _id, userid, email, phone, memberType, udmType, temporaryPassword })
+        const { _id, userid, email, phone, memberType, temporaryPassword } = req.user
+        res.json({ 'success': true, _id, userid, email, phone, memberType, temporaryPassword })
     }
 })
 
