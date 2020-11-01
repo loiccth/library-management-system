@@ -8,9 +8,9 @@ const MemberA = require('../models/users/member_accademic.model')
 const MemberNA = require('../models/users/member_non_accademic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
+const UDM = require('../models/udm/udm.base');
 const Student = require('../models/udm/student.model')
 const Staff = require('../models/udm/staff.model')
-const transporter = require('../config/mail.config')
 const secret = process.env.JWT_SECRET;
 
 // Login for users
@@ -46,13 +46,7 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
     else {
         const { email } = req.body
 
-        let memberType = null
-        let udm = await Staff.findOne({ email })
-
-        if (udm === null) {
-            udm = await Student.findOne({ email })
-            memberType = 'Member'
-        }
+        const udm = await UDM.findOne({ email })
 
         if (udm !== null) {
             const user = await User.findOne({ udmid: udm._id })
@@ -62,9 +56,11 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
                 console.log(password)
 
                 let userid = null
-                if (memberType === 'Member') userid = udm.studentid
+                if (udm.udmType === 'Student') {
+                    userid = udm.studentid
+                    memberType = 'Member'
+                }
                 else {
-                    console.log('here')
                     userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
                     if (udm.accademic) memberType = 'MemberA'
                     else memberType = 'MemberNA'
