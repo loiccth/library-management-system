@@ -1,12 +1,16 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
-const jsonwebtoken = require('jsonwebtoken');
+const jsonwebtoken = require('jsonwebtoken')
 const generator = require('generate-password')
 const transporter = require('../../config/mail.config')
+const Transaction = require('../transactions/transaction.base')
+const Borrow = require('../transactions/borrow.model')
+const Reserve = require('../transactions/reserve.model')
+const Book = require('../book.model')
 
 const Schema = mongoose.Schema
 const SALT_WORK_FACTOR = 10
-const secret = process.env.JWT_SECRET;
+const secret = process.env.JWT_SECRET
 
 const baseOptions = {
     discriminatorKey: 'memberType',
@@ -24,7 +28,7 @@ const baseUserSchema = new Schema({
 
 
 baseUserSchema.pre('save', function (next) {
-    let user = this;
+    let user = this
 
     if (!user.isModified('password')) return next()
 
@@ -83,7 +87,7 @@ baseUserSchema.methods.login = function (candidatePassword, email, phone, res) {
                 })
             }
         })
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 }
 
 baseUserSchema.methods.logout = function (res) {
@@ -100,7 +104,7 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
 
                 this.save()
                     .then(() => res.sendStatus(200))
-                    .catch(err => { throw err })
+                    .catch(err => console.log(err))
             }
             else {
                 res.sendStatus(403)
@@ -130,7 +134,58 @@ baseUserSchema.methods.resetPassword = function (res) {
             //     console.log(info)
             // })
         })
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
+}
+
+baseUserSchema.methods.reserveBook = async function (bookid, res) {
+    const transaction = await Transaction.findOne({ bookid, userid: this._id, archive: false })
+
+    if (transaction === null) {
+        Book.findById(bookid)
+            .then(book => {
+                for (let i = 0; i < book.copies.length; i++) {
+                    if (book.copies[i].availability === 'available') {
+                        return res.json({ err: 'Book is available cannot reserve' })
+                    }
+                }
+
+                book.reservation.push({
+                    userid: this._id,
+                    reservedAt: Date()
+                })
+
+                book.save().catch(err => console.log(err))
+
+                const newReservation = new Reserve({
+                    userid: this._id,
+                    bookid: bookid
+                })
+
+                newReservation.save().then(res.sendStatus(201)).catch(err => console.log(err))
+            })
+            .catch(err => console.log(err))
+    }
+    else {
+        if (transaction.transactionType === 'Borrow') res.json({ 'error': 'You already have a copy borrowed' })
+        else res.json({ 'error': 'Book already reserved' })
+    }
+}
+
+baseUserSchema.methods.cancelReservation = function (reservationid, res) {
+    Reserve.findByIdAndUpdate(reservationid, { isCancel: true, archive: true })
+        .then((reserve) => {
+            Book.findOne({ _id: reserve.bookid })
+                .then(book => {
+                    for (let i = 0; i < book.reservation.length; i++) {
+                        if (book.reservation[i].userid == this._id) {
+                            book.reservation.splice(i, 1)
+                            break
+                        }
+                    }
+                    book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
+                })
+        })
+        .catch(err => console.log(err))
 }
 
 const User = mongoose.model('User', baseUserSchema)
