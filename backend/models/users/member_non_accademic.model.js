@@ -12,9 +12,9 @@ memberNASchema.methods.borrow = async function (bookid, res) {
 
     if (bookBorrowed !== null) return res.status(400).json({ 'error': 'Cannot borrow multiple copies of the same book' })
     else {
-        const date = new Date();
-        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const date = new Date()
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, createdAt: { $gte: firstDay, $lte: lastDay } })
 
         if (numOfBooksBorrowed > 2) return res.status(400).json({ 'error': 'Cannot borrow more than 2 books in a month' })
@@ -34,7 +34,7 @@ memberNASchema.methods.borrow = async function (bookid, res) {
                                 dueDate,
                                 renews: 0
                             }
-                            await book.save().catch(err => { throw err })
+                            await book.save().catch(err => console.log(err))
 
                             const newBorrow = new Borrow({
                                 userid: this._id,
@@ -44,7 +44,7 @@ memberNASchema.methods.borrow = async function (bookid, res) {
                             })
                             await newBorrow.save().then(() => {
                                 return res.sendStatus(201)
-                            }).catch(err => { throw err })
+                            }).catch(err => console.log(err))
                             break
                         }
                     }

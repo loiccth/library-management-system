@@ -1,6 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const jwt = require('express-jwt');
+const express = require('express')
+const router = express.Router()
+const jwt = require('express-jwt')
 const generator = require('generate-password')
 const User = require('../models/users/user.base')
 const Member = require('../models/users/member.model')
@@ -8,10 +8,10 @@ const MemberA = require('../models/users/member_accademic.model')
 const MemberNA = require('../models/users/member_non_accademic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
-const UDM = require('../models/udm/udm.base');
+const UDM = require('../models/udm/udm.base')
 const Student = require('../models/udm/student.model')
 const Staff = require('../models/udm/staff.model')
-const secret = process.env.JWT_SECRET;
+const secret = process.env.JWT_SECRET
 
 // Login for users
 router.post('/login', (req, res) => {
@@ -34,7 +34,7 @@ router.post('/login', (req, res) => {
                 user.login(req.body.password, email, phone, res)
             }
         })
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 })
 
 // Register a new member
@@ -70,7 +70,7 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
                     .then(admin => {
                         admin.registerMember(udm._id, userid, memberType, password, res)
                     })
-                    .catch(err => { throw err })
+                    .catch(err => console.log(err))
             }
             else return res.json('Account already exist')
         }
@@ -124,7 +124,7 @@ router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) 
                 })
             }
         })
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 })
 
 // Update password
@@ -136,7 +136,7 @@ router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { 
 
     User.findOne({ _id: req.user._id })
         .then(user => user.changePassword(req.body.oldPassword, req.body.password, res))
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 })
 
 // Forgot my password
@@ -150,7 +150,7 @@ router.patch('/reset', (req, res) => {
         .then(user => {
             user.resetPassword(res)
         })
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 })
 
 // Delete account - need admin priviledge
@@ -162,7 +162,7 @@ router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (re
             'success': true,
             'userid': req.params.userid
         }))
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 })
 
 module.exports = router

@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const User = require('./user.base')
 const Book = require('../book.model')
 const csv = require('csv-parser')
-const fs = require('fs');
+const fs = require('fs')
 
 
 const Schema = mongoose.Schema
@@ -36,7 +36,7 @@ librarianSchema.methods.addBook = function (book, res) {
                     })
                     newBook.save()
                         .then(() => res.sendStatus(201))
-                        .catch(err => { throw err })
+                        .catch(err => console.log(err))
                 }
                 else {
                     book.copies.push({
@@ -44,10 +44,10 @@ librarianSchema.methods.addBook = function (book, res) {
                     })
                     book.save()
                         .then(() => res.sendStatus(201))
-                        .catch(err => { throw err })
+                        .catch(err => console.log(err))
                 }
             })
-            .catch(err => { throw err })
+            .catch(err => console.log(err))
     }
 }
 
@@ -93,7 +93,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                             .catch((err) => fail.push(title + ' - ' + err.message))
                     }
                 })
-                .catch(err => { throw err })
+                .catch(err => console.log(err))
             stream.resume()
         })
         .on('end', () => {
@@ -102,7 +102,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                     success,
                     fail
                 })
-            }, 500);
+            }, 500)
         })
 }
 

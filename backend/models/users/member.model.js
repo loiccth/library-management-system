@@ -31,7 +31,7 @@ memberSchema.methods.borrow = async function (bookid, res) {
                                 dueDate,
                                 renews: 0
                             }
-                            await book.save().catch(err => { throw err })
+                            await book.save().catch(err => console.log(err))
 
                             const newBorrow = new Borrow({
                                 userid: this._id,
@@ -41,7 +41,7 @@ memberSchema.methods.borrow = async function (bookid, res) {
                             })
                             await newBorrow.save().then(() => {
                                 return res.sendStatus(201)
-                            }).catch(err => { throw err })
+                            }).catch(err => console.log(err))
                             break
                         }
                     }

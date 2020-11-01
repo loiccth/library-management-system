@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 
 require('dotenv').config()
 
-const app = express();
+const app = express()
 const port = process.env.PORT
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
@@ -33,9 +33,9 @@ app.use((err, req, res, next) => {
         res.status(401).json({
             'success': false,
             'message': 'Invalid JWT Token'
-        });
+        })
     }
-});
+})
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`)

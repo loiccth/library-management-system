@@ -31,7 +31,7 @@ adminSchema.methods.registerMember = function (udmid, userid, memberType, passwo
             //     console.log(info)
             // })
         })
-        .catch(err => { throw err })
+        .catch(err => console.log(err))
 }
 
 const Admin = User.discriminator('Admin', adminSchema)
