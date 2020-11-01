@@ -128,10 +128,7 @@ router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) 
                 })
             }
         })
-        .catch(err => res.status(400).json({
-            'success': false,
-            'error': err.message
-        }))
+        .catch(err => { throw err })
 })
 
 // Update password
@@ -169,10 +166,7 @@ router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (re
             'success': true,
             'userid': req.params.userid
         }))
-        .catch(err => res.status(400).json({
-            'success': false,
-            'error': err.message
-        }))
+        .catch(err => { throw err })
 })
 
 module.exports = router
