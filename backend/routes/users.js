@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const jsonwebtoken = require('jsonwebtoken');
 const jwt = require('express-jwt');
 const generator = require('generate-password')
 const User = require('../models/users/user.base')
@@ -9,7 +8,8 @@ const MemberA = require('../models/users/member_accademic.model')
 const MemberNA = require('../models/users/member_non_accademic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
-const UDM = require('../models/udm/udm.base')
+const Student = require('../models/udm/student.model')
+const Staff = require('../models/udm/staff.model')
 const transporter = require('../config/mail.config')
 const secret = process.env.JWT_SECRET;
 
@@ -26,126 +26,59 @@ router.post('/login', (req, res) => {
         .then(user => {
             if (user === null) {
                 return res.status(403).json({
-                    'success': false,
                     'error': 'Invalid userid or password'
                 })
             }
             else {
-                user.comparePassword(req.body.password, function (err, isMatch) {
-                    if (err) throw err
-
-                    if (isMatch) {
-                        const { _id, userid, memberType, temporaryPassword } = user
-                        const { email, phone } = user.udmid
-                        const token = jsonwebtoken.sign({
-                            _id,
-                            userid,
-                            email,
-                            phone,
-                            memberType,
-                            temporaryPassword
-                        }, secret, { expiresIn: '7d' })
-
-                        res.cookie('jwttoken', token, {
-                            expires: new Date(Date.now() + 604800000),
-                            secure: false,
-                            httpOnly: true,
-                            sameSite: 'strict'
-                        })
-
-                        res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
-                            expires: new Date(Date.now() + 604800000),
-                            secure: false,
-                            httpOnly: false,
-                            sameSite: 'strict'
-                        })
-
-                        res.json({
-                            'success': true,
-                            _id,
-                            userid,
-                            email,
-                            phone,
-                            memberType,
-
-                            temporaryPassword
-                        })
-                    }
-                    else {
-                        return res.status(403).json({
-                            'success': false,
-                            'error': 'Invalid userid or password'
-                        })
-                    }
-                })
+                const { email, phone } = user.udmid
+                user.login(req.body.password, email, phone, res)
             }
         })
-        .catch(err => {
-            return res.status(400).json({
-                'success': false,
-                'error': err.message
-            })
-        })
+        .catch(err => { throw err })
 })
 
 // Register a new member
-router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
 
     else if (req.body.email === undefined) res.sendStatus(400)
 
     else {
         const { email } = req.body
-        UDM.findOne({ email })
-            .then(udm => {
-                if (udm === null) return res.json('not found email')
-                User.findOne({ udmid: udm._id })
-                    .then(user => {
-                        if (user !== null) return res.json('account already exist')
-                        else {
-                            const password = generator.generate({ length: 10, numbers: true })
-                            console.log(password)
-                            let userid = null
-                            if (udm.udmType === 'Student') userid = udm.studentid
-                            else if (udm.udmType === 'Staff') {
-                                userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.random() * (100 - 10) + 10
-                            }
 
-                            let newMember = new User({
-                                udmid: udm._id,
-                                userid,
-                                password
-                            })
+        let memberType = null
+        let udm = await Staff.findOne({ email })
 
-                            if (udm.udmType === 'Student') newMember.memberType = 'Member'
-                            else if (udm.udmType === 'Staff' && udm.accademic === true) newMember.memberType = 'MemberA'
-                            else if (udm.udmType === 'Staff' && udm.accademic === false) newMember.memberType = 'MemberNA'
+        if (udm === null) {
+            udm = await Student.findOne({ email })
+            memberType = 'Member'
+        }
 
-                            newMember.save()
-                                .then(member => {
-                                    res.json({
-                                        'success': true,
-                                        member
-                                    })
+        if (udm !== null) {
+            const user = await User.findOne({ udmid: udm._id })
 
-                                    // const mailRegister = {
-                                    //     from: 'noreply@l0ic.com',
-                                    //     to: email,
-                                    //     subject: 'Register password',
-                                    //     text: 'Your password is valid for 24 hours:  ' + password
-                                    // }
-                                    // transporter.sendMail(mailRegister, (err, info) => {
-                                    //     if (err) return console.log(err.message)
-                                    //     console.log(info)
-                                    // })
-                                })
-                                .catch(err => res.status(400).json({
-                                    'success': false,
-                                    'error': err.message
-                                }))
-                        }
+            if (user === null) {
+                const password = generator.generate({ length: 10, numbers: true })
+                console.log(password)
+
+                let userid = null
+                if (memberType === 'Member') userid = udm.studentid
+                else {
+                    console.log('here')
+                    userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
+                    if (udm.accademic) memberType = 'MemberA'
+                    else memberType = 'MemberNA'
+                }
+
+                Admin.findOne({ _id: req.user._id })
+                    .then(admin => {
+                        admin.registerMember(udm._id, userid, memberType, password, res)
                     })
-            })
+                    .catch(err => { throw err })
+            }
+            else return res.json('Account already exist')
+        }
+        else return res.json('Email not found')
     }
 })
 
@@ -161,9 +94,10 @@ router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req)
 
 // Logout and remove cookie
 router.get('/logout', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    res.clearCookie('jwttoken')
-    res.clearCookie('user')
-    res.json({ 'success': true })
+    User.findOne({ _id: req.user._id })
+        .then(user => {
+            user.logout(res)
+        })
 })
 
 router.get('/', jwt({ secret, credentialsRequired: false, algorithms: ['HS256'] }), (req, res) => {
@@ -204,88 +138,26 @@ router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) 
 router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.body.password === undefined || req.body.oldPassword === undefined)
         return res.status(400).json({
-            'success': false,
             'error': 'Missing password param'
         })
 
     User.findOne({ _id: req.user._id })
-        .then(user => {
-
-            user.comparePassword(req.body.oldPassword, function (err, isMatch) {
-                if (err) throw err
-
-                if (isMatch) {
-                    user.password = req.body.password
-                    user.temporaryPassword = false
-                    user.save()
-                        .then(user => res.json({
-                            'success': true,
-                            user
-                        }))
-                        .catch(err => res.status(400).json({
-                            'success': false,
-                            'error': err.message
-                        }))
-                }
-                else {
-                    return res.status(403).json({
-                        'success': false,
-                        'error': 'Invalid password'
-                    })
-                }
-            })
-        })
-        .catch(err => res.status(400).json({
-            'success': false,
-            'error': err.message
-        }))
+        .then(user => user.changePassword(req.body.oldPassword, req.body.password, res))
+        .catch(err => { throw err })
 })
 
 // Forgot my password
 router.patch('/reset', (req, res) => {
     if (req.body.userid === undefined)
         return res.status(400).json({
-            'success': false,
             'error': 'Missing userid param'
         })
 
     User.findOne({ userid: req.body.userid })
         .then(user => {
-            const password = generator.generate({ length: 10, numbers: true })
-            user.password = password
-            user.temporaryPassword = true
-
-            user.save()
-                .then(user => {
-                    res.json({
-                        'success': true,
-                        user
-                    })
-
-                    const mailForgotPassword = {
-                        from: 'noreply@l0ic.com',
-                        to: email,
-                        subject: 'Forgot password',
-                        text: 'Your new password is valid for 24 hours:  ' + password
-                    }
-                    transporter.sendMail(mailForgotPassword, (err, info) => {
-                        if (err) return console.log(err.message)
-                        console.log(info)
-                    })
-                })
-                .catch(err => {
-                    res.status(400).json({
-                        'success': false,
-                        'error': err.message
-                    })
-                })
+            user.resetPassword(res)
         })
-        .catch(err => {
-            res.status(400).json({
-                'success': false,
-                'error': err.message
-            })
-        })
+        .catch(err => { throw err })
 })
 
 // Delete account - need admin priviledge
