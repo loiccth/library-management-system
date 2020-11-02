@@ -84,6 +84,17 @@ router.post('/renew/:borrowid', jwt({ secret, credentialsRequired: true, getToke
         })
 })
 
+// Return a borrowed book
+router.post('/return_book/:borrowid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.returnBook(req.params.borrowid, res)
+            })
+    }
+})
+
 // Get list of books
 router.get('/', (req, res) => {
     Book.find().populate('copies.borrower.userid', { userid: 1 })

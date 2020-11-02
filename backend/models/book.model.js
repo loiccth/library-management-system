@@ -17,7 +17,7 @@ const bookSchema = new Schema({
     noOfBooksOnLoan: { type: Number, required: true, default: 0 },
     copies: [{
         _id: { type: mongoose.ObjectId, default: mongoose.Types.ObjectId, unique: true },
-        availability: { type: String, required: true, default: 'available', enum: ['available', 'onloan'] },
+        availability: { type: String, required: true, default: 'available', enum: ['available', 'onloan', 'onhold'] },
         borrower: {
             userid: { type: Schema.Types.ObjectId, ref: 'User' },
             borrowAt: { type: Date },

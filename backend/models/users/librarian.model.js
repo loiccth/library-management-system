@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const User = require('./user.base')
 const Book = require('../book.model')
+const Borrow = require('../transactions/borrow.model')
+const Payment = require('../payment.model')
 const csv = require('csv-parser')
 const fs = require('fs')
 
@@ -103,6 +105,46 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                     fail
                 })
             }, 500)
+        })
+}
+
+librarianSchema.methods.returnBook = function (borrowid, res) {
+    Borrow.findOne({ _id: borrowid })
+        .then(async borrow => {
+            borrow.returnedOn = Date()
+            borrow.archive = true
+
+            const now = new Date(new Date().toDateString())
+            const borrowDate = new Date(borrow.dueDate.toDateString())
+            let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+
+            if (numOfDays < 0) {
+                numOfDays *= -1
+
+                const newPayment = new Payment({
+                    userid: borrow.userid,
+                    bookid: borrow.bookid,
+                    copyid: borrow.copyid,
+                    numOfDays,
+                    pricePerDay: 25
+                })
+
+                await newPayment.save().catch(err => console.log(err))
+            }
+            await borrow.save().catch(err => console.log(err))
+
+            Book.findOne({ _id: borrow.bookid })
+                .then(book => {
+                    book.noOfBooksOnLoan = book.noOfBooksOnLoan - 1
+                    for (let i = 0; i < book.copies.length; i++) {
+                        if (book.copies[i].borrower.userid.toString() === borrow.userid.toString()) {
+                            book.copies[i].availability = 'onhold',
+                                book.copies[i].borrower = null
+                            break
+                        }
+                    }
+                    book.save().then(() => res.sendStatus(200)).catch(err => console.log)
+                })
         })
 }
 
