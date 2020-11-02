@@ -76,6 +76,14 @@ router.patch('/cancel_reservation/:reservationid', jwt({ secret, credentialsRequ
         })
 })
 
+// Renew a borrowed book
+router.post('/renew/:borrowid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    User.findOne({ _id: req.user._id })
+        .then(user => {
+            user.renewBook(req.params.borrowid, res)
+        })
+})
+
 // Get list of books
 router.get('/', (req, res) => {
     Book.find().populate('copies.borrower.userid', { userid: 1 })

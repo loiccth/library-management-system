@@ -7,6 +7,7 @@ const Transaction = require('../transactions/transaction.base')
 const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
+const Payment = require('../payment.model')
 
 const Schema = mongoose.Schema
 const SALT_WORK_FACTOR = 10
@@ -138,14 +139,21 @@ baseUserSchema.methods.resetPassword = function (res) {
 }
 
 baseUserSchema.methods.reserveBook = async function (bookid, res) {
+    const numOfReservations = await Reserve.countDocuments({ userid: this._id, archive: false })
+
     const transaction = await Transaction.findOne({ bookid, userid: this._id, archive: false })
 
-    if (transaction === null) {
+    if (numOfReservations > 3) return res.json({ 'error': 'Cannot reserve more than 3 books' })
+    else if (transaction !== null) {
+        if (transaction.transactionType === 'Borrow') res.json({ 'error': 'You already have a copy borrowed' })
+        else res.json({ 'error': 'Book already reserved' })
+    }
+    else if (transaction === null) {
         Book.findById(bookid)
             .then(book => {
                 for (let i = 0; i < book.copies.length; i++) {
                     if (book.copies[i].availability === 'available') {
-                        return res.json({ err: 'Book is available cannot reserve' })
+                        return res.json({ 'error': 'Book is available cannot reserve' })
                     }
                 }
 
@@ -165,10 +173,6 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
             })
             .catch(err => console.log(err))
     }
-    else {
-        if (transaction.transactionType === 'Borrow') res.json({ 'error': 'You already have a copy borrowed' })
-        else res.json({ 'error': 'Book already reserved' })
-    }
 }
 
 baseUserSchema.methods.cancelReservation = function (reservationid, res) {
@@ -186,6 +190,52 @@ baseUserSchema.methods.cancelReservation = function (reservationid, res) {
                 })
         })
         .catch(err => console.log(err))
+}
+
+baseUserSchema.methods.renewBook = async function (borrowid, res) {
+    let borrow = await Borrow.findById(borrowid)
+
+    const numOfReservations = await Reserve.countDocuments({ bookid: borrow.bookid, archive: false })
+
+    if (numOfReservations > 0) return res.json({ 'error': 'Cannot renew book because there are reservations' })
+    else if (borrow.renews > 2) return res.json({ 'error': 'Reached max number of renewals' })
+    else {
+        const now = new Date(new Date().toDateString())
+        const borrowDate = new Date(borrow.dueDate.toDateString())
+        let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+        if (numOfDays > 2) return res.json({ 'error': 'Can only renew within 2 days of due date' })
+        else if (numOfDays < -5) return res.json({ 'error': `Cannot renew book, overdue by ${numOfDays * -1} days` })
+        else {
+            if (numOfDays < 0) {
+                numOfDays *= -1
+                const newPayment = new Payment({
+                    userid: this._id,
+                    bookid: borrow.bookid,
+                    copyid: borrow.copyid,
+                    numOfDays,
+                    pricePerDay: 25
+                })
+                await newPayment.save().catch(err => console.log(err))
+            }
+            borrow.renews = borrow.renews + 1;
+            borrow.dueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+            borrow.renewedOn = Date()
+
+            await borrow.save().catch(err => console.log(err))
+
+            Book.findOne({ _id: borrow.bookid })
+                .then(book => {
+                    for (let i = 0; i < book.copies.length; i++) {
+                        if (book.copies[i].borrower.userid.toString() === this._id.toString()) {
+                            book.copies[i].borrower.renews = book.copies[i].borrower.renews + 1
+                            book.copies[i].borrower.dueDate = new Date(book.copies[i].borrower.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+                            break
+                        }
+                    }
+                    book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
+                })
+        }
+    }
 }
 
 const User = mongoose.model('User', baseUserSchema)
