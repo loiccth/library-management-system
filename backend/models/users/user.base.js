@@ -63,14 +63,14 @@ baseUserSchema.methods.login = function (candidatePassword, email, phone, res) {
                     expires: new Date(Date.now() + 604800000),
                     secure: false,
                     httpOnly: true,
-                    sameSite: 'strict'
+                    sameSite: 'Strict'
                 })
 
                 res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
                     expires: new Date(Date.now() + 604800000),
                     secure: false,
                     httpOnly: false,
-                    sameSite: 'strict'
+                    sameSite: 'Strict'
                 })
 
                 res.json({
@@ -215,15 +215,14 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                     numOfDays,
                     pricePerDay: 25
                 })
+                // TODO: send email/sms notif
                 await newPayment.save().catch(err => console.log(err))
             }
             borrow.renews = borrow.renews + 1;
             borrow.dueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
             borrow.renewedOn = Date()
 
-            await borrow.save().catch(err => console.log(err))
-
-            Book.findOne({ _id: borrow.bookid })
+            await Book.findOne({ _id: borrow.bookid })
                 .then(book => {
                     for (let i = 0; i < book.copies.length; i++) {
                         if (book.copies[i].borrower.userid.toString() === this._id.toString()) {
@@ -232,10 +231,26 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                             break
                         }
                     }
-                    book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
+                    book.save().catch(err => console.log(err))
                 })
+
+            await borrow.save().then(borrow => res.json(borrow)).catch(err => console.log(err))
         }
     }
+}
+
+baseUserSchema.methods.getReservedBooks = function (res) {
+    Reserve.find({ userid: this._id, archive: false }).populate('bookid')
+        .then(booksReserved => {
+            return res.json(booksReserved)
+        })
+}
+
+baseUserSchema.methods.getBorrowedBooks = function (res) {
+    Borrow.find({ userid: this._id, archive: false }).populate('bookid')
+        .then(booksBorrowed => {
+            return res.json(booksBorrowed)
+        })
 }
 
 const User = mongoose.model('User', baseUserSchema)

@@ -95,6 +95,20 @@ router.post('/return_book/:borrowid', jwt({ secret, credentialsRequired: true, g
     }
 })
 
+router.get('/reserved', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    User.findOne({ _id: req.user._id })
+        .then(user => {
+            user.getReservedBooks(res)
+        })
+})
+
+router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    User.findOne({ _id: req.user._id })
+        .then(user => {
+            user.getBorrowedBooks(res)
+        })
+})
+
 // Get list of books
 router.get('/', (req, res) => {
     Book.find().populate('copies.borrower.userid', { userid: 1 })
