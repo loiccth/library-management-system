@@ -32,9 +32,7 @@ librarianSchema.methods.addBook = function (book, res) {
                         noOfPages,
                         location,
                         campus,
-                        copies: {
-                            purchasedOn
-                        }
+                        copies: {}
                     })
                     newBook.save()
                         .then(() => res.sendStatus(201))
@@ -61,7 +59,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         .pipe(csv())
         .on('data', async (book) => {
             stream.pause()
-            const { title, author, isbn, publisher, publishedDate, edition, category, description, noOfPages, location, campus, purchasedOn } = book
+            const { title, author, isbn, publisher, publishedDate, edition, category, description, noOfPages, location, campus } = book
 
             await Book.findOne({ isbn })
                 .then(async (book) => {
@@ -78,18 +76,14 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                             noOfPages,
                             location,
                             campus,
-                            copies: {
-                                purchasedOn
-                            }
+                            copies: {}
                         })
                         newBook.save()
                             .then(() => success.push(title))
                             .catch((err) => fail.push(title + ' - ' + err.message))
                     }
                     else {
-                        book.copies.push({
-                            purchasedOn
-                        })
+                        book.copies.push({})
                         await book.save()
                             .then(() => success.push(title))
                             .catch((err) => fail.push(title + ' - ' + err.message))
