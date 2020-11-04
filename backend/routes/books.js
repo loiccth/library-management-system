@@ -13,6 +13,7 @@ const MemberA = require('../models/users/member_accademic.model')
 const MemberNA = require('../models/users/member_non_accademic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
+const escapeRegExp = require('../function/escapeRegExp')
 const secret = process.env.JWT_SECRET
 
 // Add a single book
@@ -107,6 +108,16 @@ router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req)
         .then(user => {
             user.getBorrowedBooks(res)
         })
+})
+
+// Search book
+router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.body.query === undefined) return res.json({ 'error': 'Empty search query' })
+    else {
+        const regex = new RegExp(escapeRegExp(req.body.query), 'gi')
+        Book.find({ [req.body.searchType]: regex })
+            .then(books => res.json(books))
+    }
 })
 
 // Get list of books
