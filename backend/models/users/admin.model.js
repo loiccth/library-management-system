@@ -6,7 +6,7 @@ const Schema = mongoose.Schema
 
 const adminSchema = new Schema()
 
-adminSchema.methods.registerMember = function (udmid, userid, memberType, password, res) {
+adminSchema.methods.registerMember = function (udmid, userid, memberType, password, email, res) {
     const newMember = new User({
         memberType,
         udmid,

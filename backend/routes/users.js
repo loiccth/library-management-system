@@ -68,7 +68,7 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
 
                 Admin.findOne({ _id: req.user._id })
                     .then(admin => {
-                        admin.registerMember(udm._id, userid, memberType, password, res)
+                        admin.registerMember(udm._id, userid, memberType, password, email, res)
                     })
                     .catch(err => console.log(err))
             }
