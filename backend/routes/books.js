@@ -120,6 +120,30 @@ router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req)
     }
 })
 
+// Get list of books overdue book for today
+router.get('/overdue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.getOverdueBooks(res)
+            })
+            .catch(err => console.log(err))
+    }
+})
+
+// Get list of books due for today
+router.get('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.getDueBooks(res)
+            })
+            .catch(err => console.log(err))
+    }
+})
+
 // Get list of books
 router.get('/', (req, res) => {
     Book.find().populate('copies.borrower.userid', { userid: 1 })

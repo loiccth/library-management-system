@@ -142,6 +142,24 @@ librarianSchema.methods.returnBook = function (borrowid, res) {
         })
 }
 
+librarianSchema.methods.getOverdueBooks = function (res) {
+    const now = new Date(new Date().toDateString())
+
+    Borrow.find({ archive: false, dueDate: { $lt: now } }).populate('userid').populate('bookid')
+        .then(books => res.json(books))
+        .catch(err => console.log(err))
+}
+
+librarianSchema.methods.getDueBooks = function (res) {
+    const now = new Date(new Date().toDateString())
+    const tomorrow = new Date(new Date(now).toDateString())
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    Borrow.find({ archive: false, dueDate: { $gte: now, $lt: tomorrow } }).populate('userid').populate('bookid')
+        .then(books => res.json(books))
+        .catch(err => console.log(err))
+}
+
 const Librarian = User.discriminator('Librarian', librarianSchema)
 
 module.exports = Librarian
