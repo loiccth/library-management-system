@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('express-jwt')
+const mongoose = require('mongoose')
 const multer = require('multer')
 const upload = multer({ dest: 'uploads/books/' })
 const Book = require('../models/book.model')
@@ -148,26 +149,27 @@ router.get('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => {
 router.get('/', (req, res) => {
     Book.find().populate('copies.borrower.userid', { userid: 1 })
         .then(books => res.json({
-            'success': true,
             books
         }))
-        .catch(err => res.status(400).json({
-            'success': false,
-            'error': err.message
-        }))
+        .catch(err => console.log(err))
 })
 
 // Get an individual book by id
 router.get('/:id', (req, res) => {
-    Book.findById(req.params.id)
-        .then(book => res.json({
-            'success': true,
-            book
-        }))
-        .catch(err => res.status(400).json({
-            'success': false,
-            'error': err.message
-        }))
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.sendStatus(404)
+    else {
+        Book.findById(req.params.id)
+            .then(book => {
+                if (book === null) return res.sendStatus(404)
+                else {
+                    res.json({
+                        book
+                    })
+                }
+            })
+            .catch(err => console.log(err))
+    }
+
 })
 
 module.exports = router

@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const User = require('./user.base')
 const Borrow = require('../transactions/borrow.model')
 const Book = require('../book.model')
+const Setting = require('../setting.model')
 
 const Schema = mongoose.Schema
 
@@ -10,11 +11,12 @@ const memberASchema = new Schema()
 memberASchema.methods.borrow = async function (bookid, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, archive: false })
 
-    if (bookBorrowed !== null) return res.status(400).json({ 'error': 'Cannot borrow multiple copies of the same book' })
+    if (bookBorrowed !== null) return res.json({ 'error': 'Cannot borrow multiple copies of the same book' })
     else {
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, archive: false })
+        const bookLimit = await Setting.findOne({ setitng: 'ACCADEMIC_BORROW' })
 
-        if (numOfBooksBorrowed > 5) return res.status(400).json({ 'error': 'Cannot borrow more than 5 books at the same time' })
+        if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 5 books at the same time' })
         else {
             Book.findOne({ _id: bookid })
                 .then(async book => {
@@ -45,7 +47,7 @@ memberASchema.methods.borrow = async function (bookid, res) {
                             break
                         }
                     }
-                    if (!bookAvailable) res.json({ err: 'No books available to loan' })
+                    if (!bookAvailable) res.json({ 'error': 'No books available to loan' })
                 })
         }
     }

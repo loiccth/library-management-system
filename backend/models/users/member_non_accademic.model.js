@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const User = require('./user.base')
 const Borrow = require('../transactions/borrow.model')
 const Book = require('../book.model')
+const Setting = require('../setting.model')
 
 const Schema = mongoose.Schema
 
@@ -10,14 +11,15 @@ const memberNASchema = new Schema()
 memberNASchema.methods.borrow = async function (bookid, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, archive: false })
 
-    if (bookBorrowed !== null) return res.status(400).json({ 'error': 'Cannot borrow multiple copies of the same book' })
+    if (bookBorrowed !== null) return res.json({ 'error': 'Cannot borrow multiple copies of the same book' })
     else {
         const date = new Date()
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, createdAt: { $gte: firstDay, $lte: lastDay } })
+        const bookLimit = await Setting.findOne({ setitng: 'NONACCADEMIC_BORROW' })
 
-        if (numOfBooksBorrowed > 2) return res.status(400).json({ 'error': 'Cannot borrow more than 2 books in a month' })
+        if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 2 books in a month' })
         else {
             Book.findOne({ _id: bookid })
                 .then(async book => {
@@ -48,7 +50,7 @@ memberNASchema.methods.borrow = async function (bookid, res) {
                             break
                         }
                     }
-                    if (!bookAvailable) res.json({ err: 'No books available to loan' })
+                    if (!bookAvailable) res.json({ 'error': 'No books available to loan' })
                 })
         }
     }

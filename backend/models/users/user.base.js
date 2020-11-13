@@ -8,6 +8,7 @@ const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
 const Payment = require('../payment.model')
+const Setting = require('../setting.model')
 
 const Schema = mongoose.Schema
 const SALT_WORK_FACTOR = 10
@@ -24,7 +25,7 @@ const baseUserSchema = new Schema({
     password: { type: String, required: true },
     temporaryPassword: { type: Boolean, required: true, default: true },
     createdAt: { type: Date, default: Date() },
-    updatedOn: { type: Date }
+    updatedOn: { type: Date, default: Date() }
 }, baseOptions)
 
 
@@ -45,7 +46,15 @@ baseUserSchema.pre('save', function (next) {
     })
 })
 
-baseUserSchema.methods.login = function (candidatePassword, email, phone, res) {
+baseUserSchema.methods.login = async function (candidatePassword, email, phone, res) {
+    if (this.temporaryPassword) {
+        const temporaryTimer = await Setting.findOne({ setting: 'TEMPORARY_PASSWORD' })
+        const now = new Date()
+        const now2 = new Date().toUTCString()
+        const expireDate = new Date(new Date(this.updatedOn).getTime() + (parseInt(temporaryTimer.option) * 1000))
+        if (now > expireDate) return res.json({ 'error': 'Request new temporary password' })
+    }
+
     bcrypt.compare(candidatePassword, this.password)
         .then((result) => {
             if (result) {
@@ -102,6 +111,7 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
         .then(result => {
             if (result) {
                 this.password = newPassword
+                this.updatedOn = Date()
 
                 this.save()
                     .then(() => res.sendStatus(200))
@@ -196,8 +206,9 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
     let borrow = await Borrow.findById(borrowid)
 
     const numOfReservations = await Reserve.countDocuments({ bookid: borrow.bookid, archive: false })
+    const renewalsAllowed = await Setting.findOne({ setting: 'RENEWALS_ALLOWED' })
 
-    if (numOfReservations > 0) return res.json({ 'error': 'Cannot renew book because there are reservations' })
+    if (numOfReservations >= parseInt(renewalsAllowed.option)) return res.json({ 'error': 'Cannot renew book because there are reservations' })
     else if (borrow.renews > 2) return res.json({ 'error': 'Reached max number of renewals' })
     else {
         const now = new Date(new Date().toDateString())
@@ -208,12 +219,15 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
         else {
             if (numOfDays < 0) {
                 numOfDays *= -1
+
+                const price = await Setting.findOne({ option: 'FINE_PER_DAY' })
+
                 const newPayment = new Payment({
                     userid: this._id,
                     bookid: borrow.bookid,
                     copyid: borrow.copyid,
                     numOfDays,
-                    pricePerDay: 25
+                    pricePerDay: parseInt(price.option)
                 })
                 // TODO: send email/sms notif
                 await newPayment.save().catch(err => console.log(err))

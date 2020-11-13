@@ -6,7 +6,6 @@ const Payment = require('../payment.model')
 const csv = require('csv-parser')
 const fs = require('fs')
 
-
 const Schema = mongoose.Schema
 
 const librarianSchema = new Schema()
@@ -36,7 +35,7 @@ librarianSchema.methods.addBook = function (book, res) {
                     })
                     newBook.save()
                         .then(() => res.sendStatus(201))
-                        .catch(err => console.log(err))
+                        .catch(err => res.json({ 'error': err._message }))
                 }
                 else {
                     book.copies.push({
@@ -44,7 +43,7 @@ librarianSchema.methods.addBook = function (book, res) {
                     })
                     book.save()
                         .then(() => res.sendStatus(201))
-                        .catch(err => console.log(err))
+                        .catch(err => res.json({ 'error': err._message }))
                 }
             })
             .catch(err => console.log(err))

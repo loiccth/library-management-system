@@ -2,12 +2,14 @@ const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose')
+const morgan = require('morgan')
 
 require('dotenv').config()
 
 const app = express()
 const port = process.env.PORT
 
+app.use(morgan('combined'))
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(cookieParser())
 app.use(express.json())
@@ -19,7 +21,7 @@ mongoose.connect(uri, {
     useCreateIndex: true,
     useUnifiedTopology: true,
     useFindAndModify: false
-})
+}).catch(() => console.log("MongoDB database connection failed"))
 const connection = mongoose.connection
 connection.once('open', () => {
     console.log("MongoDB database connection established successfully")
