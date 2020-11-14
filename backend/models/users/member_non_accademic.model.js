@@ -21,37 +21,81 @@ memberNASchema.methods.borrow = async function (bookid, res) {
 
         if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 2 books in a month' })
         else {
-            Book.findOne({ _id: bookid })
-                .then(async book => {
-                    let bookAvailable = false
-                    for (let i = 0; i < book.copies.length; i++) {
-                        if (book.copies[i].availability === 'available') {
-                            bookAvailable = true
-                            const dueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-                            book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
-                            book.copies[i].availability = 'onloan'
-                            book.copies[i].borrower = {
-                                userid: this._id,
-                                borrowAt: Date(),
-                                dueDate,
-                                renews: 0
-                            }
-                            await book.save().catch(err => console.log(err))
+            const now = new Date()
+            const bookReserved = await Reserve.findOne({ bookid, userid: this._id, archive: false, expireAt: { $gte: now } })
 
-                            const newBorrow = new Borrow({
-                                userid: this._id,
-                                bookid,
-                                copyid: book.copies[i]._id,
-                                dueDate,
-                            })
-                            await newBorrow.save().then(() => {
-                                return res.sendStatus(201)
-                            }).catch(err => console.log(err))
-                            break
+            if (bookReserved !== null) {
+                bookReserved.archive = true
+                bookReserved.save().catch(err => console.log(err))
+
+                Book.findOne({ _id: bookid })
+                    .then(async book => {
+                        if (book.reservation[0].userid.toString() === this._id.toString()) {
+                            for (let i = 0; i < book.copies.length; i++) {
+                                if (book.copies[i].availability === 'onhold') {
+                                    const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                                    book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
+                                    book.copies[i].availability = 'onloan'
+                                    book.copies[i].borrower = {
+                                        userid: this._id,
+                                        borrowAt: Date(),
+                                        dueDate,
+                                        renews: 0
+                                    }
+                                    book.reservation.splice(0, 1)
+                                    await book.save().catch(err => console.log(err))
+
+                                    const newBorrow = new Borrow({
+                                        userid: this._id,
+                                        bookid,
+                                        copyid: book.copies[i]._id,
+                                        dueDate,
+                                        isHighDemand: book.isHighDemand
+                                    })
+                                    await newBorrow.save().then(() => {
+                                        return res.sendStatus(201)
+                                    }).catch(err => console.log(err))
+                                    break
+                                }
+                            }
                         }
-                    }
-                    if (!bookAvailable) res.json({ 'error': 'No books available to loan' })
-                })
+                        else res.json({ 'error': 'User is not first in reservation queue' })
+                    })
+            }
+            else {
+                Book.findOne({ _id: bookid })
+                    .then(async book => {
+                        let bookAvailable = false
+                        for (let i = 0; i < book.copies.length; i++) {
+                            if (book.copies[i].availability === 'available') {
+                                bookAvailable = true
+                                const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                                book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
+                                book.copies[i].availability = 'onloan'
+                                book.copies[i].borrower = {
+                                    userid: this._id,
+                                    borrowAt: Date(),
+                                    dueDate,
+                                    renews: 0
+                                }
+                                await book.save().catch(err => console.log(err))
+
+                                const newBorrow = new Borrow({
+                                    userid: this._id,
+                                    bookid,
+                                    copyid: book.copies[i]._id,
+                                    dueDate,
+                                    isHighDemand: book.isHighDemand
+                                })
+                                await newBorrow.save().then(() => {
+                                    return res.sendStatus(201)
+                                }).catch(err => console.log(err))
+                                break
+                            }
+                        }
+                        if (!bookAvailable) res.json({ 'error': 'No books available to loan' })
+                    })
+            }
         }
     }
 }

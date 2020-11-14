@@ -50,7 +50,6 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
     if (this.temporaryPassword) {
         const temporaryTimer = await Setting.findOne({ setting: 'TEMPORARY_PASSWORD' })
         const now = new Date()
-        const now2 = new Date().toUTCString()
         const expireDate = new Date(new Date(this.updatedOn).getTime() + (parseInt(temporaryTimer.option) * 1000))
         if (now > expireDate) return res.json({ 'error': 'Request new temporary password' })
     }
@@ -160,23 +159,33 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
     }
     else if (transaction === null) {
         Book.findById(bookid)
-            .then(book => {
+            .then(async book => {
+                let bookAvailable = false
                 for (let i = 0; i < book.copies.length; i++) {
                     if (book.copies[i].availability === 'available') {
-                        return res.json({ 'error': 'Book is available cannot reserve' })
+                        book.copies[i].availability = 'onhold'
+                        bookAvailable = true
+                        break
                     }
+                }
+
+                let timeOnHold
+                if (bookAvailable) {
+                    timeOnHold = await Setting.findOne({ setting: 'TIME_ON_HOLD' })
                 }
 
                 book.reservation.push({
                     userid: this._id,
-                    reservedAt: Date()
+                    reservedAt: Date(),
+                    expireAt: bookAvailable ? new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000)) : null
                 })
 
                 book.save().catch(err => console.log(err))
 
                 const newReservation = new Reserve({
                     userid: this._id,
-                    bookid: bookid
+                    bookid: bookid,
+                    expireAt: bookAvailable ? new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000)) : null
                 })
 
                 newReservation.save().then(res.sendStatus(201)).catch(err => console.log(err))

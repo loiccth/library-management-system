@@ -15,6 +15,7 @@ const bookSchema = new Schema({
     location: { type: String, required: true },
     campus: { type: String, required: true, enum: ['pam', 'rhill'] },
     noOfBooksOnLoan: { type: Number, required: true, default: 0 },
+    isHighDemand: { type: Boolean, default: false },
     copies: [{
         _id: { type: mongoose.ObjectId, default: mongoose.Types.ObjectId, unique: true },
         availability: { type: String, required: true, default: 'available', enum: ['available', 'onloan', 'onhold'] },
@@ -27,7 +28,8 @@ const bookSchema = new Schema({
     }],
     reservation: [{
         userid: { type: Schema.Types.ObjectId, ref: 'User' },
-        reservedAt: { type: Date }
+        reservedAt: { type: Date },
+        expireAt: { type: Date }
     }]
 })
 

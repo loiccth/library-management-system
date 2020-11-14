@@ -6,6 +6,7 @@ const Schema = mongoose.Schema
 const borrowSchema = new Schema({
     copyid: { type: Schema.Types.ObjectId, required: true },
     renews: { type: Number, required: true, default: 0 },
+    isHighDemand: { type: Boolean, required: true },
     dueDate: { type: Date, required: true },
     renewedOn: { type: Date },
     returnedOn: { type: Date }

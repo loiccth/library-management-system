@@ -2,7 +2,9 @@ const mongoose = require('mongoose')
 const User = require('./user.base')
 const Book = require('../book.model')
 const Borrow = require('../transactions/borrow.model')
+const Reserve = require('../transactions/reserve.model')
 const Payment = require('../payment.model')
+const Setting = require('../setting.model')
 const csv = require('csv-parser')
 const fs = require('fs')
 
@@ -127,12 +129,28 @@ librarianSchema.methods.returnBook = function (borrowid, res) {
             await borrow.save().catch(err => console.log(err))
 
             Book.findOne({ _id: borrow.bookid })
-                .then(book => {
+                .then(async book => {
                     book.noOfBooksOnLoan = book.noOfBooksOnLoan - 1
+                    timeOnHold = await Setting.findOne({ setting: 'TIME_ON_HOLD' })
                     for (let i = 0; i < book.copies.length; i++) {
                         if (book.copies[i].borrower.userid.toString() === borrow.userid.toString()) {
-                            book.copies[i].availability = 'onhold',
-                                book.copies[i].borrower = null
+                            if (book.reservation.length > 0) {
+                                book.copies[i].availability = 'onhold'
+                                book.reservation[0] = {
+                                    ...book.reservation[0],
+                                    expireAt: new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000))
+                                }
+                                Reserve.findOne({ _id: borrow.bookid, userid: book.reservation[0].userid, archive: false })
+                                    .then(reserve => {
+                                        reserve.expireAt = new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000))
+
+                                        reserve.save().catch(err => console.log(err))
+                                    })
+
+                                // TODO: Inform next member in reservation queue
+                            }
+                            else book.copies[i].availability = 'available'
+                            book.copies[i].borrower = null
                             break
                         }
                     }
@@ -157,6 +175,10 @@ librarianSchema.methods.getDueBooks = function (res) {
     Borrow.find({ archive: false, dueDate: { $gte: now, $lt: tomorrow } }).populate('userid').populate('bookid')
         .then(books => res.json(books))
         .catch(err => console.log(err))
+}
+
+librarianSchema.methods.issueBook = function (bookid, copyid, userid, res) {
+
 }
 
 const Librarian = User.discriminator('Librarian', librarianSchema)
