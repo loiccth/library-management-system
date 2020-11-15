@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const User = require('./user.base')
 const Borrow = require('../transactions/borrow.model')
+const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
 const Setting = require('../setting.model')
 
@@ -17,7 +18,7 @@ memberNASchema.methods.borrow = async function (bookid, res) {
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, createdAt: { $gte: firstDay, $lte: lastDay } })
-        const bookLimit = await Setting.findOne({ setitng: 'NONACCADEMIC_BORROW' })
+        const bookLimit = await Setting.findOne({ setting: 'NONACCADEMIC_BORROW' })
 
         if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 2 books in a month' })
         else {

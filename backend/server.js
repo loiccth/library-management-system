@@ -25,6 +25,8 @@ mongoose.connect(uri, {
 const connection = mongoose.connection
 connection.once('open', () => {
     console.log("MongoDB database connection established successfully")
+    const expireReservations = require('./cronjob/expireReservations')
+    const highDemand = require('./cronjob/highDemand')
 })
 
 app.use('/users', require('./routes/users'))

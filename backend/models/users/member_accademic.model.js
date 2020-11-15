@@ -14,7 +14,7 @@ memberASchema.methods.borrow = async function (bookid, res) {
     if (bookBorrowed !== null) return res.json({ 'error': 'Cannot borrow multiple copies of the same book' })
     else {
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, archive: false })
-        const bookLimit = await Setting.findOne({ setitng: 'ACCADEMIC_BORROW' })
+        const bookLimit = await Setting.findOne({ setting: 'ACCADEMIC_BORROW' })
 
         if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 5 books at the same time' })
         else {

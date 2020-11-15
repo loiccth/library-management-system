@@ -148,9 +148,9 @@ baseUserSchema.methods.resetPassword = function (res) {
 }
 
 baseUserSchema.methods.reserveBook = async function (bookid, res) {
-    const numOfReservations = await Reserve.countDocuments({ userid: this._id, archive: false })
+    const numOfReservations = await Reserve.countDocuments({ userid: this._id, status: "active" })
 
-    const transaction = await Transaction.findOne({ bookid, userid: this._id, archive: false })
+    const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
     if (numOfReservations > 3) return res.json({ 'error': 'Cannot reserve more than 3 books' })
     else if (transaction !== null) {
@@ -164,6 +164,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                 for (let i = 0; i < book.copies.length; i++) {
                     if (book.copies[i].availability === 'available') {
                         book.copies[i].availability = 'onhold'
+                        book.noOfBooksOnLoan++
                         bookAvailable = true
                         break
                     }

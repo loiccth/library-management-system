@@ -60,6 +60,18 @@ router.post('/borrow/:bookid', jwt({ secret, credentialsRequired: true, getToken
                 member.borrow(req.params.bookid, res)
             })
     }
+    else if (req.user.memberType === 'Admin') {
+        Admin.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
+    else if (req.user.memberType === 'Librarian') {
+        Librarian.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
 })
 
 // Reserve a book
