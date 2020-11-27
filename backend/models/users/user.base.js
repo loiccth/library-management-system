@@ -160,6 +160,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
     else if (transaction === null) {
         Book.findById(bookid)
             .then(async book => {
+                if (book === null) return res.status(404).json({ 'error': 'Book not found' })
                 let bookAvailable = false
                 for (let i = 0; i < book.copies.length; i++) {
                     if (book.copies[i].availability === 'available') {

@@ -4,8 +4,8 @@ const jwt = require('express-jwt')
 const generator = require('generate-password')
 const User = require('../models/users/user.base')
 const Member = require('../models/users/member.model')
-const MemberA = require('../models/users/member_accademic.model')
-const MemberNA = require('../models/users/member_non_accademic.model')
+const MemberA = require('../models/users/member_academic.model')
+const MemberNA = require('../models/users/member_non_academic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
 const UDM = require('../models/udm/udm.base')
@@ -62,7 +62,7 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
                 }
                 else {
                     userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
-                    if (udm.accademic) memberType = 'MemberA'
+                    if (udm.academic) memberType = 'MemberA'
                     else memberType = 'MemberNA'
                 }
 

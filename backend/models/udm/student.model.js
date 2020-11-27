@@ -8,7 +8,7 @@ const studentSchema = new Schema({
     studentType: { type: String, required: true, enum: ['ft', 'pt'] },
     faculty: { type: String, required: true, enum: ['ict', 'ba', "eng"] },
     course: { type: String, required: true },
-    accademicYear: { type: Number, required: true }
+    academicYear: { type: Number, required: true }
 })
 
 const Student = UDM.discriminator('Student', studentSchema)

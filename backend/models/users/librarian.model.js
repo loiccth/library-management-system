@@ -21,7 +21,7 @@ librarianSchema.methods.borrow = async function (bookid, res) {
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, createdAt: { $gte: firstDay, $lte: lastDay } })
-        const bookLimit = await Setting.findOne({ setting: 'NONACCADEMIC_BORROW' })
+        const bookLimit = await Setting.findOne({ setting: 'NONacademic_BORROW' })
 
         if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 2 books in a month' })
         else {

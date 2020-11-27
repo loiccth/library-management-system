@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 
 const staffSchema = new Schema({
     staffType: { type: String, required: true, enum: ['ft', 'pt'] },
-    accademic: { type: Boolean, required: true },
+    academic: { type: Boolean, required: true },
     contractEndDate: { type: Date }
 })
 
