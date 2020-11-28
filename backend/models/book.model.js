@@ -30,6 +30,11 @@ const bookSchema = new Schema({
         userid: { type: Schema.Types.ObjectId, ref: 'User' },
         reservedAt: { type: Date },
         expireAt: { type: Date }
+    }],
+    removed: [{
+        _id: { type: mongoose.ObjectId, unique: true },
+        createdAt: { type: Date },
+        reason: { type: String }
     }]
 })
 

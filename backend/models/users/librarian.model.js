@@ -364,6 +364,31 @@ librarianSchema.methods.issueBook = async function (bookid, userid, res) {
         .catch(err => console.log(err))
 }
 
+librarianSchema.methods.removeBook = function (bookid, copiesid, reasons, res) {
+    let booksRemoved = []
+    Book.findById(bookid)
+        .then(book => {
+            for (let i = 0; i < copiesid.length; i++) {
+                for (let j = 0; j < book.copies.length; j++) {
+                    if (copiesid[i] === book.copies[j]._id.toString()) {
+                        book.copies.splice(j, 1)
+                        book.removed.push({
+                            _id: copiesid[i],
+                            reason: reasons[i],
+                            createdAt: Date()
+                        })
+                        booksRemoved.push(`${book.title} - Copy id ${copiesid[i]}`)
+                    }
+                }
+            }
+            book.save()
+                .then(() => {
+                    res.json(booksRemoved)
+                })
+                .catch(err => console.log(err))
+        })
+}
+
 const Librarian = User.discriminator('Librarian', librarianSchema)
 
 module.exports = Librarian

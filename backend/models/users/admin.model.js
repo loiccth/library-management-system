@@ -162,6 +162,20 @@ adminSchema.methods.registerMember = function (udmid, userid, memberType, passwo
         .catch(err => console.log(err))
 }
 
+adminSchema.methods.toggleStatus = function (userid, res) {
+    User.findById(userid)
+        .then(user => {
+            if (user === null) res.json({ 'error': 'User not found' })
+            else {
+                user.status = !user.status
+                user.save()
+                    .then(() => res.sendStatus(200))
+                    .catch(err => console.log(err))
+            }
+        })
+        .catch(err => console.log(err))
+}
+
 const Admin = User.discriminator('Admin', adminSchema)
 
 module.exports = Admin

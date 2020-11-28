@@ -172,6 +172,22 @@ router.get('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => {
     }
 })
 
+// Remove book
+router.post('/remove', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    const { bookid, copiesid, reasons } = req.body
+
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (bookid === undefined) return res.json({ 'error': 'Missing book id' })
+    else if (copiesid === undefined || copiesid.length === 0) return res.json({ 'error': 'Missing copies id' })
+    else if (reasons === undefined || reasons.length === 0) return res.json({ 'error': 'Missing reasons' })
+    else {
+        Librarian.findById(req.user._id)
+            .then(librarian => {
+                librarian.removeBook(bookid, copiesid, reasons, res)
+            })
+    }
+})
+
 // Get list of books
 router.get('/', (req, res) => {
     Book.find().populate('copies.borrower.userid', { userid: 1 })

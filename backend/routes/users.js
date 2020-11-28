@@ -78,6 +78,17 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
     }
 })
 
+router.post('/togglestatus', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    else if (req.body.userid === undefined) return res.json({ 'error': 'Missing user id' })
+    else {
+        Admin.findById(req.user._id)
+            .then(admin => {
+                admin.toggleStatus(req.body.userid, res)
+            })
+    }
+})
+
 // Verify if user is already logged in on page load
 router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user === null) return res.json({ 'success': false })

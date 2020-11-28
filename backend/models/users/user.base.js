@@ -23,6 +23,7 @@ const baseUserSchema = new Schema({
     udmid: { type: Schema.Types.ObjectId, ref: 'UDM', required: true, unique: true },
     userid: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
+    status: { type: String, required: true, enum: ['active', 'suspended'], default: 'active' },
     temporaryPassword: { type: Boolean, required: true, default: true },
     createdAt: { type: Date, default: Date() },
     updatedOn: { type: Date, default: Date() }
@@ -57,38 +58,43 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
     bcrypt.compare(candidatePassword, this.password)
         .then((result) => {
             if (result) {
-                const { _id, userid, memberType, temporaryPassword } = this
-                const token = jsonwebtoken.sign({
-                    _id,
-                    userid,
-                    email,
-                    phone,
-                    memberType,
-                    temporaryPassword
-                }, secret, { expiresIn: '7d' })
+                if (this.status === 'suspended') {
+                    res.sendStatus(403).json({ 'error': 'Account suspended' })
+                }
+                else {
+                    const { _id, userid, memberType, temporaryPassword } = this
+                    const token = jsonwebtoken.sign({
+                        _id,
+                        userid,
+                        email,
+                        phone,
+                        memberType,
+                        temporaryPassword
+                    }, secret, { expiresIn: '7d' })
 
-                res.cookie('jwttoken', token, {
-                    expires: new Date(Date.now() + 604800000),
-                    secure: false,
-                    httpOnly: true,
-                    sameSite: 'Strict'
-                })
+                    res.cookie('jwttoken', token, {
+                        expires: new Date(Date.now() + 604800000),
+                        secure: false,
+                        httpOnly: true,
+                        sameSite: 'Strict'
+                    })
 
-                res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
-                    expires: new Date(Date.now() + 604800000),
-                    secure: false,
-                    httpOnly: false,
-                    sameSite: 'Strict'
-                })
+                    res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
+                        expires: new Date(Date.now() + 604800000),
+                        secure: false,
+                        httpOnly: false,
+                        sameSite: 'Strict'
+                    })
 
-                res.json({
-                    _id,
-                    userid,
-                    email,
-                    phone,
-                    memberType,
-                    temporaryPassword
-                })
+                    res.json({
+                        _id,
+                        userid,
+                        email,
+                        phone,
+                        memberType,
+                        temporaryPassword
+                    })
+                }
             }
             else {
                 res.status(403).json({
