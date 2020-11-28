@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const axios = require('axios')
 const User = require('./user.base')
 const Book = require('../book.model')
 const Borrow = require('../transactions/borrow.model')
@@ -103,14 +104,16 @@ librarianSchema.methods.borrow = async function (bookid, res) {
     }
 }
 
-librarianSchema.methods.addBook = function (book, res) {
-    const { title, author, isbn, publisher, publishedDate, edition, category, description, noOfPages, location, campus, purchasedOn } = book
+librarianSchema.methods.addBook = async function (book, res) {
+    const { location, campus, isbn } = book
 
-    if (title === null || author === null || isbn === null || publisher === null || publishedDate === null || edition === null || category === null
-        || description === null || noOfPages === null || location === null || campus === null || purchasedOn === null) return res.json({ 'error': 'Missing params' })
+    const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+
+    if (googleBookAPI.data.totalItems === 0) res.json({ 'error': 'Invalid ISBN' })
     else {
         Book.findOne({ isbn })
             .then(book => {
+                const { title, author, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
                 if (book === null) {
                     const newBook = new Book({
                         title,
@@ -118,22 +121,20 @@ librarianSchema.methods.addBook = function (book, res) {
                         isbn,
                         publisher,
                         publishedDate,
-                        edition,
-                        category,
+                        categories,
                         description,
-                        noOfPages,
+                        noOfPages: pageCount,
+                        thumbnail: imageLinks.thumbnail,
                         location,
                         campus,
                         copies: {}
                     })
                     newBook.save()
                         .then(() => res.sendStatus(201))
-                        .catch(err => res.json({ 'error': err._message }))
+                        .catch(err => res.json({ 'error': err.message }))
                 }
                 else {
-                    book.copies.push({
-                        purchasedOn
-                    })
+                    book.copies.push({})
                     book.save()
                         .then(() => res.sendStatus(201))
                         .catch(err => res.json({ 'error': err._message }))
@@ -151,46 +152,54 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         .pipe(csv())
         .on('data', async (book) => {
             stream.pause()
-            const { title, author, isbn, publisher, publishedDate, edition, category, description, noOfPages, location, campus } = book
+            const { location, campus, isbn } = book
 
-            await Book.findOne({ isbn })
-                .then(async (book) => {
-                    if (book === null) {
-                        const newBook = new Book({
-                            title,
-                            author,
-                            isbn,
-                            publisher,
-                            publishedDate,
-                            edition,
-                            category,
-                            description,
-                            noOfPages,
-                            location,
-                            campus,
-                            copies: {}
-                        })
-                        newBook.save()
-                            .then(() => success.push(title))
-                            .catch((err) => fail.push(title + ' - ' + err.message))
-                    }
-                    else {
-                        book.copies.push({})
-                        await book.save()
-                            .then(() => success.push(title))
-                            .catch((err) => fail.push(title + ' - ' + err.message))
-                    }
-                })
-                .catch(err => console.log(err))
+            const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+
+            if (googleBookAPI.data.totalItems === 0) {
+                fail.push(isbn + ' - Invalid ISBN')
+            }
+            else {
+                await Book.findOne({ isbn })
+                    .then(async (book) => {
+                        const { title, author, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
+                        if (book === null) {
+                            const newBook = new Book({
+                                title,
+                                author,
+                                isbn,
+                                publisher,
+                                publishedDate,
+                                categories,
+                                description,
+                                noOfPages: pageCount,
+                                thumbnail: imageLinks.thumbnail,
+                                location,
+                                campus,
+                                copies: {}
+                            })
+                            newBook.save()
+                                .then(() => success.push(`${title} (${isbn})`))
+                                .catch(err => fail.push(`${title} (${isbn}) - ${err.message}`))
+                        }
+                        else {
+                            book.copies.push({})
+                            await book.save()
+                                .then(() => success.push(`${title} (${isbn})`))
+                                .catch(err => fail.push(`${title} (${isbn}) - ${err.message}`))
+                        }
+                    })
+                    .catch(err => console.log(err))
+            }
             stream.resume()
         })
         .on('end', () => {
             setTimeout(() => {
-                res.json({
+                res.sendStatus(201).json({
                     success,
                     fail
                 })
-            }, 500)
+            }, 1000)
         })
 }
 
