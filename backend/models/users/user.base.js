@@ -161,6 +161,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
         Book.findById(bookid)
             .then(async book => {
                 if (book === null) return res.status(404).json({ 'error': 'Book not found' })
+                // TODO: remove bookAvailable
                 let bookAvailable = false
                 for (let i = 0; i < book.copies.length; i++) {
                     if (book.copies[i].availability === 'available') {
@@ -265,14 +266,14 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
 }
 
 baseUserSchema.methods.getReservedBooks = function (res) {
-    Reserve.find({ userid: this._id, archive: false }).populate('bookid')
+    Reserve.find({ userid: this._id, status: 'active' }).populate('bookid')
         .then(booksReserved => {
             return res.json(booksReserved)
         })
 }
 
 baseUserSchema.methods.getBorrowedBooks = function (res) {
-    Borrow.find({ userid: this._id, archive: false }).populate('bookid')
+    Borrow.find({ userid: this._id, status: 'active' }).populate('bookid')
         .then(booksBorrowed => {
             return res.json(booksBorrowed)
         })

@@ -9,20 +9,20 @@ const Schema = mongoose.Schema
 const memberASchema = new Schema()
 
 memberASchema.methods.borrow = async function (bookid, res) {
-    const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, archive: false })
+    const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, status: 'active' })
 
     if (bookBorrowed !== null) return res.json({ 'error': 'Cannot borrow multiple copies of the same book' })
     else {
-        const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, archive: false })
-        const bookLimit = await Setting.findOne({ setting: 'ACCADEMIC_BORROW' })
+        const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active' })
+        const bookLimit = await Setting.findOne({ setting: 'ACADEMIC_BORROW' })
 
         if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 5 books at the same time' })
         else {
             const now = new Date()
-            const bookReserved = await Reserve.findOne({ bookid, userid: this._id, archive: false, expireAt: { $gte: now } })
+            const bookReserved = await Reserve.findOne({ bookid, userid: this._id, astatus: 'active', expireAt: { $gte: now } })
 
             if (bookReserved !== null) {
-                bookReserved.archive = true
+                bookReserved.status = 'archive'
                 bookReserved.save().catch(err => console.log(err))
 
                 Book.findOne({ _id: bookid })
@@ -62,35 +62,34 @@ memberASchema.methods.borrow = async function (bookid, res) {
             else {
                 Book.findOne({ _id: bookid })
                     .then(async book => {
-                        let bookAvailable = false
-                        for (let i = 0; i < book.copies.length; i++) {
-                            if (book.copies[i].availability === 'available') {
-                                bookAvailable = true
-                                const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                                book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
-                                book.copies[i].availability = 'onloan'
-                                book.copies[i].borrower = {
-                                    userid: this._id,
-                                    borrowAt: Date(),
-                                    dueDate,
-                                    renews: 0
-                                }
-                                await book.save().catch(err => console.log(err))
+                        if (book.copies.length > book.noOfBooksOnLoan)
+                            for (let i = 0; i < book.copies.length; i++) {
+                                if (book.copies[i].availability === 'available') {
+                                    const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                                    book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
+                                    book.copies[i].availability = 'onloan'
+                                    book.copies[i].borrower = {
+                                        userid: this._id,
+                                        borrowAt: Date(),
+                                        dueDate,
+                                        renews: 0
+                                    }
+                                    await book.save().catch(err => console.log(err))
 
-                                const newBorrow = new Borrow({
-                                    userid: this._id,
-                                    bookid,
-                                    copyid: book.copies[i]._id,
-                                    dueDate,
-                                    isHighDemand: book.isHighDemand
-                                })
-                                await newBorrow.save().then(() => {
-                                    return res.sendStatus(201)
-                                }).catch(err => console.log(err))
-                                break
+                                    const newBorrow = new Borrow({
+                                        userid: this._id,
+                                        bookid,
+                                        copyid: book.copies[i]._id,
+                                        dueDate,
+                                        isHighDemand: book.isHighDemand
+                                    })
+                                    await newBorrow.save().then(() => {
+                                        return res.sendStatus(201)
+                                    }).catch(err => console.log(err))
+                                    break
+                                }
                             }
-                        }
-                        if (!bookAvailable) res.json({ 'error': 'No books available to loan' })
+                        else res.json({ 'error': 'No books available to loan' })
                     })
             }
         }

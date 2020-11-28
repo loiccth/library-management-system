@@ -40,39 +40,39 @@ router.post('/add', jwt({ secret, credentialsRequired: true, getToken: (req) => 
 })
 
 // Borrow a book
-router.post('/borrow/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+// router.post('/borrow/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
 
-    if (req.user.memberType === 'Member') {
-        Member.findOne({ _id: req.user._id })
-            .then(member => {
-                member.borrow(req.params.bookid, res)
-            })
-    }
-    else if (req.user.memberType === 'MemberA') {
-        MemberA.findOne({ _id: req.user._id })
-            .then(member => {
-                member.borrow(req.params.bookid, res)
-            })
-    }
-    else if (req.user.memberType === 'MemberNA') {
-        MemberNA.findOne({ _id: req.user._id })
-            .then(member => {
-                member.borrow(req.params.bookid, res)
-            })
-    }
-    else if (req.user.memberType === 'Admin') {
-        Admin.findOne({ _id: req.user._id })
-            .then(member => {
-                member.borrow(req.params.bookid, res)
-            })
-    }
-    else if (req.user.memberType === 'Librarian') {
-        Librarian.findOne({ _id: req.user._id })
-            .then(member => {
-                member.borrow(req.params.bookid, res)
-            })
-    }
-})
+//     if (req.user.memberType === 'Member') {
+//         Member.findOne({ _id: req.user._id })
+//             .then(member => {
+//                 member.borrow(req.params.bookid, res)
+//             })
+//     }
+//     else if (req.user.memberType === 'MemberA') {
+//         MemberA.findOne({ _id: req.user._id })
+//             .then(member => {
+//                 member.borrow(req.params.bookid, res)
+//             })
+//     }
+//     else if (req.user.memberType === 'MemberNA') {
+//         MemberNA.findOne({ _id: req.user._id })
+//             .then(member => {
+//                 member.borrow(req.params.bookid, res)
+//             })
+//     }
+//     else if (req.user.memberType === 'Admin') {
+//         Admin.findOne({ _id: req.user._id })
+//             .then(member => {
+//                 member.borrow(req.params.bookid, res)
+//             })
+//     }
+//     else if (req.user.memberType === 'Librarian') {
+//         Librarian.findOne({ _id: req.user._id })
+//             .then(member => {
+//                 member.borrow(req.params.bookid, res)
+//             })
+//     }
+// })
 
 // Reserve a book
 router.post('/reserve/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
@@ -109,6 +109,7 @@ router.post('/return_book/:borrowid', jwt({ secret, credentialsRequired: true, g
     }
 })
 
+// Get all reserved books for a user
 router.get('/reserved', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     User.findOne({ _id: req.user._id })
         .then(user => {
@@ -116,11 +117,27 @@ router.get('/reserved', jwt({ secret, credentialsRequired: true, getToken: (req)
         })
 })
 
+// Get all borrowed books for a user
 router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     User.findOne({ _id: req.user._id })
         .then(user => {
             user.getBorrowedBooks(res)
         })
+})
+
+// Issue book
+router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    console.log(req.body.bookid)
+    
+    if (req.user.memberType != 'Librarian') return res.sendStatus(403)
+    else if (req.body.bookid === undefined) return res.json({ 'error' : 'Missing book id'})
+    else if (req.body.userid === undefined) return res.json({ 'error': 'Missing user id'})
+    else {
+        Librarian.findById(req.user._id)
+            .then(librarian => {
+                librarian.issueBook(req.body.bookid, req.body.userid, res)
+            })
+    }
 })
 
 // Search book
