@@ -220,14 +220,15 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
     const numOfReservations = await Reserve.countDocuments({ bookid: borrow.bookid, archive: false })
     const renewalsAllowed = await Setting.findOne({ setting: 'RENEWALS_ALLOWED' })
 
-    if (numOfReservations >= parseInt(renewalsAllowed.option)) return res.json({ 'error': 'Cannot renew book because there are reservations' })
-    else if (borrow.renews > 2) return res.json({ 'error': 'Reached max number of renewals' })
+    if (borrow.isHighDemand === true) return res.json({ 'error': 'Cannot renew high demand book.' })
+    else if (numOfReservations >= parseInt(renewalsAllowed.option)) return res.json({ 'error': 'Cannot renew book because there are reservations.' })
+    else if (borrow.renews > 2) return res.json({ 'error': 'Reached max number of renewals.' })
     else {
         const now = new Date(new Date().toDateString())
         const borrowDate = new Date(borrow.dueDate.toDateString())
         let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
-        if (numOfDays > 2) return res.json({ 'error': 'Can only renew within 2 days of due date' })
-        else if (numOfDays < -5) return res.json({ 'error': `Cannot renew book, overdue by ${numOfDays * -1} days` })
+        if (numOfDays > 2) return res.json({ 'error': 'Can only renew within 2 days of due date.' })
+        else if (numOfDays < -5) return res.json({ 'error': `Cannot renew book, overdue by ${numOfDays * -1} days.` })
         else {
             if (numOfDays < 0) {
                 numOfDays *= -1

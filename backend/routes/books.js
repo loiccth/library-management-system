@@ -127,11 +127,9 @@ router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req)
 
 // Issue book
 router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    console.log(req.body.bookid)
-    
     if (req.user.memberType != 'Librarian') return res.sendStatus(403)
-    else if (req.body.bookid === undefined) return res.json({ 'error' : 'Missing book id'})
-    else if (req.body.userid === undefined) return res.json({ 'error': 'Missing user id'})
+    else if (req.body.bookid === undefined) return res.json({ 'error': 'Missing book id' })
+    else if (req.body.userid === undefined) return res.json({ 'error': 'Missing user id' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
