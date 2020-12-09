@@ -8,6 +8,7 @@ const Payment = require('../payment.model')
 const Setting = require('../setting.model')
 const csv = require('csv-parser')
 const fs = require('fs')
+const transporter = require('../../config/mail.config')
 
 const Schema = mongoose.Schema
 
@@ -148,6 +149,9 @@ librarianSchema.methods.addBook = async function (book, res) {
             .then(book => {
                 const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
                 if (book === null) {
+                    let image = imageLinks.thumbnail
+                    let secureImg = image.replace('http:', 'https:')
+
                     const newBook = new Book({
                         title,
                         author: authors,
@@ -157,7 +161,7 @@ librarianSchema.methods.addBook = async function (book, res) {
                         categories,
                         description,
                         noOfPages: pageCount,
-                        thumbnail: imageLinks.thumbnail,
+                        thumbnail: secureImg,
                         location,
                         campus,
                         copies: {}
@@ -197,6 +201,9 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                     .then(async (book) => {
                         const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
                         if (book === null) {
+                            let image = imageLinks.thumbnail
+                            let secureImg = image.replace('http:', 'https:')
+
                             const newBook = new Book({
                                 title,
                                 author: authors,
@@ -206,7 +213,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                                 categories,
                                 description,
                                 noOfPages: pageCount,
-                                thumbnail: imageLinks.thumbnail,
+                                thumbnail: secureImg,
                                 location,
                                 campus,
                                 copies: {}
@@ -302,7 +309,9 @@ librarianSchema.methods.returnBook = function (borrowid, res) {
 librarianSchema.methods.getOverdueBooks = function (res) {
     const now = new Date(new Date().toDateString())
 
-    Borrow.find({ status: 'active', dueDate: { $lt: now } }).populate('userid').populate('bookid')
+    Borrow.find({ status: 'active', dueDate: { $lt: now } })
+        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
+        .populate('bookid', ['title', 'isbn'])
         .then(books => res.json(books))
         .catch(err => console.log(err))
 }
@@ -387,6 +396,28 @@ librarianSchema.methods.removeBook = function (bookid, copiesid, reasons, res) {
                 })
                 .catch(err => console.log(err))
         })
+}
+
+librarianSchema.methods.notifyOverdue = function (listOfOverdue, res) {
+    let emailSent = []
+
+    for (let i = 0; i < listOfOverdue.length; i++) {
+        if (listOfOverdue[i].checked) {
+            const mailRegister = {
+                from: 'no-reply@udmlibrary.com',
+                to: listOfOverdue.email,
+                subject: 'NOTIFY: Book overdue',
+                text: `Your book titled ${listOfOverdue[i].title} with ISBN ${listOfOverdue[i].isbn} is overdue since ${listOfOverdue.dueDate}`
+            }
+            transporter.sendMail(mailRegister, (err, info) => {
+                if (err) return console.log(err.message)
+                console.log(info)
+                emailSent.push(listOfOverdue[i].userid)
+            })
+        }
+    }
+    if (emailSent.length === 0) res.json({ 'error': 'No notification send, zero user(s) selected.' })
+    else res.json({ 'listOfEmailSent': emailSent })
 }
 
 const Librarian = User.discriminator('Librarian', librarianSchema)

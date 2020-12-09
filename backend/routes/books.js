@@ -140,9 +140,9 @@ router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) =
 
 // Search book
 router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (req.body.query === undefined) return res.json({ 'error': 'Empty search query' })
+    if (req.body.search === undefined) return res.json({ 'error': 'Empty search query' })
     else {
-        const regex = new RegExp(escapeRegExp(req.body.query), 'gi')
+        const regex = new RegExp(escapeRegExp(req.body.search), 'gi')
         Book.find({ [req.body.searchType]: regex })
             .then(books => res.json(books))
     }

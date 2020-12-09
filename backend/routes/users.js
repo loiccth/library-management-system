@@ -15,18 +15,17 @@ const secret = process.env.JWT_SECRET
 
 // Login for users
 router.post('/login', (req, res) => {
-    if (req.body.userid === undefined || req.body.password === undefined) {
+    if (req.body.userid === "" || req.body.password === "") {
         return res.status(400).json({
-            'success': false,
-            'error': 'Missing userid or password'
+            'error': 'Missing MemberID/Password.'
         })
     }
 
     User.findOne({ 'userid': req.body.userid }).populate('udmid')
         .then(user => {
             if (user === null) {
-                return res.status(403).json({
-                    'error': 'Invalid userid or password'
+                return res.status(401).json({
+                    'error': 'Invalid MemberID or Password.'
                 })
             }
             else {
@@ -72,9 +71,9 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
                     })
                     .catch(err => console.log(err))
             }
-            else return res.json('Account already exist')
+            else return res.json({ 'error': 'Account already exist' })
         }
-        else return res.json('Email not found')
+        else return res.json({ 'error': 'Email not found' })
     }
 })
 
@@ -159,7 +158,11 @@ router.patch('/reset', (req, res) => {
 
     User.findOne({ userid: req.body.userid })
         .then(user => {
-            user.resetPassword(res)
+            if (user === null)
+                res.status(404).json({ 'error': 'MemberID not found.' })
+            else {
+                user.resetPassword(res)
+            }
         })
         .catch(err => console.log(err))
 })
@@ -174,6 +177,18 @@ router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (re
             'userid': req.params.userid
         }))
         .catch(err => console.log(err))
+})
+
+router.post('/notifyoverdue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    if (req.body.overdueBooks === undefined) return res.json({ 'error': 'Missing list of overdue books' })
+    else {
+        Librarian.findById(req.user._id)
+            .then(librarian => {
+                librarian.notifyOverdue(req.body.overdueBooks, res)
+            })
+            .catch(err => console.log(err))
+    }
 })
 
 module.exports = router

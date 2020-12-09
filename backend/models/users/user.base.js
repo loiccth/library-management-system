@@ -9,6 +9,7 @@ const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
 const Payment = require('../payment.model')
 const Setting = require('../setting.model')
+const UDM = require('../udm/udm.base')
 
 const Schema = mongoose.Schema
 const SALT_WORK_FACTOR = 10
@@ -52,14 +53,14 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
         const temporaryTimer = await Setting.findOne({ setting: 'TEMPORARY_PASSWORD' })
         const now = new Date()
         const expireDate = new Date(new Date(this.updatedOn).getTime() + (parseInt(temporaryTimer.option) * 1000))
-        if (now > expireDate) return res.json({ 'error': 'Request new temporary password' })
+        if (now > expireDate) return res.status(401).json({ 'error': 'Temporary password expired.' })
     }
 
     bcrypt.compare(candidatePassword, this.password)
         .then((result) => {
             if (result) {
                 if (this.status === 'suspended') {
-                    res.sendStatus(403).json({ 'error': 'Account suspended' })
+                    res.status(401).json({ 'error': 'Account suspended.' })
                 }
                 else {
                     const { _id, userid, memberType, temporaryPassword } = this
@@ -76,14 +77,15 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
                         expires: new Date(Date.now() + 604800000),
                         secure: false,
                         httpOnly: true,
-                        sameSite: 'Strict'
+                        sameSite: 'Lax'
                     })
 
                     res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
                         expires: new Date(Date.now() + 604800000),
                         secure: false,
                         httpOnly: false,
-                        sameSite: 'Strict'
+                        sameSite: 'Lax',
+                        // domain: 'udmlibrary.com'
                     })
 
                     res.json({
@@ -97,8 +99,8 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
                 }
             }
             else {
-                res.status(403).json({
-                    'error': 'Invalid userid or password'
+                res.status(401).json({
+                    'error': 'Invalid MemberID or Password.'
                 })
             }
         })
@@ -115,6 +117,7 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
     bcrypt.compare(oldPassword, this.password)
         .then(result => {
             if (result) {
+                this.temporaryPassword = false
                 this.password = newPassword
                 this.updatedOn = Date()
 
@@ -128,27 +131,30 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
         })
 }
 
-baseUserSchema.methods.resetPassword = function (res) {
+baseUserSchema.methods.resetPassword = async function (res) {
     const pwd = generator.generate({ length: 10, numbers: true })
     this.password = pwd
     this.temporaryPassword = true
+    this.updatedOn = Date()
 
     console.log(pwd)
+
+    const email = await User.findById(this._id).populate('udmid', 'email')
 
     this.save()
         .then(() => {
             res.sendStatus(200)
 
-            // const mailForgotPassword = {
-            //     from: 'noreply@l0ic.com',
-            //     to: email,
-            //     subject: 'Forgot password',
-            //     text: 'Your new password is valid for 24 hours:  ' + pwd
-            // }
-            // transporter.sendMail(mailForgotPassword, (err, info) => {
-            //     if (err) return console.log(err.message)
-            //     console.log(info)
-            // })
+            const mailForgotPassword = {
+                from: 'no-reply@udmlibrary.com',
+                to: email.udmid.email,
+                subject: 'Your new temporary password',
+                text: 'Your new password is valid for 24 hours:  ' + pwd
+            }
+            transporter.sendMail(mailForgotPassword, (err, info) => {
+                if (err) return console.log(err.message)
+                console.log(info)
+            })
         })
         .catch(err => console.log(err))
 }

@@ -32,7 +32,7 @@ const bookSchema = new Schema({
         expireAt: { type: Date }
     }],
     removed: [{
-        _id: { type: mongoose.ObjectId, unique: true },
+        _id: { type: mongoose.ObjectId },
         createdAt: { type: Date },
         reason: { type: String }
     }]

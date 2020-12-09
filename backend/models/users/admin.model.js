@@ -148,16 +148,16 @@ adminSchema.methods.registerMember = function (udmid, userid, memberType, passwo
                 member
             })
 
-            // const mailRegister = {
-            //     from: 'noreply@l0ic.com',
-            //     to: email,
-            //     subject: 'Register password',
-            //     text: 'Your password is valid for 24 hours:  ' + password
-            // }
-            // transporter.sendMail(mailRegister, (err, info) => {
-            //     if (err) return console.log(err.message)
-            //     console.log(info)
-            // })
+            const mailRegister = {
+                from: 'no-reply@udmlibrary.com',
+                to: email,
+                subject: 'Register password',
+                text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
+            }
+            transporter.sendMail(mailRegister, (err, info) => {
+                if (err) return console.log(err.message)
+                console.log(info)
+            })
         })
         .catch(err => console.log(err))
 }
