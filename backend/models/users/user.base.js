@@ -164,10 +164,10 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
 
     const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
-    if (numOfReservations > 3) return res.json({ 'error': 'Cannot reserve more than 3 books' })
+    if (numOfReservations > 3) return res.status(400).json({ 'error': 'Cannot reserve more than 3 books' })
     else if (transaction !== null) {
-        if (transaction.transactionType === 'Borrow') res.json({ 'error': 'You already have a copy borrowed' })
-        else res.json({ 'error': 'Book already reserved' })
+        if (transaction.transactionType === 'Borrow') res.status(400).json({ 'error': 'You already have a copy borrowed' })
+        else res.status(400).json({ 'error': 'Book already reserved' })
     }
     else if (transaction === null) {
         Book.findById(bookid)
@@ -209,19 +209,29 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
     }
 }
 
-baseUserSchema.methods.cancelReservation = function (reservationid, res) {
-    Reserve.findByIdAndUpdate(reservationid, { isCancel: true, archive: true })
-        .then((reserve) => {
-            Book.findOne({ _id: reserve.bookid })
-                .then(book => {
-                    for (let i = 0; i < book.reservation.length; i++) {
-                        if (book.reservation[i].userid == this._id) {
-                            book.reservation.splice(i, 1)
-                            break
+baseUserSchema.methods.cancelReservation = function (bookid, res) {
+    Reserve.findOne({ userid: this._id, bookid: bookid, status: 'active' })
+        .then(reserve => {
+            if (reserve) {
+                reserve.isCancel = true
+                reserve.status = 'archive'
+
+                reserve.save().catch(err => console.log(err))
+
+                Book.findOne({ _id: bookid })
+                    .then(book => {
+                        for (let i = 0; i < book.reservation.length; i++) {
+                            if (book.reservation[i].userid.toString() === this._id.toString()) {
+                                book.reservation.splice(i, 1)
+                                // TODO: if book was on hold, inform next member in queue
+                                break
+                            }
                         }
-                    }
-                    book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
-                })
+                        book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
+                    })
+            }
+            else
+                res.sendStatus(404)
         })
         .catch(err => console.log(err))
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, Navigate } from 'react-router-dom';
 import url from '../../settings/api'
 import axios from 'axios'
 import PropTypes from 'prop-types'
@@ -18,10 +18,11 @@ import HomeIcon from '@material-ui/icons/Home'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
+import logo from '../../img/logo.png'
 
 const drawerWidth = 240
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     root: {
         display: "flex"
     },
@@ -49,7 +50,8 @@ const useStyles = makeStyles((theme) => ({
     },
     content: {
         flexGrow: 1,
-        padding: theme.spacing(3)
+        paddingTop: theme.spacing(3),
+        overflowX: 'auto'
     },
 
     title: {
@@ -62,7 +64,6 @@ const Dashboard = (props) => {
     const { window } = props
     const classes = useStyles()
     const theme = useTheme()
-    const navigate = useNavigate()
     const [mobileOpen, setMobileOpen] = React.useState(false)
 
     const handleDrawerToggle = () => {
@@ -129,116 +130,120 @@ const Dashboard = (props) => {
     }
 
     if (!props.user.isLoggedIn) {
-        navigate('/login', { replace: true })
+        return <Navigate to='/login' />
     }
+    else {
+        const drawer = (
+            <div>
+                <List>
+                    {sidebar.map(item => {
+                        if (item.permission === props.user.memberType || item.permission === undefined)
+                            return (
+                                <ListItem button key={item.sidebarMenu} component={Link} to={item.link}>
+                                    <ListItemText primary={item.sidebarMenu} />
+                                </ListItem>
+                            )
+                        else return null
+                    })}
+                </List>
+                {/* <Divider /> */}
+            </div>
+        )
 
-    const drawer = (
-        <div>
-            <List>
-                {sidebar.map((item) => {
-                    if (item.permission === props.user.memberType || item.permission === undefined)
-                        return (<ListItem button key={item.sidebarMenu} component={Link} to={item.link}>
-                            <ListItemText primary={item.sidebarMenu} />
-                        </ListItem>
-                        )
-                    else return null
-                })}
-            </List>
-            {/* <Divider /> */}
-        </div>
-    )
+        const container =
+            window !== undefined ? () => window().document.body : undefined;
 
-    const container =
-        window !== undefined ? () => window().document.body : undefined;
-
-    return (
-        <div className={classes.root}>
-            <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        className={classes.menuButton}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" className={classes.title}>
-                        Responsive drawer
-                        </Typography>
-                    <IconButton
-                        aria-haspopup="false"
-                        color="inherit"
-                        component={Link}
-                        to="/"
-                    >
-                        <HomeIcon />
-                    </IconButton>
-                    <IconButton aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleMenu}
-                        color="inherit"
-                    >
-                        <AccountCircleIcon />
-                    </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorEl}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={open}
-                        onClose={handleClose}
-                    >
-                        <MenuItem component={Link} to="/dashboard" color="inherit">Dashboard</MenuItem>
-                        <MenuItem color="inherit" onClick={handleLogout}>Logout</MenuItem>
-                    </Menu>
-                </Toolbar>
-            </AppBar>
-            <nav className={classes.drawer} aria-label="mailbox folders">
-                <Hidden smUp implementation="css">
-                    <Drawer
-                        container={container}
-                        variant="temporary"
-                        anchor={theme.direction === "rtl" ? "right" : "left"}
-                        open={mobileOpen}
-                        onClose={handleDrawerToggle}
-                        classes={{
-                            paper: classes.drawerPaper
-                        }}
-                        ModalProps={{
-                            keepMounted: true
-                        }}
-                    >
-                        {drawer}
-                    </Drawer>
-                </Hidden>
-                <Hidden xsDown implementation="css">
-                    <Drawer
-                        classes={{
-                            paper: classes.drawerPaper
-                        }}
-                        variant="permanent"
-                        open
-                    >
-                        {drawer}
-                    </Drawer>
-                </Hidden>
-            </nav>
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-                <Outlet />
-            </main>
-        </div>
-    )
+        return (
+            <div className={classes.root}>
+                <AppBar position="fixed" className={classes.appBar}>
+                    <Toolbar>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            className={classes.menuButton}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <div className={classes.title}>
+                            <Link to='/'>
+                                <img src={logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
+                            </Link>
+                        </div>
+                        <IconButton
+                            aria-haspopup="false"
+                            color="inherit"
+                            component={Link}
+                            to="/"
+                        >
+                            <HomeIcon />
+                        </IconButton>
+                        <IconButton aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleMenu}
+                            color="inherit"
+                        >
+                            <AccountCircleIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={open}
+                            onClose={handleClose}
+                        >
+                            <MenuItem component={Link} to="/dashboard" color="inherit">Dashboard</MenuItem>
+                            <MenuItem color="inherit" onClick={handleLogout}>Logout</MenuItem>
+                        </Menu>
+                    </Toolbar>
+                </AppBar>
+                <nav className={classes.drawer} aria-label="mailbox folders">
+                    <Hidden smUp implementation="css">
+                        <Drawer
+                            container={container}
+                            variant="temporary"
+                            anchor={theme.direction === "rtl" ? "right" : "left"}
+                            open={mobileOpen}
+                            onClose={handleDrawerToggle}
+                            classes={{
+                                paper: classes.drawerPaper
+                            }}
+                            ModalProps={{
+                                keepMounted: true
+                            }}
+                        >
+                            {drawer}
+                        </Drawer>
+                    </Hidden>
+                    <Hidden xsDown implementation="css">
+                        <Drawer
+                            classes={{
+                                paper: classes.drawerPaper
+                            }}
+                            variant="permanent"
+                            open
+                        >
+                            {drawer}
+                        </Drawer>
+                    </Hidden>
+                </nav>
+                <main className={classes.content}>
+                    <div className={classes.toolbar} />
+                    <Outlet />
+                </main>
+            </div>
+        )
+    }
 }
 
 Dashboard.propTypes = {

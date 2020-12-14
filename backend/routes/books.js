@@ -30,13 +30,15 @@ router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (r
 
 // Add multiple book from csv file
 router.post('/add', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), upload.single('csv'), (req, res) => {
-    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else {
-        Librarian.findOne({ _id: req.user._id })
-            .then(librarian => {
-                librarian.addBookCSV(req.file.path, res)
-            })
-    }
+    console.log(req.file.path)
+
+    // if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    // else {
+    //     Librarian.findOne({ _id: req.user._id })
+    //         .then(librarian => {
+    //             librarian.addBookCSV(req.file.path, res)
+    //         })
+    // }
 })
 
 // Borrow a book
@@ -83,10 +85,10 @@ router.post('/reserve/:bookid', jwt({ secret, credentialsRequired: true, getToke
 })
 
 // Cancel a book reservation
-router.patch('/cancel_reservation/:reservationid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.patch('/cancel_reservation/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     User.findOne({ _id: req.user._id })
         .then(user => {
-            user.cancelReservation(req.params.reservationid, res)
+            user.cancelReservation(req.params.bookid, res)
         })
 })
 
@@ -148,7 +150,7 @@ router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req)
     }
 })
 
-// Get list of books overdue book for today
+// Get list of books overdue books
 router.get('/overdue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
@@ -160,13 +162,26 @@ router.get('/overdue', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
-// Get list of books due for today
-router.get('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+// Get list of books due
+router.post('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (req.body.from === undefined || req.body.to === undefined) return res.status(400).json({ 'error': 'Missing date param.' })
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.getDueBooks(req.body.from, req.body.to, res)
+            })
+            .catch(err => console.log(err))
+    }
+})
+
+// Get list of book reservations
+router.get('/reservation', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
         Librarian.findOne({ _id: req.user._id })
             .then(librarian => {
-                librarian.getDueBooks(res)
+                librarian.getReservations(res)
             })
             .catch(err => console.log(err))
     }
@@ -198,16 +213,28 @@ router.get('/', (req, res) => {
 })
 
 // Get an individual book by id
-router.get('/:id', (req, res) => {
+router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.sendStatus(404)
     else {
         Book.findById(req.params.id)
-            .then(book => {
+            .then(async book => {
                 if (book === null) return res.sendStatus(404)
                 else {
-                    res.json({
+                    let response
+                    response = {
                         book
-                    })
+                    }
+                    if (req.user) {
+                        const transaction = await Transaction.findOne({ userid: req.user._id, bookid: req.params.id, status: 'active' })
+
+                        if (transaction !== null) {
+                            response = {
+                                ...response,
+                                transaction: transaction.transactionType
+                            }
+                        }
+                    }
+                    res.json(response)
                 }
             })
             .catch(err => console.log(err))

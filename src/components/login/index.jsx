@@ -30,7 +30,7 @@ const LoginPage = (props) => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         justifyContent: 'center',

@@ -139,11 +139,11 @@ librarianSchema.methods.borrow = async function (bookid, res) {
 }
 
 librarianSchema.methods.addBook = async function (book, res) {
-    const { location, campus, isbn } = book
+    const { location, campus, isbn, noOfCopies } = book
 
     const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
-    if (googleBookAPI.data.totalItems === 0) res.json({ 'error': 'Invalid ISBN' })
+    if (googleBookAPI.data.totalItems === 0) res.status(404).json({ 'error': 'Book not found.' })
     else {
         Book.findOne({ isbn })
             .then(book => {
@@ -164,16 +164,19 @@ librarianSchema.methods.addBook = async function (book, res) {
                         thumbnail: secureImg,
                         location,
                         campus,
-                        copies: {}
+                        copies: []
                     })
+                    for (let i = 0; i < noOfCopies; i++)
+                        newBook.copies.push({})
                     newBook.save()
-                        .then(() => res.sendStatus(201))
+                        .then(() => res.status(201).json({ 'title': title }))
                         .catch(err => res.json({ 'error': err.message }))
                 }
                 else {
-                    book.copies.push({})
+                    for (let i = 0; i < noOfCopies; i++)
+                        book.copies.push({})
                     book.save()
-                        .then(() => res.sendStatus(201))
+                        .then(() => res.status(201).json({ 'title': title }))
                         .catch(err => res.json({ 'error': err._message }))
                 }
             })
@@ -189,7 +192,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         .pipe(csv())
         .on('data', async (book) => {
             stream.pause()
-            const { location, campus, isbn } = book
+            const { location, campus, isbn, noOfCopies } = book
 
             const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
@@ -216,14 +219,17 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                                 thumbnail: secureImg,
                                 location,
                                 campus,
-                                copies: {}
+                                copies: []
                             })
+                            for (let i = 0; i < noOfCopies; i++)
+                                newBook.copies.push({})
                             newBook.save()
                                 .then(() => success.push(`${title} (${isbn})`))
                                 .catch(err => fail.push(`${title} (${isbn}) - ${err.message}`))
                         }
                         else {
-                            book.copies.push({})
+                            for (let i = 0; i < noOfCopies; i++)
+                                book.copies.push({})
                             await book.save()
                                 .then(() => success.push(`${title} (${isbn})`))
                                 .catch(err => fail.push(`${title} (${isbn}) - ${err.message}`))
@@ -316,12 +322,22 @@ librarianSchema.methods.getOverdueBooks = function (res) {
         .catch(err => console.log(err))
 }
 
-librarianSchema.methods.getDueBooks = function (res) {
-    const now = new Date(new Date().toDateString())
-    const tomorrow = new Date(new Date(now).toDateString())
-    tomorrow.setDate(tomorrow.getDate() + 1)
+librarianSchema.methods.getDueBooks = function (from, to, res) {
+    const now = new Date(new Date(from).toDateString())
+    const toDate = new Date(new Date(to).toDateString())
+    toDate.setDate(toDate.getDate() + 1)
 
-    Borrow.find({ status: 'active', dueDate: { $gte: now, $lt: tomorrow } }).populate('userid').populate('bookid')
+    Borrow.find({ status: 'active', dueDate: { $gte: now, $lt: toDate } })
+        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
+        .populate('bookid', ['title', 'isbn'])
+        .then(books => res.json(books))
+        .catch(err => console.log(err))
+}
+
+librarianSchema.methods.getReservations = function (res) {
+    Reserve.find({ status: 'active', expireAt: { $ne: null } })
+        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
+        .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
         .catch(err => console.log(err))
 }
@@ -398,25 +414,27 @@ librarianSchema.methods.removeBook = function (bookid, copiesid, reasons, res) {
         })
 }
 
-librarianSchema.methods.notifyOverdue = function (listOfOverdue, res) {
+librarianSchema.methods.notify = async function (books, type, res) {
     let emailSent = []
 
-    for (let i = 0; i < listOfOverdue.length; i++) {
-        if (listOfOverdue[i].checked) {
+    for (let i = 0; i < books.length; i++) {
+        if (books[i].checked) {
             const mailRegister = {
                 from: 'no-reply@udmlibrary.com',
-                to: listOfOverdue.email,
-                subject: 'NOTIFY: Book overdue',
-                text: `Your book titled ${listOfOverdue[i].title} with ISBN ${listOfOverdue[i].isbn} is overdue since ${listOfOverdue.dueDate}`
+                to: books[i].email,
+                subject: type === 'overdue' ? 'NOTIFY: Book overdue' : 'NOTIFY: Book due',
+                text: `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is overdue since ${books[i].dueDate}`
             }
-            transporter.sendMail(mailRegister, (err, info) => {
-                if (err) return console.log(err.message)
-                console.log(info)
-                emailSent.push(listOfOverdue[i].userid)
-            })
+            try {
+                await transporter.sendMail(mailRegister)
+                emailSent.push(books[i].userid)
+            }
+            catch (err) {
+                console.log(err.message)
+            }
         }
     }
-    if (emailSent.length === 0) res.json({ 'error': 'No notification send, zero user(s) selected.' })
+    if (emailSent.length === 0) res.status(400).json({ 'error': 'Zero notification sent, no user(s) selected.' })
     else res.json({ 'listOfEmailSent': emailSent })
 }
 

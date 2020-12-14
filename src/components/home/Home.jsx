@@ -48,7 +48,9 @@ const Home = (props) => {
                 })
         }
         setLoading(false)
-    }, [searchQuery.search, searchQuery.searchType, setValue])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchQuery.search, searchQuery.searchType])
 
     const handleSearch = (data) => {
         axios.post(`${url}/books/search`, data)
@@ -72,7 +74,7 @@ const Home = (props) => {
                             <TextField
                                 className={classes.searchbar}
                                 placeholder="Search books"
-                                style={{ width: '90%' }}
+                                style={{ width: '85%' }}
                                 name="search"
                                 inputRef={register}
                             />
@@ -116,7 +118,7 @@ const Home = (props) => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     form: {
         marginTop: theme.spacing(8),
         marginBottom: theme.spacing(8),

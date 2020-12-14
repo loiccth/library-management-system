@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import url from '../../settings/api'
 import Container from '@material-ui/core/Container'
 import { Button, Checkbox, FormControlLabel, makeStyles, Paper, TextField, Typography } from '@material-ui/core'
-
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 
@@ -93,7 +92,7 @@ const Login = (props) => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     paper: {
         // marginTop: theme.spacing(8),
         display: 'flex',

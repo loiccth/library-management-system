@@ -11,6 +11,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
+import FiberNewIcon from '@material-ui/icons/FiberNew'
 import Tooltip from '@material-ui/core/Tooltip'
 import Pagination from '@material-ui/lab/Pagination'
 import Footer from '../navbar/Footer'
@@ -45,8 +46,8 @@ const Books = (props) => {
                             <TableCell>Title</TableCell>
                             <TableCell>Author</TableCell>
                             <TableCell>Year</TableCell>
-                            <TableCell>Information</TableCell>
-                            <TableCell>Flag</TableCell>
+                            <TableCell className={classes.info}>Information</TableCell>
+                            <TableCell className={classes.flag}>Flag(s)</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -57,24 +58,28 @@ const Books = (props) => {
                                 </TableCell>
                                 <TableCell><Link to={'/book/' + row._id}>{row.title}</Link></TableCell>
                                 <TableCell>
-                                    {row.author.map((author, index) => {
-                                        return <span key={row._id + author}>{(index ? ', ' : '') + author}</span>
-                                    })}
+                                    {row.author.map((author, index) => (
+                                        <span key={row._id + author}>{(index ? ', ' : '') + author}</span>
+                                    ))}
                                 </TableCell>
                                 <TableCell>{new Date(row.publishedDate).toLocaleDateString()}</TableCell>
-                                <TableCell className={classes.row}>
+                                <TableCell>
                                     {<React.Fragment>
                                         <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
                                         <Typography variant="caption" display="block">Shelf Location: {row.location}</Typography>
                                         <Typography variant="caption" display="block">Available at: {row.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
-                                        <Typography variant="caption" display="block">Number of holdings: {row.copies.length - row.noOfBooksOnLoan}</Typography>
+                                        <Typography variant="caption" display="block">Number of holdings: {row.copies.length}</Typography>
                                     </React.Fragment>}
                                 </TableCell>
-                                <TableCell>{row.isHighDemand ?
-                                    <Tooltip title="High priority" arrow>
-                                        <PriorityHighIcon className={classes.highpriority} />
+                                <TableCell>
+                                    <Tooltip title="Recently Added" arrow>
+                                        <FiberNewIcon />
                                     </Tooltip>
-                                    : null}
+                                    {row.isHighDemand ?
+                                        <Tooltip title="High Demand" arrow>
+                                            <PriorityHighIcon className={classes.highpriority} />
+                                        </Tooltip>
+                                        : null}
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -87,18 +92,20 @@ const Books = (props) => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     table: {
         minWidth: 650,
         maxWidth: '80%',
         margin: 'auto'
     },
-    row: {
+    info: {
         minWidth: 180
     },
+    flag: {
+        minWidth: 100
+    },
     thumbnail: {
-        maxWidth: '80px',
-        maxHeight: 'auto'
+        maxWidth: '80px'
     },
     highpriority: {
         color: 'red'

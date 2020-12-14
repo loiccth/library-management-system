@@ -1,68 +1,141 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import url from '../../../../settings/api'
+import { makeStyles } from '@material-ui/core/styles'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import Paper from '@material-ui/core/Paper'
+import Checkbox from '@material-ui/core/Checkbox'
+import Typography from '@material-ui/core/Typography'
+import AutorenewIcon from '@material-ui/icons/Autorenew'
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
+import Tooltip from '@material-ui/core/Tooltip'
+import { Button, Toolbar, Container } from '@material-ui/core'
+import Snackbar from '@material-ui/core/Snackbar'
+import Alert from '@material-ui/lab/Alert'
 
 const OverdueBooks = (props) => {
-    const [msg, setMsg] = useState({
-        message: ''
-    })
+    const classes = useStyles()
+    const [check, setCheck] = useState(false)
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [open, setOpen] = useState(false)
+
+    const handleClick = () => {
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
 
     const handleOnClick = () => {
-        axios.post(`${url}/users/notifyoverdue`, { overdueBooks: props.overdueBooks }, { withCredentials: true })
+        axios.post(`${url}/users/notify`, { type: 'overdue', books: props.overdueBooks }, { withCredentials: true })
             .then(result => {
-                if (result.data.error)
-                    setMsg({
-                        type: 'error',
-                        message: result.data.error
-                    })
-                else
-                    setMsg({
-                        type: 'success',
-                        message: `Notification successfully sent to ${result.data.listOfEmailSent.length} user(s).`
-                    })
+                setSnackbar({
+                    type: 'success',
+                    msg: `Success! ${result.data.length} notification(s) sent.`
+                })
             })
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: err.response.data.error
+                })
+            })
+            .finally(() => {
+                handleClick()
+            })
+        props.handleUncheckAll()
+        setCheck(false)
+    }
+
+    const handleCheckAll = (e) => {
+        setCheck(e.target.checked)
+        props.handleCheckAll(e)
     }
 
     return (
-        <div className="overdue-books mb-5">
-            <h3>List of overdue book(s)</h3>
-            {msg.type === "error" ? <div className="alert alert-warning" role="alert">
-                {msg.message}
-            </div> : null}
-            {msg.type === "success" ? <div className="alert alert-success" role="alert">
-                {msg.message}
-            </div> : null}
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th scope="col">MemberID</th>
-                        <th scope="col">Book</th>
-                        <th scope="col">ISBN</th>
-                        <th scope="col">Due Date</th>
-                        <th scope="col">Renews</th>
-                        <th scope="col">High Demand</th>
-                        <th scope="col"><input type="checkbox" onChange={props.handleCheckAll} /></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {props.overdueBooks.length === 0 ? <span>No overdue books</span> : props.overdueBooks.map(borrow => {
-                        return (
-                            <tr key={borrow._id}>
-                                <td>{borrow.userid}</td>
-                                <td>{borrow.title}</td>
-                                <td>{borrow.isbn}</td>
-                                <td>{borrow.dueDate}</td>
-                                <td>{borrow.renews}</td>
-                                <td>{borrow.isHighDemand ? <span>HIGH DEMAND</span> : null}</td>
-                                <td><input type="checkbox" value={borrow._id} checked={borrow.checked} onChange={props.handleCheck} /></td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
-            <button className="btn btn-secondary" onClick={handleOnClick}>Send notification</button>
-        </div>
+        <React.Fragment>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
+            <TableContainer component={Paper}>
+                <Toolbar className={classes.table}>
+                    <Typography variant="h6">Overdue Books</Typography>
+                </Toolbar>
+                <Table className={classes.table}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>
+                                <Checkbox checked={check} onChange={handleCheckAll} />
+                            </TableCell>
+                            <TableCell>MemberID</TableCell>
+                            <TableCell>Book Details</TableCell>
+                            <TableCell>Borrow Details</TableCell>
+                            <TableCell>Flag(s)</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {props.overdueBooks.map(row => (
+                            <TableRow key={row._id}>
+                                <TableCell component="th" scope="row">
+                                    <Checkbox value={row._id} checked={row.checked} onChange={props.handleCheck} />
+                                </TableCell>
+                                <TableCell>
+                                    {row.userid}
+                                </TableCell>
+                                <TableCell>
+                                    <Typography variant="caption" display="block">Title: {row.title}</Typography>
+                                    <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
+                                </TableCell>
+                                <TableCell>
+                                    <Typography variant="caption" display="block">Borrow: {row.isHighDemand ? new Date(row.borrowDate).toLocaleString() : new Date(row.borrowDate).toLocaleDateString()}</Typography>
+                                    <Typography variant="caption" display="block">Due: {row.isHighDemand ? new Date(row.dueDate).toLocaleString() : new Date(row.dueDate).toLocaleDateString()}</Typography>
+                                    <Typography variant="caption" display="block">Renews: {row.renews}</Typography>
+                                </TableCell>
+                                <TableCell>
+                                    {row.renews === 3 &&
+                                        <Tooltip title="Max Renews" arrow>
+                                            <AutorenewIcon />
+                                        </Tooltip>
+                                    }
+                                    {row.isHighDemand &&
+                                        <Tooltip title="High Demand" arrow>
+                                            <PriorityHighIcon />
+                                        </Tooltip>
+                                    }
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <Container className={classes.button}>
+                    <Button variant="outlined" onClick={handleOnClick} color="primary">Send Reminder</Button>
+                </Container>
+            </TableContainer>
+        </React.Fragment>
     )
 }
+
+const useStyles = makeStyles(theme => ({
+    table: {
+        minWidth: 650,
+        maxWidth: '80%',
+        margin: 'auto'
+    },
+    button: {
+        minWidth: 650,
+        maxWidth: '80%',
+        margin: 'auto',
+        paddingTop: theme.spacing(2),
+        paddingBottom: theme.spacing(2)
+    }
+}))
 
 export default OverdueBooks

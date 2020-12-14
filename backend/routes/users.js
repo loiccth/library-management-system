@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('express-jwt')
+const axios = require('axios')
 const generator = require('generate-password')
 const User = require('../models/users/user.base')
 const Member = require('../models/users/member.model')
@@ -156,15 +157,23 @@ router.patch('/reset', (req, res) => {
             'error': 'Missing userid param'
         })
 
-    User.findOne({ userid: req.body.userid })
-        .then(user => {
-            if (user === null)
-                res.status(404).json({ 'error': 'MemberID not found.' })
+    axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SITEKEY}&response=${req.body.reCaptcha}`)
+        .then(result => {
+            if (result.data.success) {
+                User.findOne({ userid: req.body.userid })
+                    .then(user => {
+                        if (user === null)
+                            res.status(404).json({ 'error': 'MemberID not found.' })
+                        else {
+                            user.resetPassword(res)
+                        }
+                    })
+                    .catch(err => console.log(err))
+            }
             else {
-                user.resetPassword(res)
+                res.status(400).json({ 'error': 'ReCaptcha validation failed.' })
             }
         })
-        .catch(err => console.log(err))
 })
 
 // Delete account - need admin priviledge
@@ -179,13 +188,14 @@ router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (re
         .catch(err => console.log(err))
 })
 
-router.post('/notifyoverdue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.post('/notify', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    if (req.body.overdueBooks === undefined) return res.json({ 'error': 'Missing list of overdue books' })
+    else if (req.body.books === undefined) return res.status(400).json({ 'error': 'Missing list of books.' })
+    else if (req.body.type === undefined) return res.status(400).json({ 'error': 'Missing notification type.' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
-                librarian.notifyOverdue(req.body.overdueBooks, res)
+                librarian.notify(req.body.books, req.body.type, res)
             })
             .catch(err => console.log(err))
     }

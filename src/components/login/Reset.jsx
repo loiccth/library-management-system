@@ -3,10 +3,8 @@ import axios from 'axios'
 import { useForm, Controller } from 'react-hook-form'
 import ReCAPTCHA from 'react-google-recaptcha'
 import url from '../../settings/api'
-
 import Container from '@material-ui/core/Container'
 import { Button, makeStyles, Paper, TextField, Typography, FormHelperText } from '@material-ui/core'
-
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 
@@ -44,8 +42,8 @@ const Reset = () => {
             })
             .finally(() => {
                 handleClick()
-                recaptchaRef.current.reset()
             })
+        recaptchaRef.current.reset()
         reset()
     }
 
@@ -53,7 +51,6 @@ const Reset = () => {
 
     return (
         <React.Fragment>
-
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
                     {snackbar.msg}
@@ -103,7 +100,7 @@ const Reset = () => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     container: {
         height: '100%'
     },

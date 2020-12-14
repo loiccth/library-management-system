@@ -12,7 +12,7 @@ const Footer = (props) => {
     )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
     footer: {
         backgroundColor: theme.palette.secondary.main,
         borderRadius: 0

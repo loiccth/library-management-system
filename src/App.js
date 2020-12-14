@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Cookies from 'js-cookie'
-
 import url from './settings/api'
-
 import { ThemeProvider } from '@material-ui/core'
-import CssBaseline from "@material-ui/core/CssBaseline";
-
+import CssBaseline from "@material-ui/core/CssBaseline"
 import Navbar from './components/navbar/Navbar'
 import Home from './components/home/Home'
 import Book from './components/home/Book'
