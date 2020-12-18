@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, Outlet, Navigate } from 'react-router-dom';
+import { Link, Outlet, Navigate } from 'react-router-dom'
 import url from '../../settings/api'
 import axios from 'axios'
 import PropTypes from 'prop-types'
@@ -12,7 +12,6 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import MenuIcon from '@material-ui/icons/Menu'
 import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import HomeIcon from '@material-ui/icons/Home'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
@@ -27,20 +26,20 @@ const useStyles = makeStyles(theme => ({
         display: "flex"
     },
     drawer: {
-        [theme.breakpoints.up("sm")]: {
+        [theme.breakpoints.up("lg")]: {
             width: drawerWidth,
             flexShrink: 0
         }
     },
     appBar: {
-        [theme.breakpoints.up("sm")]: {
+        [theme.breakpoints.up("lg")]: {
             width: `calc(100% - ${drawerWidth}px)`,
             marginLeft: drawerWidth
         }
     },
     menuButton: {
         marginRight: theme.spacing(2),
-        [theme.breakpoints.up("sm")]: {
+        [theme.breakpoints.up("lg")]: {
             display: "none"
         }
     },
@@ -64,22 +63,22 @@ const Dashboard = (props) => {
     const { window } = props
     const classes = useStyles()
     const theme = useTheme()
-    const [mobileOpen, setMobileOpen] = React.useState(false)
+    const [mobileOpen, setMobileOpen] = useState(false)
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen)
     }
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = useState(null)
     const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+        setAnchorEl(event.currentTarget)
+    }
 
     const handleClose = () => {
-        setAnchorEl(null);
-    };
+        setAnchorEl(null)
+    }
 
-    const open = Boolean(anchorEl);
+    const open = Boolean(anchorEl)
 
     const [sidebar] = useState([
         {
@@ -151,7 +150,7 @@ const Dashboard = (props) => {
         )
 
         const container =
-            window !== undefined ? () => window().document.body : undefined;
+            window !== undefined ? () => window().document.body : undefined
 
         return (
             <div className={classes.root}>
@@ -208,7 +207,7 @@ const Dashboard = (props) => {
                     </Toolbar>
                 </AppBar>
                 <nav className={classes.drawer} aria-label="mailbox folders">
-                    <Hidden smUp implementation="css">
+                    <Hidden lgUp implementation="css">
                         <Drawer
                             container={container}
                             variant="temporary"
@@ -225,7 +224,7 @@ const Dashboard = (props) => {
                             {drawer}
                         </Drawer>
                     </Hidden>
-                    <Hidden xsDown implementation="css">
+                    <Hidden mdDown implementation="css">
                         <Drawer
                             classes={{
                                 paper: classes.drawerPaper

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import url from '../../settings/api'
 import { Link } from 'react-router-dom'
@@ -16,16 +16,16 @@ import logo from '../../img/logo.png'
 
 const Navbar = (props) => {
     const classes = useStyles()
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = useState(null)
     const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+        setAnchorEl(event.currentTarget)
+    }
 
     const handleClose = () => {
-        setAnchorEl(null);
-    };
+        setAnchorEl(null)
+    }
 
-    const open = Boolean(anchorEl);
+    const open = Boolean(anchorEl)
 
     const handleLogout = () => {
         axios.get(`${url}/users/logout`, { withCredentials: true })
@@ -86,7 +86,7 @@ const Navbar = (props) => {
             </AppBar>
             <Toolbar />
         </React.Fragment>
-    );
+    )
 }
 
 const useStyles = makeStyles(() => ({
@@ -97,6 +97,6 @@ const useStyles = makeStyles(() => ({
 
 Navbar.propTypes = {
     window: PropTypes.func
-};
+}
 
-export default Navbar;
+export default Navbar

@@ -1,15 +1,34 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddBook from './AddBook'
 import AddBookCSV from './AddBookCSV'
+import SearchBook from './SearchBook'
 import Container from '@material-ui/core/Container'
-import Grid from '@material-ui/core/Grid'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Switch from '@material-ui/core/Switch'
+import axios from 'axios'
+import url from '../../../settings/api'
 
 const ManageBooks = ({ user }) => {
     const navigate = useNavigate()
     const [csv, setCSV] = useState(false)
+    const [locations, setLocations] = useState({
+        pam: {
+            options: []
+        },
+        rhill: {
+            options: []
+        }
+    })
+
+    useEffect(() => {
+        axios.get(`${url}/settings/locations`, { withCredentials: true })
+            .then(locations => {
+                setLocations(locations.data)
+            })
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const handleChange = (e) => {
         setCSV(e.target.checked)
@@ -26,18 +45,13 @@ const ManageBooks = ({ user }) => {
                     control={<Switch checked={csv} onChange={handleChange} />}
                     label="Manual input"
                 />
-                <Grid container justify="center">
-                    {csv ?
-                        <Grid item md={10} lg={6}>
-                            <AddBook />
-                        </Grid>
-                        :
-                        <Grid item md={10} lg={12}>
-                            <AddBookCSV />
-                        </Grid>
-                    }
-                </Grid>
+                {csv ?
+                    <AddBook locations={locations} />
+                    :
+                    <AddBookCSV />
+                }
             </Container>
+            <SearchBook locations={locations} />
         </>
     )
 }

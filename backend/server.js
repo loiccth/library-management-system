@@ -31,6 +31,7 @@ connection.once('open', () => {
 
 app.use('/users', require('./routes/users'))
 app.use('/books', require('./routes/books'))
+app.use('/settings', require('./routes/settings'))
 
 app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {

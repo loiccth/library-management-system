@@ -88,7 +88,7 @@ const DueBooks = (props) => {
                             </Toolbar>
                         </Grid>
                         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <Grid item xs={4} sm={4} md={4} lg={2}>
+                            <Grid item xs={4} sm={4} md={4} lg={3} xl={2}>
                                 <DatePicker
                                     margin="dense"
                                     color="primary"
@@ -101,7 +101,7 @@ const DueBooks = (props) => {
                                     disablePast
                                 />
                             </Grid>
-                            <Grid item xs={4} sm={4} md={4} lg={2}>
+                            <Grid item xs={4} sm={4} md={4} lg={3} xl={2}>
                                 <DatePicker
                                     margin="dense"
                                     color="primary"

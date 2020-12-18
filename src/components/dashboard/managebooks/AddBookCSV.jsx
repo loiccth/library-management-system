@@ -8,6 +8,7 @@ import { DropzoneArea } from 'material-ui-dropzone'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert'
 import FormHelperText from '@material-ui/core/FormHelperText'
+import Grid from '@material-ui/core/Grid'
 
 const AddBookCSV = () => {
     const classes = useStyles()
@@ -29,6 +30,8 @@ const AddBookCSV = () => {
         axios.post(`${url}/books/add`, dataForm, { withCredentials: true })
             .then(result => console.log(result))
         reset()
+
+        // TODO: display list of registered user and errors
     }
 
     return (
@@ -38,35 +41,39 @@ const AddBookCSV = () => {
                     {snackbar.msg}
                 </Alert>
             </Snackbar>
-            <form className={classes.root} noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Controller
-                    as={<DropzoneArea
-                        acceptedFiles={[".csv, text/csv, application/vnd.ms-excel, application/csv, text/x-csv, application/x-csv, text/comma-separated-values, text/x-comma-separated-values"]}
-                        filesLimit={1}
-                        dropzoneText="Drag and drop a CSV file here or browse"
-                        showPreviews={true}
-                        showPreviewsInDropzone={false}
-                        useChipsForPreview
-                        previewGridProps={{ container: { spacing: 1, direction: 'row' } }}
-                        previewChipProps={{ classes: { root: classes.previewChip } }}
-                        previewText="Selected CSV file"
-                        maxFileSize={10485760}
-                        alertSnackbarProps={{
-                            anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
-                        }}
-                    />}
-                    name="csv"
-                    control={control}
-                    rules={{ validate: value => value.length > 0 }}
-                />
-                <FormHelperText error children={!!errors.csv ? "CSV file required." : " "} />
-                <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                >Add Books</Button>
-            </form>
+            <Grid container justify="center">
+                <Grid item md={10} lg={12}>
+                    <form className={classes.root} noValidate onSubmit={handleSubmit(onSubmit)}>
+                        <Controller
+                            as={<DropzoneArea
+                                acceptedFiles={[".csv, text/csv, application/vnd.ms-excel, application/csv, text/x-csv, application/x-csv, text/comma-separated-values, text/x-comma-separated-values"]}
+                                filesLimit={1}
+                                dropzoneText="Drag and drop a CSV file here or browse"
+                                showPreviews={true}
+                                showPreviewsInDropzone={false}
+                                useChipsForPreview
+                                previewGridProps={{ container: { spacing: 1, direction: 'row' } }}
+                                previewChipProps={{ classes: { root: classes.previewChip } }}
+                                previewText="Selected CSV file"
+                                maxFileSize={10485760}
+                                alertSnackbarProps={{
+                                    anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+                                }}
+                            />}
+                            name="csv"
+                            control={control}
+                            rules={{ validate: value => value.length > 0 }}
+                        />
+                        <FormHelperText error children={!!errors.csv ? "CSV file required." : " "} />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                        >Add Books</Button>
+                    </form>
+                </Grid>
+            </Grid>
         </>
     )
 }

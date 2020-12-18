@@ -249,6 +249,37 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         })
 }
 
+librarianSchema.methods.editBook = function (bookDetails, res) {
+    const { isbn } = bookDetails
+
+    Book.findOne({ isbn })
+        .then(book => {
+            if (book === null) return res.sendStatus(404)
+            else {
+                const { title, publisher, publishedDate, description, noOfPages, location, campus } = bookDetails
+                const author = bookDetails.author.split(',').map(item => {
+                    return item.trim()
+                })
+                const categories = bookDetails.categories.split(',').map(item => {
+                    return item.trim()
+                })
+
+                book.title = title
+                book.publisher = publisher
+                book.publishedDate = publishedDate
+                book.description = description
+                book.noOfPages = noOfPages
+                book.location = location
+                book.campus = campus
+                book.author = author
+                book.categories = categories
+
+                book.save().then(() => res.sendStatus(200))
+            }
+        })
+        .catch(err => console.log(err))
+}
+
 librarianSchema.methods.returnBook = function (borrowid, res) {
     Borrow.findOne({ _id: borrowid })
         .then(async borrow => {
@@ -389,26 +420,31 @@ librarianSchema.methods.issueBook = async function (bookid, userid, res) {
         .catch(err => console.log(err))
 }
 
-librarianSchema.methods.removeBook = function (bookid, copiesid, reasons, res) {
-    let booksRemoved = []
-    Book.findById(bookid)
+librarianSchema.methods.removeBook = function (bookCopies, res) {
+    const { copies } = bookCopies
+    let count = 0
+    Book.findOne({ isbn: bookCopies.isbn })
         .then(book => {
-            for (let i = 0; i < copiesid.length; i++) {
+
+            for (let i = 0; i < copies.length; i++) {
+                if (!copies[i].checked)
+                    continue
                 for (let j = 0; j < book.copies.length; j++) {
-                    if (copiesid[i] === book.copies[j]._id.toString()) {
+                    if (copies[i]._id === book.copies[j]._id.toString()) {
                         book.copies.splice(j, 1)
                         book.removed.push({
-                            _id: copiesid[i],
-                            reason: reasons[i],
+                            _id: copies[i]._id,
+                            reason: copies[i].reason,
                             createdAt: Date()
                         })
-                        booksRemoved.push(`${book.title} - Copy id ${copiesid[i]}`)
+                        count++
                     }
                 }
             }
+
             book.save()
                 .then(() => {
-                    res.json(booksRemoved)
+                    res.json({ 'noOfBooksRemoved': count })
                 })
                 .catch(err => console.log(err))
         })

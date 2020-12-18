@@ -30,51 +30,60 @@ router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (r
 
 // Add multiple book from csv file
 router.post('/add', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), upload.single('csv'), (req, res) => {
-    console.log(req.file.path)
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.addBookCSV(req.file.path, res)
+            })
+    }
+})
 
-    // if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    // else {
-    //     Librarian.findOne({ _id: req.user._id })
-    //         .then(librarian => {
-    //             librarian.addBookCSV(req.file.path, res)
-    //         })
-    // }
+router.put('/edit', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (req.body.isbn === undefined || req.body.isbn === null) return res.status(400).json({ 'error': 'Missing params' })
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.editBook(req.body, res)
+            })
+    }
 })
 
 // Borrow a book
-// router.post('/borrow/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.post('/borrow/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
 
-//     if (req.user.memberType === 'Member') {
-//         Member.findOne({ _id: req.user._id })
-//             .then(member => {
-//                 member.borrow(req.params.bookid, res)
-//             })
-//     }
-//     else if (req.user.memberType === 'MemberA') {
-//         MemberA.findOne({ _id: req.user._id })
-//             .then(member => {
-//                 member.borrow(req.params.bookid, res)
-//             })
-//     }
-//     else if (req.user.memberType === 'MemberNA') {
-//         MemberNA.findOne({ _id: req.user._id })
-//             .then(member => {
-//                 member.borrow(req.params.bookid, res)
-//             })
-//     }
-//     else if (req.user.memberType === 'Admin') {
-//         Admin.findOne({ _id: req.user._id })
-//             .then(member => {
-//                 member.borrow(req.params.bookid, res)
-//             })
-//     }
-//     else if (req.user.memberType === 'Librarian') {
-//         Librarian.findOne({ _id: req.user._id })
-//             .then(member => {
-//                 member.borrow(req.params.bookid, res)
-//             })
-//     }
-// })
+    if (req.user.memberType === 'Member') {
+        Member.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
+    else if (req.user.memberType === 'MemberA') {
+        MemberA.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
+    else if (req.user.memberType === 'MemberNA') {
+        MemberNA.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
+    else if (req.user.memberType === 'Admin') {
+        Admin.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
+    else if (req.user.memberType === 'Librarian') {
+        Librarian.findOne({ _id: req.user._id })
+            .then(member => {
+                member.borrow(req.params.bookid, res)
+            })
+    }
+})
 
 // Reserve a book
 router.post('/reserve/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
@@ -189,16 +198,13 @@ router.get('/reservation', jwt({ secret, credentialsRequired: true, getToken: (r
 
 // Remove book
 router.post('/remove', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    const { bookid, copiesid, reasons } = req.body
-
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (bookid === undefined) return res.json({ 'error': 'Missing book id' })
-    else if (copiesid === undefined || copiesid.length === 0) return res.json({ 'error': 'Missing copies id' })
-    else if (reasons === undefined || reasons.length === 0) return res.json({ 'error': 'Missing reasons' })
+    else if (req.body.copies === undefined || req.body.copies === null) return res.status(400).json({ 'error': 'Missing copies params' })
+    else if (req.body.isbn === undefined || req.body.isbn === null) return res.status(400).json({ 'error': 'Missing isbn params' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
-                librarian.removeBook(bookid, copiesid, reasons, res)
+                librarian.removeBook(req.body, res)
             })
     }
 })
