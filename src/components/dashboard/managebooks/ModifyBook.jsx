@@ -156,7 +156,7 @@ const ModifyBook = (props) => {
                             id="noOfPages"
                             name="noOfPages"
                             label="Number of pages"
-                            inputRef={register({ required: "Empty title field.", validate: value => !isNaN(value) })}
+                            inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
                             error={!!errors.noOfPages}
                             helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
                         />

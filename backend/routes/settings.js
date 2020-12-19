@@ -15,4 +15,23 @@ router.get('/locations', jwt({ secret, credentialsRequired: true, getToken: (req
     })
 })
 
+router.get('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const openingHours = await Setting.findOne({ 'setting': 'OPENING_HOURS' }).select('options')
+    const closingHours = await Setting.findOne({ 'setting': 'CLOSING_HOURS' }).select('options')
+
+    const baseTime = new Date()
+    baseTime.setHours(0, 0, 0, 0)
+
+    for (let i = 0; i < openingHours.options.length; i++) {
+        openingHours.options[i].time = new Date(baseTime.getTime() + (openingHours.options[i].time * 1000))
+        closingHours.options[i].time = new Date(baseTime.getTime() + (closingHours.options[i].time * 1000))
+    }
+
+    res.json({
+        opening: openingHours,
+        closing: closingHours
+    })
+
+})
+
 module.exports = router
