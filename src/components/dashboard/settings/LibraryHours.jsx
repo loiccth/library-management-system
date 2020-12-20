@@ -39,6 +39,7 @@ const LibraryHours = ({ hours }) => {
             if (new Date(hours.opening[i].time) - new Date(data.opening[i].time) !== 0 ||
                 new Date(hours.closing[i].time) - new Date(data.closing[i].time) !== 0) {
                 updated = true
+                break
             }
         }
 
@@ -86,6 +87,7 @@ const LibraryHours = ({ hours }) => {
                                                     {...params}
                                                     margin="normal"
                                                     variant="standard"
+                                                    error={errors.opening === undefined ? false : errors.opening[index] === undefined ? false : true}
                                                     helperText={errors.opening === undefined ? "" : !!errors.opening[index] ? "Invalid time range" : ""}
                                                 />
                                             )}
@@ -94,8 +96,14 @@ const LibraryHours = ({ hours }) => {
                                     name={`opening[${index}].time`}
                                     control={control}
                                     rules={{
-                                        validate: value =>
-                                            new Date(value) <= new Date(getValues(`closing[${index}].time`))
+                                        required: true,
+                                        validate: value => {
+                                            const temp = new Date(value)
+                                            temp.setSeconds(0, 0)
+                                            const temp2 = new Date(getValues(`closing[${index}].time`))
+                                            temp2.setSeconds(0, 0)
+                                            return temp <= temp2
+                                        }
                                     }}
                                     defaultValue={{}}
                                 />
@@ -120,6 +128,7 @@ const LibraryHours = ({ hours }) => {
                                                     {...params}
                                                     margin="normal"
                                                     variant="standard"
+                                                    error={errors.closing === undefined ? false : errors.closing[index] === undefined ? false : true}
                                                     helperText={errors.closing === undefined ? "" : !!errors.closing[index] ? "Invalid time range" : ""}
                                                 />
                                             )}
@@ -128,8 +137,14 @@ const LibraryHours = ({ hours }) => {
                                     name={`closing[${index}].time`}
                                     control={control}
                                     rules={{
-                                        validate: value =>
-                                            new Date(value) >= new Date(getValues(`opening[${index}].time`))
+                                        required: true,
+                                        validate: value => {
+                                            const temp = new Date(value)
+                                            temp.setSeconds(0, 0)
+                                            const temp2 = new Date(getValues(`opening[${index}].time`))
+                                            temp2.setSeconds(0, 0)
+                                            return temp >= temp2
+                                        }
                                     }}
                                     defaultValue={{}}
                                 />

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import url from './settings/api'
-import { ThemeProvider } from '@material-ui/core'
+import { ThemeProvider, createMuiTheme } from '@material-ui/core'
 import CssBaseline from "@material-ui/core/CssBaseline"
 import Navbar from './components/navbar/Navbar'
 import Home from './components/home/Home'
@@ -23,6 +23,18 @@ import './App.css';
 
 function App() {
     const [user, setUser] = useState(Cookies.get('user') === undefined ? { isLoggedIn: false } : JSON.parse(Cookies.get('user')))
+    const [darkMode, setDarkMode] = useState(Cookies.get('darkMode') === undefined ? false : Cookies.get('darkMode') === 'true')
+
+    const theme = createMuiTheme({
+        palette: {
+            mode: darkMode ? 'dark' : 'light'
+        }
+    })
+
+    const handleToggleTheme = () => {
+        Cookies.set('darkMode', !darkMode)
+        setDarkMode(!darkMode)
+    }
 
     useEffect(() => {
         isLoggedIn()
@@ -78,11 +90,11 @@ function App() {
 
     if (user.temporaryPassword && user.isLoggedIn) {
         return (
-            <ThemeProvider>
+            <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <div className="App">
                     <Router>
-                        <Navbar user={user} handleLogout={handleLogout} />
+                        <Navbar user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />
                         <ChangePassword handlePasswordChange={handlePasswordChange} />
                     </Router>
                 </div>
@@ -91,15 +103,15 @@ function App() {
     }
     else {
         return (
-            <ThemeProvider>
+            <ThemeProvider theme={theme}>
                 <CssBaseline />
                 <div className="App">
                     <Router>
                         <Routes>
-                            <Route path='/' element={<Home user={user} handleLogout={handleLogout} />} />
+                            <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
                             <Route path='/login' element={<LoginPage user={user} handleLogout={handleLogout} handleLogin={handleLogin} />} />
                             <Route path='/book/:id' element={<Book user={user} handleLogout={handleLogout} />} />
-                            <Route path='/dashboard' element={<Dashboard user={user} handleLogout={handleLogout} />}>
+                            <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />}>
                                 <Route path='/' element={<MainDashboard user={user} />} />
                                 <Route path='/managebooks' element={<ManageBooks user={user} />} />
                                 <Route path='/settings' element={<Settings user={user} />} />

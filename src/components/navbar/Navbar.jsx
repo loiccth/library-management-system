@@ -9,6 +9,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import HomeIcon from '@material-ui/icons/Home'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
+import Brightness3Icon from '@material-ui/icons/Brightness3'
+import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import IconButton from '@material-ui/core/IconButton'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
@@ -43,6 +45,23 @@ const Navbar = (props) => {
                             <img src={logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
                         </Link>
                     </div>
+                    {props.darkMode ?
+                        <IconButton
+                            aria-haspopup="false"
+                            color="inherit"
+                            onClick={() => props.handleToggleTheme()}
+                        >
+                            <BrightnessHighIcon />
+                        </IconButton>
+                        :
+                        <IconButton
+                            aria-haspopup="false"
+                            color="inherit"
+                            onClick={() => props.handleToggleTheme()}
+                        >
+                            <Brightness3Icon />
+                        </IconButton>
+                    }
                     <IconButton
                         aria-haspopup="false"
                         color="inherit"

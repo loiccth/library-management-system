@@ -37,31 +37,100 @@ router.get('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) =>
 router.put('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     const { opening, closing } = req.body
 
-    Setting.findOne({ 'setting': 'OPENING_HOURS' })
-        .then(hours => {
-            for (let i = 0; i < opening.length; i++) {
-                let seconds = 0
-                let temp = new Date(opening[i].time)
-                seconds += temp.getHours() * 3600
-                seconds += temp.getMinutes() * 60
-                hours.options[i].time = seconds
-            }
-            hours.markModified('options')
-            hours.save()
-        })
-    Setting.findOne({ 'setting': 'CLOSING_HOURS' })
-        .then(hours => {
-            for (let i = 0; i < closing.length; i++) {
-                let seconds = 0
-                let temp = new Date(closing[i].time)
-                seconds += temp.getHours() * 3600
-                seconds += temp.getMinutes() * 60
-                hours.options[i].time = seconds
-            }
-            hours.markModified('options')
-            hours.save()
-        })
-    res.json({ 'message': 'Opening and closing hours updated.' })
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Setting.findOne({ 'setting': 'OPENING_HOURS' })
+            .then(hours => {
+                for (let i = 0; i < opening.length; i++) {
+                    let seconds = 0
+                    let temp = new Date(opening[i].time)
+                    seconds += temp.getHours() * 3600
+                    seconds += temp.getMinutes() * 60
+                    hours.options[i].time = seconds
+                }
+                hours.markModified('options')
+                hours.save()
+            })
+        Setting.findOne({ 'setting': 'CLOSING_HOURS' })
+            .then(hours => {
+                for (let i = 0; i < closing.length; i++) {
+                    let seconds = 0
+                    let temp = new Date(closing[i].time)
+                    seconds += temp.getHours() * 3600
+                    seconds += temp.getMinutes() * 60
+                    hours.options[i].time = seconds
+                }
+                hours.markModified('options')
+                hours.save()
+            })
+        res.json({ 'message': 'Opening and closing hours updated.' })
+    }
+})
+
+router.get('/books', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const bookSettings = await Setting.findOne({ 'setting': 'BOOKS' }).select('options')
+
+    for (let i = 0; i < bookSettings.options.length; i++) {
+        if (bookSettings.options[i].name === 'Time onhold') {
+            bookSettings.options[i].value /= 60
+            break
+        }
+    }
+
+    res.json(bookSettings.options)
+})
+
+router.put('/books', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const { bookSettings } = req.body
+
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Setting.findOne({ 'setting': 'BOOKS' })
+            .then(settings => {
+                for (let i = 0; i < bookSettings.length; i++) {
+                    if (settings.options[i].name === 'Time onhold')
+                        settings.options[i].value = bookSettings[i].value * 60
+                    else
+                        settings.options[i].value = bookSettings[i].value
+                }
+                settings.markModified('options')
+                settings.save()
+            })
+        res.json({ 'message': 'Book settings updated.' })
+    }
+})
+
+router.get('/users', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const userSettings = await Setting.findOne({ 'setting': 'USER' }).select('options')
+
+    for (let i = 0; i < userSettings.options.length; i++) {
+        if (userSettings.options[i].name === 'Temporary password') {
+            userSettings.options[i].value /= 60
+            break
+        }
+    }
+
+    res.json(userSettings.options)
+})
+
+router.put('/users', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const { userSettings } = req.body
+
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Setting.findOne({ 'setting': 'USER' })
+            .then(settings => {
+                for (let i = 0; i < userSettings.length; i++) {
+                    if (settings.options[i].name === 'Temporary password')
+                        settings.options[i].value = userSettings[i].value * 60
+                    else
+                        settings.options[i].value = userSettings[i].value
+                }
+                settings.markModified('options')
+                settings.save()
+            })
+        res.json({ 'message': 'User settings updated.' })
+    }
 })
 
 module.exports = router

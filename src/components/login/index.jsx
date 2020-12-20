@@ -15,7 +15,7 @@ const LoginPage = (props) => {
 
     return (
         <React.Fragment>
-            <Navbar user={props.user} handleLogout={props.handleLogout} />
+            <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
             <Container className={classes.container} maxWidth="lg">
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>

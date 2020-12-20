@@ -107,7 +107,7 @@ const Book = (props) => {
     else {
         return (
             <React.Fragment>
-                <Navbar user={props.user} handleLogout={props.handleLogout} />
+                <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
                 <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleClose}>
                     <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
                         {snackbar.msg}

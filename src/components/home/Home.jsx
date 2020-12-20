@@ -68,7 +68,7 @@ const Home = (props) => {
         <>
             {loading ? null :
                 <React.Fragment>
-                    <Navbar user={props.user} handleLogout={props.handleLogout} />
+                    <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
                     <form className={classes.form} onSubmit={handleSubmit(handleSearch)}>
                         <Container maxWidth="sm" className={classes.container}>
                             <TextField
