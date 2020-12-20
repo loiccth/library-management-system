@@ -6,7 +6,7 @@ import url from '../../settings/api'
 import Container from '@material-ui/core/Container'
 import { Button, makeStyles, Paper, TextField, Typography, FormHelperText } from '@material-ui/core'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 
 const Reset = () => {
     const { register, handleSubmit, errors, reset, control, setValue } = useForm()
@@ -89,7 +89,6 @@ const Reset = () => {
                                 className={classes.button}
                                 type="submit"
                                 variant="contained"
-                                color="primary"
                                 fullWidth
                             >Reset password</Button>
                         </div>

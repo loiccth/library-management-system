@@ -16,7 +16,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import Tooltip from '@material-ui/core/Tooltip'
 import { Button, Toolbar, Container } from '@material-ui/core'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 
 const OverdueBooks = (props) => {
     const classes = useStyles()
@@ -116,7 +116,7 @@ const OverdueBooks = (props) => {
                     </TableBody>
                 </Table>
                 <Container className={classes.button}>
-                    <Button variant="outlined" onClick={handleOnClick} color="primary">Send Reminder</Button>
+                    <Button variant="outlined" onClick={handleOnClick}>Send Reminder</Button>
                 </Container>
             </TableContainer>
         </React.Fragment>

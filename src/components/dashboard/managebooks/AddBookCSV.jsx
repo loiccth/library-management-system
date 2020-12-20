@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import { DropzoneArea } from 'material-ui-dropzone'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Grid from '@material-ui/core/Grid'
 
@@ -41,7 +41,7 @@ const AddBookCSV = () => {
                     {snackbar.msg}
                 </Alert>
             </Snackbar>
-            <Grid container justify="center">
+            <Grid container justifyContent="center">
                 <Grid item md={10} lg={12}>
                     <form className={classes.root} noValidate onSubmit={handleSubmit(onSubmit)}>
                         <Controller
@@ -56,9 +56,9 @@ const AddBookCSV = () => {
                                 previewChipProps={{ classes: { root: classes.previewChip } }}
                                 previewText="Selected CSV file"
                                 maxFileSize={10485760}
-                                alertSnackbarProps={{
-                                    anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
-                                }}
+                            // alertSnackbarProps={{
+                            //     anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+                            // }}
                             />}
                             name="csv"
                             control={control}
@@ -68,7 +68,6 @@ const AddBookCSV = () => {
                         <Button
                             type="submit"
                             variant="contained"
-                            color="primary"
                             fullWidth
                         >Add Books</Button>
                     </form>

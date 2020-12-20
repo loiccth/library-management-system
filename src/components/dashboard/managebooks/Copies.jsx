@@ -14,7 +14,8 @@ import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
+import Button from '@material-ui/core/Button'
 
 const Copies = (props) => {
     const classes = useStyles()
@@ -137,7 +138,11 @@ const Copies = (props) => {
                                     ))}
                                 </TableBody>
                             </Table>
-                            <button type="submit">Submit</button>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                fullWidth
+                            >Remove copies</Button>
                         </form>
                     </TableContainer>
                 </Grid>

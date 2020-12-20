@@ -11,7 +11,7 @@ import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 
 const SearchBook = (props) => {
     const classes = useStyles()

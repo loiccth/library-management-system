@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import url from '../../../settings/api'
-import DateFnsUtils from '@date-io/date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 import Grid from '@material-ui/core/Grid'
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
+import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
+import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
+import DatePicker from '@material-ui/lab/DatePicker'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Switch from '@material-ui/core/Switch'
 
@@ -19,7 +20,7 @@ const AddBook = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const [useAPI, setUseAPI] = useState(true)
-    const { register, handleSubmit, errors, reset, control, watch, setValue } = useForm({
+    const { register, handleSubmit, errors, reset, control, watch, setValue, getValues } = useForm({
         defaultValues: {
             noOfCopies: 1,
             campus: 'rhill',
@@ -146,24 +147,29 @@ const AddBook = (props) => {
                                     inputRef={register({ required: "Empty publisher field" })}
                                     helperText={!!errors.publisher ? errors.publisher.message : " "}
                                 />
-                                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <Controller
                                         render={({ onChange, value }) => (
-                                            <KeyboardDatePicker
-                                                margin="normal"
-                                                color="primary"
+                                            <DatePicker
                                                 label="Published Date *"
-                                                format="dd/MM/yyyy"
-                                                disableFuture
-                                                fullWidth
                                                 value={value}
                                                 onChange={onChange}
+                                                disableFuture
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        variant="standard"
+                                                        name="publishedDate"
+                                                        fullWidth
+                                                        helperText={params.errors ? "Invalid date" : params.helperText}
+                                                    />
+                                                )}
                                             />
                                         )}
                                         name="publishedDate"
                                         control={control}
                                     />
-                                </MuiPickersUtilsProvider>
+                                </LocalizationProvider>
                             </>
                         }
                         {useAPI &&
@@ -283,7 +289,7 @@ const AddBook = (props) => {
                                 name="description"
                                 label="Description"
                                 multiline
-                                rows={5}
+                                minRows={5}
                                 inputRef={register({ required: "Empty description field" })}
                                 helperText={!!errors.description ? errors.description.message : " "}
                             />
@@ -291,9 +297,9 @@ const AddBook = (props) => {
                     </Grid>
                 </Grid>
                 <Button
-                    type="submit"
+                    // type="submit"
+                    onClick={() => console.log(getValues())}
                     variant="contained"
-                    color="primary"
                     fullWidth
                 >Add Book</Button>
             </form>

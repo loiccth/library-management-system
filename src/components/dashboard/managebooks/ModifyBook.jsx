@@ -8,10 +8,11 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import MenuItem from '@material-ui/core/MenuItem'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 import Grid from '@material-ui/core/Grid'
-
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
+import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
+import DatePicker from '@material-ui/lab/DatePicker'
+// import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
 
 const ModifyBook = (props) => {
     const classes = useStyles()
@@ -129,10 +130,10 @@ const ModifyBook = (props) => {
                             inputRef={register({ required: "Empty publisher field." })}
                             helperText={!!errors.publisher ? errors.publisher.message : " "}
                         />
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                        <LocalizationProvider dateAdapter={DateFnsUtils}>
                             <Controller
                                 render={({ onChange, value }) => (
-                                    <KeyboardDatePicker
+                                    <DatePicker
                                         margin="normal"
                                         color="primary"
                                         label="Published Date"
@@ -146,7 +147,7 @@ const ModifyBook = (props) => {
                                 name="publishedDate"
                                 control={control}
                             />
-                        </MuiPickersUtilsProvider>
+                        </LocalizationProvider>
                     </Grid>
                     <Grid item md={6}>
                         <TextField
@@ -222,7 +223,6 @@ const ModifyBook = (props) => {
                 <Button
                     type="submit"
                     variant="contained"
-                    color="primary"
                     fullWidth
                 >Modify Book</Button>
             </form>

@@ -78,24 +78,26 @@ const MainDashboard = ({ user }) => {
         return axios.post(`${url}/books/due`, { from, to }, { withCredentials: true })
     }
 
-    const getNewDueBooks = async (from, to) => {
-        const getDue = await getDueBooks(from, to)
-        setDueBooks(
-            getDue.data.map(borrow => {
-                return {
-                    checked: false,
-                    _id: borrow._id,
-                    userid: borrow.userid.userid,
-                    email: borrow.userid.udmid.email,
-                    title: borrow.bookid.title,
-                    isbn: borrow.bookid.isbn,
-                    dueDate: borrow.dueDate,
-                    borrowDate: borrow.createdAt,
-                    renews: borrow.renews,
-                    isHighDemand: borrow.isHighDemand
-                }
-            })
-        )
+    const getNewDueBooks = async (date) => {
+        if (date[0] !== null && date[1] !== null) {
+            const getDue = await getDueBooks(date[0], date[1])
+            setDueBooks(
+                getDue.data.map(borrow => {
+                    return {
+                        checked: false,
+                        _id: borrow._id,
+                        userid: borrow.userid.userid,
+                        email: borrow.userid.udmid.email,
+                        title: borrow.bookid.title,
+                        isbn: borrow.bookid.isbn,
+                        dueDate: borrow.dueDate,
+                        borrowDate: borrow.createdAt,
+                        renews: borrow.renews,
+                        isHighDemand: borrow.isHighDemand
+                    }
+                })
+            )
+        }
     }
 
     const handleCheck = (e) => {

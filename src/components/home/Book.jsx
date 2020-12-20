@@ -22,7 +22,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 
 const Book = (props) => {
     const { id } = useParams()
@@ -127,9 +127,9 @@ const Book = (props) => {
                                 <Grid item xs={12} style={{ textAlign: 'center' }}>
                                     {props.user.isLoggedIn ?
                                         <React.Fragment>
-                                            {transaction === null && <Button variant="outlined" color="primary" onClick={handleToggle}>Reserve</Button>}
-                                            {transaction === 'Reserve' && <Button variant="outlined" color="primary" onClick={handleToggle}>Cancel Reservation</Button>}
-                                            {transaction === 'Borrow' && <Button variant="outlined" color="primary" disabled>Return Book</Button>}
+                                            {transaction === null && <Button variant="outlined" onClick={handleToggle}>Reserve</Button>}
+                                            {transaction === 'Reserve' && <Button variant="outlined" onClick={handleToggle}>Cancel Reservation</Button>}
+                                            {transaction === 'Borrow' && <Button variant="outlined" disabled>Return Book</Button>}
                                             <Dialog
                                                 open={open}
                                                 onClose={handleToggle}
@@ -145,14 +145,14 @@ const Book = (props) => {
                                                     <Button onClick={handleToggle} color="secondary">
                                                         Cancel
                                                     </Button>
-                                                    <Button onClick={handleConfirm} color="primary" autoFocus>
+                                                    <Button onClick={handleConfirm} autoFocus>
                                                         Confirm
                                                     </Button>
                                                 </DialogActions>
                                             </Dialog>
                                         </React.Fragment>
                                         :
-                                        <Button variant="outlined" color="primary" disabled>Reserve</Button>
+                                        <Button variant="outlined" disabled>Reserve</Button>
                                     }
                                 </Grid>
                             </Grid>

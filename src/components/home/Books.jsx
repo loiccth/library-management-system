@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import FiberNewIcon from '@material-ui/icons/FiberNew'
 import Tooltip from '@material-ui/core/Tooltip'
-import Pagination from '@material-ui/lab/Pagination'
+import Pagination from '@material-ui/core/Pagination'
 import Footer from '../navbar/Footer'
 
 const Books = (props) => {

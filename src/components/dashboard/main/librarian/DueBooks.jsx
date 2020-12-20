@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import url from '../../../../settings/api'
-import DateFnsUtils from '@date-io/date-fns'
 import { makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -17,25 +16,23 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import Tooltip from '@material-ui/core/Tooltip'
 import { Button, Toolbar, Container, Grid } from '@material-ui/core'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
-import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers'
+import Alert from '@material-ui/core/Alert'
+import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
+import DateRangeDelimiter from '@material-ui/lab/DateRangeDelimiter'
+import DateRangePicker from '@material-ui/lab/DateRangePicker'
+import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
+import TextField from '@material-ui/core/TextField'
 
 const DueBooks = (props) => {
     const classes = useStyles()
     const [check, setCheck] = useState(false)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
-    const [selectedDateFrom, setSelectedDateFrom] = useState(new Date())
-    const [selectedDateTo, setSelectedDateTo] = useState(new Date())
+    const [date, setDate] = useState([new Date(), new Date()])
 
-    const handleDateChangeFrom = (date) => {
-        setSelectedDateFrom(date)
-        props.getNewDueBooks(date, selectedDateTo)
-    }
-
-    const handleDateChangeTo = (date) => {
-        setSelectedDateTo(date)
-        props.getNewDueBooks(selectedDateFrom, date)
+    const handleDateUpdate = (date) => {
+        setDate(date)
+        props.getNewDueBooks(date)
     }
 
     const handleClick = () => {
@@ -81,40 +78,28 @@ const DueBooks = (props) => {
             </Snackbar>
             <TableContainer component={Paper}>
                 <Container className={classes.table}>
-                    <Grid container justify="flex-end" spacing={3}>
+                    <Grid container justifyContent="flex-end" spacing={3}>
                         <Grid item className={classes.title}>
                             <Toolbar>
                                 <Typography variant="h6">Due Books</Typography>
                             </Toolbar>
                         </Grid>
-                        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <Grid item xs={4} sm={4} md={4} lg={3} xl={2}>
-                                <DatePicker
-                                    margin="dense"
-                                    color="primary"
-                                    label="From"
-                                    format="dd/MM/yyyy"
-                                    name="from"
-                                    value={selectedDateFrom}
-                                    onChange={handleDateChangeFrom}
-                                    maxDate={selectedDateTo}
-                                    disablePast
-                                />
-                            </Grid>
-                            <Grid item xs={4} sm={4} md={4} lg={3} xl={2}>
-                                <DatePicker
-                                    margin="dense"
-                                    color="primary"
-                                    label="To"
-                                    format="dd/MM/yyyy"
-                                    name="to"
-                                    value={selectedDateTo}
-                                    onChange={handleDateChangeTo}
-                                    minDate={selectedDateFrom}
-                                    disablePast
-                                />
-                            </Grid>
-                        </MuiPickersUtilsProvider>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DateRangePicker
+                                startText="From"
+                                endText="To"
+                                value={date}
+                                minDate={new Date()}
+                                onChange={handleDateUpdate}
+                                renderInput={(startProps, endProps) => (
+                                    <React.Fragment>
+                                        <TextField {...startProps} variant="standard" margin="normal" />
+                                        <DateRangeDelimiter> - </DateRangeDelimiter>
+                                        <TextField {...endProps} variant="standard" margin="normal" />
+                                    </React.Fragment>
+                                )}
+                            />
+                        </LocalizationProvider>
                     </Grid>
                 </Container>
                 <Table className={classes.table}>
@@ -164,7 +149,7 @@ const DueBooks = (props) => {
                     </TableBody>
                 </Table>
                 <Container className={classes.button}>
-                    <Button variant="outlined" onClick={handleOnClick} color="primary">Send Reminder</Button>
+                    <Button variant="outlined" onClick={handleOnClick}>Send Reminder</Button>
                 </Container>
             </TableContainer>
         </React.Fragment>

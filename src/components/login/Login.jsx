@@ -5,7 +5,7 @@ import url from '../../settings/api'
 import Container from '@material-ui/core/Container'
 import { Button, Checkbox, FormControlLabel, makeStyles, Paper, TextField, Typography } from '@material-ui/core'
 import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/lab/Alert'
+import Alert from '@material-ui/core/Alert'
 
 const Login = (props) => {
     const { register, handleSubmit, errors, reset } = useForm()
@@ -82,7 +82,6 @@ const Login = (props) => {
                             className={classes.button}
                             type="submit"
                             variant="contained"
-                            color="primary"
                             fullWidth
                         >Log in</Button>
                     </form>
