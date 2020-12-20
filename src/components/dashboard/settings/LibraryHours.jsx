@@ -33,18 +33,38 @@ const LibraryHours = ({ hours }) => {
     }
 
     const onSubmit = (data) => {
-        axios.put(`${url}/settings/hours`, data, { withCredentials: true })
-            .then(result => {
-                setSnackbar(result.data.message)
-                handleClick()
+        let updated = false
+
+        for (let i = 0; i < hours.opening.length; i++) {
+            if (new Date(hours.opening[i].time) - new Date(data.opening[i].time) !== 0 ||
+                new Date(hours.closing[i].time) - new Date(data.closing[i].time) !== 0) {
+                updated = true
+            }
+        }
+
+        if (updated)
+            axios.put(`${url}/settings/hours`, data, { withCredentials: true })
+                .then(result => {
+                    setSnackbar({
+                        type: 'success',
+                        msg: result.data.message
+                    })
+                    handleClick()
+                })
+        else {
+            setSnackbar({
+                type: 'warning',
+                msg: 'Opening/closing hours did not change.'
             })
+            handleClick()
+        }
     }
 
     return (
         <>
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert elevation={6} severity='success' onClose={handleClose}>
-                    {snackbar}
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
+                    {snackbar.msg}
                 </Alert>
             </Snackbar>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -77,6 +97,7 @@ const LibraryHours = ({ hours }) => {
                                         validate: value =>
                                             new Date(value) <= new Date(getValues(`closing[${index}].time`))
                                     }}
+                                    defaultValue={{}}
                                 />
                                 <TextField
                                     className={classes.hidden}
@@ -110,6 +131,7 @@ const LibraryHours = ({ hours }) => {
                                         validate: value =>
                                             new Date(value) >= new Date(getValues(`opening[${index}].time`))
                                     }}
+                                    defaultValue={{}}
                                 />
                                 <TextField
                                     className={classes.hidden}

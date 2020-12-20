@@ -63,6 +63,7 @@ const AddBookCSV = () => {
                             name="csv"
                             control={control}
                             rules={{ validate: value => value.length > 0 }}
+                            defaultValue={[]}
                         />
                         <FormHelperText error children={!!errors.csv ? "CSV file required." : " "} />
                         <Button

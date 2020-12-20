@@ -241,7 +241,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         })
         .on('end', () => {
             setTimeout(() => {
-                res.sendStatus(201).json({
+                res.status(201).json({
                     success,
                     fail
                 })

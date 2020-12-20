@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import url from '../../../settings/api'
-import DateFnsUtils from '@date-io/date-fns'
 import { useForm, Controller } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -11,8 +10,8 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/core/Alert'
 import Grid from '@material-ui/core/Grid'
 import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
+import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import DatePicker from '@material-ui/lab/DatePicker'
-// import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
 
 const ModifyBook = (props) => {
     const classes = useStyles()
@@ -83,9 +82,8 @@ const ModifyBook = (props) => {
                             fullWidth
                             variant="standard"
                             margin="normal"
-                            id="isbn"
-                            name="isbn"
                             label="ISBN"
+                            value={props.book.isbn}
                             disabled
                         />
                         <TextField className={classes.hidden}
@@ -130,22 +128,28 @@ const ModifyBook = (props) => {
                             inputRef={register({ required: "Empty publisher field." })}
                             helperText={!!errors.publisher ? errors.publisher.message : " "}
                         />
-                        <LocalizationProvider dateAdapter={DateFnsUtils}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
                             <Controller
                                 render={({ onChange, value }) => (
                                     <DatePicker
-                                        margin="normal"
-                                        color="primary"
-                                        label="Published Date"
-                                        format="dd/MM/yyyy"
-                                        disableFuture
-                                        fullWidth
+                                        label="Published Date *"
                                         value={value}
                                         onChange={onChange}
+                                        disableFuture
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="standard"
+                                                name="publishedDate"
+                                                fullWidth
+                                                helperText={params.errors ? "Invalid date" : params.helperText}
+                                            />
+                                        )}
                                     />
                                 )}
                                 name="publishedDate"
                                 control={control}
+                                defaultValue={{}}
                             />
                         </LocalizationProvider>
                     </Grid>
