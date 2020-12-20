@@ -16,7 +16,7 @@ const LibraryHours = ({ hours }) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
-    const { register, handleSubmit, control, setValue, getValues, trigger } = useForm()
+    const { register, handleSubmit, errors, control, setValue, getValues, trigger } = useForm()
 
     useEffect(() => {
         Object.entries(hours).map(([key, value]) => (
@@ -66,13 +66,17 @@ const LibraryHours = ({ hours }) => {
                                                     {...params}
                                                     margin="normal"
                                                     variant="standard"
-                                                    helperText=""
+                                                    helperText={errors.opening === undefined ? "" : !!errors.opening[index] ? "Invalid time range" : ""}
                                                 />
                                             )}
                                         />
                                     )}
                                     name={`opening[${index}].time`}
                                     control={control}
+                                    rules={{
+                                        validate: value =>
+                                            new Date(value) <= new Date(getValues(`closing[${index}].time`))
+                                    }}
                                 />
                                 <TextField
                                     className={classes.hidden}
@@ -95,13 +99,17 @@ const LibraryHours = ({ hours }) => {
                                                     {...params}
                                                     margin="normal"
                                                     variant="standard"
-                                                    helperText=""
+                                                    helperText={errors.closing === undefined ? "" : !!errors.closing[index] ? "Invalid time range" : ""}
                                                 />
                                             )}
                                         />
                                     )}
                                     name={`closing[${index}].time`}
                                     control={control}
+                                    rules={{
+                                        validate: value =>
+                                            new Date(value) >= new Date(getValues(`opening[${index}].time`))
+                                    }}
                                 />
                                 <TextField
                                     className={classes.hidden}
