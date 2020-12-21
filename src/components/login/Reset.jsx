@@ -8,7 +8,7 @@ import { Button, makeStyles, Paper, TextField, Typography, FormHelperText } from
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/core/Alert'
 
-const Reset = () => {
+const Reset = (props) => {
     const { register, handleSubmit, errors, reset, control, setValue } = useForm()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
@@ -81,7 +81,7 @@ const Reset = () => {
                                 rules={{ required: "ReCaptcha required." }}
                                 defaultValue={""}
                             />
-                            <ReCAPTCHA sitekey="" ref={recaptchaRef} onChange={handleReCaptcha} />
+                            <ReCAPTCHA sitekey="" theme={props.darkMode ? "dark" : "light"} ref={recaptchaRef} onChange={handleReCaptcha} />
                             <FormHelperText error children={!!errors.reCaptcha ? errors.reCaptcha.message : " "} />
                         </div>
                         <div style={{ display: 'flex', flexGrow: 1 }}>

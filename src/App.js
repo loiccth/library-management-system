@@ -109,8 +109,8 @@ function App() {
                     <Router>
                         <Routes>
                             <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
-                            <Route path='/login' element={<LoginPage user={user} handleLogout={handleLogout} handleLogin={handleLogin} />} />
-                            <Route path='/book/:id' element={<Book user={user} handleLogout={handleLogout} />} />
+                            <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} handleLogin={handleLogin} />} />
+                            <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
                             <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />}>
                                 <Route path='/' element={<MainDashboard user={user} />} />
                                 <Route path='/managebooks' element={<ManageBooks user={user} />} />
