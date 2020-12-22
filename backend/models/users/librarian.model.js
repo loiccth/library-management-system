@@ -14,23 +14,30 @@ const Schema = mongoose.Schema
 
 const librarianSchema = new Schema()
 
-librarianSchema.methods.borrow = async function (bookid, res) {
+librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, status: 'active' })
 
-    if (bookBorrowed !== null) return res.json({ 'error': 'Cannot borrow multiple copies of the same book' })
+    if (bookBorrowed !== null) return res.json({ 'message': 'Cannot borrow multiple copies of the same book' })
     else {
         const date = new Date()
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, createdAt: { $gte: firstDay, $lte: lastDay } })
-        const bookLimit = await Setting.findOne({ setting: 'NONACADEMIC_BORROW' })
+        let bookLimit = await Setting.findOne({ setting: 'USER' })
 
-        if (numOfBooksBorrowed >= parseInt(bookLimit.option)) return res.json({ 'error': 'Cannot borrow more than 2 books in a month' })
+        for (let i = 0; i < bookLimit.options.length; i++) {
+            if (bookLimit.options[i].id === 'non_academic_borrow_count') {
+                bookLimit = bookLimit.options[i].value
+                break
+            }
+        }
+
+        if (numOfBooksBorrowed >= bookLimit) return res.json({ 'message': 'Cannot borrow more than 2 books in a month' })
         else {
             const now = new Date()
             const bookReserved = await Reserve.findOne({ bookid, userid: this._id, status: 'active', expireAt: { $gte: now } })
 
-            Book.findOne({ _id: bookid })
+            Book.findById(bookid)
                 .then(async book => {
                     let dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
                     if (book.isHighDemand === true) {
@@ -38,44 +45,20 @@ librarianSchema.methods.borrow = async function (bookid, res) {
                         tomorrow.setDate(tomorrow.getDate() + 2)
                         tomorrow.setHours(0, 0, 0, 0)
 
-                        const dayOfWeek = tomorrow.getDay()
-                        let libraryOpenTime
-                        switch (dayOfWeek) {
-                            case 0:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'SUNDAY_OPEN' })
-                                break
-                            case 1:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'MONDAY_OPEN' })
-                                break
-                            case 2:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'TUESDAY_OPEN' })
-                                break
-                            case 3:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'WEDNESDAY_OPEN' })
-                                break
-                            case 4:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'THURSDAY_OPEN' })
-                                break
-                            case 5:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'FRIDAY_OPEN' })
-                                break
-                            case 6:
-                                libraryOpenTime = await Setting.findOne({ 'setting': 'SATURDAY_OPEN' })
-                                break
-                        }
-                        if (libraryOpenTime.option === 'null') return res.json({ 'error': 'Cannot issue high demand book, library is closed tomorrow.' })
-                        else dueDate = tomorrow.setSeconds(parseInt(libraryOpenTime.option) + 1800)
+                        if (libraryOpenTime === 0) return res.json({ 'message': 'Cannot issue high demand book, library is closed tomorrow.' })
+                        else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
                     }
 
                     if (bookReserved !== null) {
                         bookReserved.status = 'archive'
                         bookReserved.save().catch(err => console.log(err))
 
-                        for (let j = 0; j < book.copies.length; j++) {
+                        for (let j = 0; j < book.reservation.length; j++) {
                             if (book.reservation[j].userid.toString() === this._id.toString()) {
                                 for (let i = 0; i < book.copies.length; i++) {
                                     if (book.copies[i].availability === 'onhold') {
-                                        book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
+                                        book.noOfBooksOnLoan++
+                                        book.noOfBooksOnHold++
                                         book.copies[i].availability = 'onloan'
                                         book.copies[i].borrower = {
                                             userid: this._id,
@@ -94,21 +77,24 @@ librarianSchema.methods.borrow = async function (bookid, res) {
                                             isHighDemand: book.isHighDemand
                                         })
                                         await newBorrow.save().then(() => {
-                                            return res.sendStatus(201)
+                                            return res.status(201).json({
+                                                title: book.title,
+                                                dueDate: new Date(dueDate)
+                                            })
                                         }).catch(err => console.log(err))
                                         break
                                     }
                                 }
                                 break
                             }
-                            else res.json({ 'error': 'There are other users infront of the queue.' })
+                            else res.json({ 'message': 'There are other users infront of the queue.' })
                         }
                     }
                     else {
-                        if (book.copies.length > book.noOfBooksOnLoan)
+                        if (book.copies.length > book.noOfBooksOnLoan + book.noOfBooksOnHold)
                             for (let i = 0; i < book.copies.length; i++) {
                                 if (book.copies[i].availability === 'available') {
-                                    book.noOfBooksOnLoan = book.noOfBooksOnLoan + 1
+                                    book.noOfBooksOnLoan++
                                     book.copies[i].availability = 'onloan'
                                     book.copies[i].borrower = {
                                         userid: this._id,
@@ -126,12 +112,15 @@ librarianSchema.methods.borrow = async function (bookid, res) {
                                         isHighDemand: book.isHighDemand
                                     })
                                     await newBorrow.save().then(() => {
-                                        return res.sendStatus(201)
+                                        return res.status(201).json({
+                                            title: book.title,
+                                            dueDate: new Date(dueDate)
+                                        })
                                     }).catch(err => console.log(err))
                                     break
                                 }
                             }
-                        else res.json({ 'error': 'No books available to loan' })
+                        else res.json({ 'message': 'No books available to loan' })
                     }
                 })
         }
@@ -280,67 +269,113 @@ librarianSchema.methods.editBook = function (bookDetails, res) {
         .catch(err => console.log(err))
 }
 
-librarianSchema.methods.returnBook = function (borrowid, res) {
-    Borrow.findOne({ _id: borrowid })
-        .then(async borrow => {
-            borrow.returnedOn = Date()
-            borrow.archive = true
+librarianSchema.methods.returnBook = async function (isbn, userid, res) {
+    User.findOne({ userid })
+        .then(user => {
+            if (user) {
+                Book.findOne({ isbn })
+                    .then(async book => {
+                        if (book) {
+                            Borrow.findOne({ bookid: book._id, userid: user._id, status: 'active' })
+                                .then(async borrow => {
+                                    if (borrow) {
 
-            const now = new Date(new Date().toDateString())
-            const borrowDate = new Date(borrow.dueDate.toDateString())
-            let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+                                        let bookSettings = await Setting.findOne({ setting: 'BOOKS' })
+                                        let numOfDays
+                                        let finePerDay
+                                        let timeOnHold
+                                        let paymentID
 
-            if (numOfDays < 0) {
-                numOfDays *= -1
-
-                const newPayment = new Payment({
-                    userid: borrow.userid,
-                    bookid: borrow.bookid,
-                    copyid: borrow.copyid,
-                    numOfDays,
-                    pricePerDay: 25
-                })
-
-                await newPayment.save().catch(err => console.log(err))
-            }
-            await borrow.save().catch(err => console.log(err))
-
-            Book.findOne({ _id: borrow.bookid })
-                .then(async book => {
-                    book.noOfBooksOnLoan = book.noOfBooksOnLoan - 1
-                    timeOnHold = await Setting.findOne({ setting: 'TIME_ON_HOLD' })
-                    for (let i = 0; i < book.copies.length; i++) {
-                        if (book.copies[i].borrower.userid.toString() === borrow.userid.toString()) {
-                            if (book.reservation.length > 0) {
-                                book.copies[i].availability = 'onhold'
-                                for (let j = 0; j < book.reservation.length; j++) {
-                                    if (book.reservation[j].expireAt === null) {
-                                        book.reservation[j] = {
-                                            ...book.reservation[j],
-                                            expireAt: new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000))
+                                        for (let i = 0; i < bookSettings.options.length; i++) {
+                                            if (bookSettings.options[i].id === 'fine_per_day') {
+                                                finePerDay = bookSettings.options[i].value
+                                            }
+                                            else if (bookSettings.options[i].id === 'fine_per_day') {
+                                                timeOnHold = bookSettings.options[i].value
+                                            }
                                         }
-                                        Reserve.findOne({ _id: borrow.bookid, userid: book.reservation[0].userid, status: 'active' })
-                                            .then(reserve => {
-                                                reserve.expireAt = new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000))
 
-                                                reserve.save().catch(err => console.log(err))
+                                        borrow.returnedOn = Date()
+                                        borrow.status = 'archive'
+
+                                        const now = new Date(new Date().toDateString())
+                                        const borrowDate = new Date(borrow.dueDate.toDateString())
+                                        numOfDays = ((now.getTime() - borrowDate.getTime()) / (24 * 60 * 60 * 1000))
+
+                                        if (borrow.isHighDemand) {
+                                            if (new Date() > new Date(borrow.dueDate))
+                                                numOfDays++
+                                        }
+
+                                        if (numOfDays > 0) {
+
+                                            const newPayment = new Payment({
+                                                userid: borrow.userid,
+                                                bookid: borrow.bookid,
+                                                copyid: borrow.copyid,
+                                                numOfDays,
+                                                pricePerDay: finePerDay
                                             })
-                                        break
-                                        // TODO: Inform next member in reservation queue
+
+                                            paymentID = await newPayment.save().catch(err => console.log(err))
+                                        }
+                                        borrow.save().catch(err => console.log(err))
+
+                                        book.noOfBooksOnLoan--
+                                        for (let i = 0; i < book.copies.length; i++) {
+                                            if (book.copies[i].borrower.userid) {
+                                                if (book.copies[i].borrower.userid.toString() === borrow.userid.toString()) {
+                                                    if (book.reservation.length - book.noOfBooksOnHold > 0) {
+                                                        book.copies[i].availability = 'onhold'
+                                                        book.noOfBooksOnHold++
+                                                        for (let j = 0; j < book.reservation.length; j++) {
+                                                            if (book.reservation[j].expireAt === null) {
+                                                                const dueDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                                                book.reservation[j].expireAt = dueDate
+                                                                Reserve.findOne({ bookid: borrow.bookid, userid: book.reservation[j].userid, status: 'active' })
+                                                                    .then(reserve => {
+                                                                        reserve.expireAt = dueDate
+
+                                                                        reserve.save().catch(err => console.log(err))
+                                                                    })
+                                                                break
+                                                                // TODO: Inform next member in reservation queue
+                                                            }
+                                                        }
+                                                    }
+                                                    else {
+                                                        book.copies[i].availability = 'available'
+                                                        book.copies[i].borrower = null
+                                                        book.noOfBooksOnLoan--
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        book.save()
+                                            .then(() => {
+                                                res.json({
+                                                    noOfDaysOverdue: numOfDays,
+                                                    finePerDay,
+                                                    paymentID: paymentID ? paymentID._id : null
+                                                })
+                                            })
+                                            .catch(err => console.log(err))
                                     }
-                                }
-                            }
-                            else {
-                                book.copies[i].availability = 'available'
-                                book.copies[i].borrower = null
-                                book.noOfBooksOnLoan = book.noOfBooksOnLoan - 1
-                                break
-                            }
+                                    else
+                                        res.status(404).json({ 'error': 'Record not found.' })
+                                })
                         }
-                    }
-                    book.save().then(() => res.sendStatus(200)).catch(err => console.log)
-                })
+                        else
+                            res.status(404).json({ 'error': 'Book not found.' })
+                    })
+                    .catch(err => console.log(err))
+            }
+            else
+                res.status(404).json({ 'error': 'MemberID not found.' })
         })
+
 }
 
 librarianSchema.methods.getOverdueBooks = function (res) {
@@ -373,51 +408,73 @@ librarianSchema.methods.getReservations = function (res) {
         .catch(err => console.log(err))
 }
 
-librarianSchema.methods.issueBook = async function (bookid, userid, res) {
-    const book = await Book.findById(bookid)
+librarianSchema.methods.issueBook = async function (isbn, userid, res) {
+    const book = await Book.findOne({ isbn }).select(['_id', 'isHighDemand'])
 
-    if (book.isHighDemand === true) {
-        let today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const dayOfWeek = today.getDay()
+    let today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const dayOfWeek = today.getDay()
+    const closeSettings = await Setting.findOne({ setting: 'CLOSING_HOURS' })
+    const openSettings = await Setting.findOne({ setting: 'OPENING_HOURS' })
+    let libraryOpenTime
+    let libraryCloseTime
 
-        let libraryCloseTime
-
-        switch (dayOfWeek) {
-            case 0:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'SUNDAY_CLOSE' })
-                break
-            case 1:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'MONDAY_CLOSE' })
-                break
-            case 2:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'TUESDAY_CLOSE' })
-                break
-            case 3:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'WEDNESDAY_CLOSE' })
-                break
-            case 4:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'THURSDAY_CLOSE' })
-                break
-            case 5:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'FRIDAY_CLOSE' })
-                break
-            case 6:
-                libraryCloseTime = await Setting.findOne({ 'setting': 'SATURDAY_CLOSE' })
-                break
-        }
-        if (libraryCloseTime.option == 'null') return res.json({ 'error': 'Cannot issue book, library is closed' })
-        else {
-            today.setSeconds(parseInt(libraryCloseTime.option) - 1800)
-            if (today > new Date()) return res.json({ 'error': `Cannot issue high demand book, too early. ${today}` })
-        }
+    switch (dayOfWeek) {
+        case 0:
+            libraryOpenTime = openSettings.options[6].time
+            libraryCloseTime = closeSettings.options[6].time
+            break
+        case 1:
+            libraryOpenTime = openSettings.options[0].time
+            libraryCloseTime = closeSettings.options[0].time
+            break
+        case 2:
+            libraryOpenTime = openSettings.options[1].time
+            libraryCloseTime = closeSettings.options[1].time
+            break
+        case 3:
+            libraryOpenTime = openSettings.options[2].time
+            libraryCloseTime = closeSettings.options[2].time
+            break
+        case 4:
+            libraryOpenTime = openSettings.options[3].time
+            libraryCloseTime = closeSettings.options[3].time
+            break
+        case 5:
+            libraryOpenTime = openSettings.options[4].time
+            libraryCloseTime = closeSettings.options[4].time
+            break
+        case 6:
+            libraryOpenTime = openSettings.options[5].time
+            libraryCloseTime = closeSettings.options[5].time
+            break
     }
 
-    User.findById(userid)
-        .then(user => {
-            user.borrow(bookid, res)
-        })
-        .catch(err => console.log(err))
+    const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
+    const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
+
+    if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.json({ 'message': 'Library is closed.' })
+    else if (new Date() <= openTime || new Date() >= closeTime) return res.json({ 'message': 'Library is closed.' })
+
+    else {
+        User.findOne({ userid })
+            .then(user => {
+                if (!user)
+                    res.status(404).json({ 'error': 'MemberID not found.' })
+                else
+                    if (book) {
+                        if (book.isHighDemand) {
+                            today.setSeconds(libraryCloseTime - 1800)
+                            if (today > new Date()) return res.json({ 'message': 'Too early to issue high demand book.' })
+                        }
+                        user.borrow(book._id, libraryOpenTime, res)
+                    }
+                    else
+                        res.status(404).json({ 'error': 'Book not found.' })
+            })
+            .catch(err => console.log(err))
+
+    }
 }
 
 librarianSchema.methods.removeBook = function (bookCopies, res) {

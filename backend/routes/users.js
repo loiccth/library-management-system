@@ -12,6 +12,7 @@ const Admin = require('../models/users/admin.model')
 const UDM = require('../models/udm/udm.base')
 const Student = require('../models/udm/student.model')
 const Staff = require('../models/udm/staff.model')
+const Payment = require('../models/payment.model')
 const secret = process.env.JWT_SECRET
 
 // Login for users
@@ -185,6 +186,20 @@ router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (re
             'success': true,
             'userid': req.params.userid
         }))
+        .catch(err => console.log(err))
+})
+
+router.post('/payfine/:fineid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+
+    Payment.findById(req.params.findid)
+        .then(payment => {
+            payment.paid = true
+
+            transaction.save().then(() => {
+                res.sendStatus(200)
+            })
+        })
         .catch(err => console.log(err))
 })
 

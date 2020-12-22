@@ -161,10 +161,22 @@ baseUserSchema.methods.resetPassword = async function (res) {
 
 baseUserSchema.methods.reserveBook = async function (bookid, res) {
     const numOfReservations = await Reserve.countDocuments({ userid: this._id, status: "active" })
+    let bookSettings = await Setting.findOne({ setting: 'BOOKS' })
+    let maxReservations
+    let timeOnHold
+
+    for (let i = 0; i < bookSettings.options.length; i++) {
+        if (bookSettings.options[i].id === 'max_number_of_reservations') {
+            maxReservations = bookSettings.options[i].value
+        }
+        else if (bookSettings.options[i].id === 'time_onhold') {
+            timeOnHold = bookSettings.options[i].value
+        }
+    }
 
     const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
-    if (numOfReservations > 3) return res.status(400).json({ 'error': 'Cannot reserve more than 3 books' })
+    if (numOfReservations > maxReservations) return res.json({ 'error': `Cannot reserve more than ${maxReservations} books` })
     else if (transaction !== null) {
         if (transaction.transactionType === 'Borrow') res.status(400).json({ 'error': 'You already have a copy borrowed' })
         else res.status(400).json({ 'error': 'Book already reserved' })
@@ -173,26 +185,21 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
         Book.findById(bookid)
             .then(async book => {
                 if (book === null) return res.status(404).json({ 'error': 'Book not found' })
-                // TODO: remove bookAvailable
-                let bookAvailable = false
-                for (let i = 0; i < book.copies.length; i++) {
-                    if (book.copies[i].availability === 'available') {
-                        book.copies[i].availability = 'onhold'
-                        book.noOfBooksOnLoan++
-                        bookAvailable = true
-                        break
-                    }
-                }
-
-                let timeOnHold
+                let bookAvailable = book.noOfBooksOnLoan + book.noOfBooksOnHold < book.copies.length
                 if (bookAvailable) {
-                    timeOnHold = await Setting.findOne({ setting: 'TIME_ON_HOLD' })
+                    for (let i = 0; i < book.copies.length; i++) {
+                        if (book.copies[i].availability === 'available') {
+                            book.copies[i].availability = 'onhold'
+                            book.noOfBooksOnHold++
+                            break
+                        }
+                    }
                 }
 
                 book.reservation.push({
                     userid: this._id,
                     reservedAt: Date(),
-                    expireAt: bookAvailable ? new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000)) : null
+                    expireAt: bookAvailable ? new Date(new Date().getTime() + (timeOnHold * 1000)) : null
                 })
 
                 book.save().catch(err => console.log(err))
@@ -200,7 +207,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                 const newReservation = new Reserve({
                     userid: this._id,
                     bookid: bookid,
-                    expireAt: bookAvailable ? new Date(new Date().getTime() + (parseInt(timeOnHold.option) * 1000)) : null
+                    expireAt: bookAvailable ? new Date(new Date().getTime() + (timeOnHold * 1000)) : null
                 })
 
                 newReservation.save().then(res.sendStatus(201)).catch(err => console.log(err))
@@ -219,14 +226,47 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
                 reserve.save().catch(err => console.log(err))
 
                 Book.findOne({ _id: bookid })
-                    .then(book => {
+                    .then(async book => {
                         for (let i = 0; i < book.reservation.length; i++) {
                             if (book.reservation[i].userid.toString() === this._id.toString()) {
                                 book.reservation.splice(i, 1)
-                                // TODO: if book was on hold, inform next member in queue
                                 break
                             }
                         }
+
+                        if (reserve.expireAt !== null) {
+                            // TODO: if book was on hold, inform next member in queue, if any.
+
+                            if (book.reservation.length - book.noOfBooksOnHold > 0) {
+                                let bookSettings = await Setting.findOne({ setting: 'BOOKS' })
+                                let timeOnHold
+
+                                for (let i = 0; i < bookSettings.options.length; i++) {
+                                    if (bookSettings.options[i].id === 'time_onhold') {
+                                        timeOnHold = bookSettings.options[i].value
+                                        break
+                                    }
+                                }
+                                // TODO: need testing
+                                for (let k = 0; k < book.reservation.length; k++) {
+                                    if (book.reservation[k].expireAt === null) {
+                                        book.reservation[k].expireAt = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                        Reserve.findOneAndUpdate({ bookid: book._id, userid: book.reservation[k].userid }, { expireAt: new Date(new Date().getTime() + (timeOnHold * 1000)) })
+                                    }
+                                }
+                            }
+                            else {
+                                book.noOfBooksOnHold--
+
+                                for (let j = 0; j < book.copies.length; j++) {
+                                    if (book.copies[j].availability === 'onhold') {
+                                        book.copies[j].availability = 'available'
+                                        break
+                                    }
+                                }
+                            }
+                        }
+
                         book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
                     })
             }

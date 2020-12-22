@@ -37,33 +37,44 @@ router.get('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) =>
 router.put('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     const { opening, closing } = req.body
 
+    let updated = false
+
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
-        Setting.findOne({ 'setting': 'OPENING_HOURS' })
+        await Setting.findOne({ 'setting': 'OPENING_HOURS' })
             .then(hours => {
                 for (let i = 0; i < opening.length; i++) {
                     let seconds = 0
                     let temp = new Date(opening[i].time)
                     seconds += temp.getHours() * 3600
                     seconds += temp.getMinutes() * 60
-                    hours.options[i].time = seconds
+                    if (hours.options[i].time !== seconds) {
+                        updated = true
+                        hours.options[i].time = seconds
+                    }
                 }
                 hours.markModified('options')
                 hours.save()
             })
-        Setting.findOne({ 'setting': 'CLOSING_HOURS' })
+        await Setting.findOne({ 'setting': 'CLOSING_HOURS' })
             .then(hours => {
                 for (let i = 0; i < closing.length; i++) {
                     let seconds = 0
                     let temp = new Date(closing[i].time)
                     seconds += temp.getHours() * 3600
                     seconds += temp.getMinutes() * 60
-                    hours.options[i].time = seconds
+                    if (hours.options[i].time !== seconds) {
+                        updated = true
+                        hours.options[i].time = seconds
+                    }
                 }
                 hours.markModified('options')
                 hours.save()
             })
-        res.json({ 'message': 'Opening and closing hours updated.' })
+        if (updated)
+            res.json({ 'message': 'Opening and closing hours updated.' })
+        else
+            res.status(400).json({ 'error': 'Opening/closing hours did not change.' })
     }
 })
 

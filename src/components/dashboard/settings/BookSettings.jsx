@@ -18,7 +18,9 @@ const BookSettings = ({ bookSettings }) => {
         Object.entries(bookSettings).map(([key, value]) => (
             setValue(`settings[${key}].value`, value.value)
         ))
-    }, [bookSettings, setValue])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const handleClick = () => {
         setOpen(true);
@@ -50,7 +52,7 @@ const BookSettings = ({ bookSettings }) => {
         else {
             setSnackbar({
                 type: 'warning',
-                msg: 'Opening/closing hours did not change.'
+                msg: 'Settings did not change.'
             })
             handleClick()
         }

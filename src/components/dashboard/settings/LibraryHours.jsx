@@ -22,7 +22,9 @@ const LibraryHours = ({ hours }) => {
         Object.entries(hours).map(([key, value]) => (
             setValue(key, value)
         ))
-    }, [hours, setValue])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const handleClick = () => {
         setOpen(true);
@@ -33,32 +35,22 @@ const LibraryHours = ({ hours }) => {
     }
 
     const onSubmit = (data) => {
-        let updated = false
-
-        for (let i = 0; i < hours.opening.length; i++) {
-            if (new Date(hours.opening[i].time) - new Date(data.opening[i].time) !== 0 ||
-                new Date(hours.closing[i].time) - new Date(data.closing[i].time) !== 0) {
-                updated = true
-                break
-            }
-        }
-
-        if (updated)
-            axios.put(`${url}/settings/hours`, data, { withCredentials: true })
-                .then(result => {
-                    setSnackbar({
-                        type: 'success',
-                        msg: result.data.message
-                    })
-                    handleClick()
+        axios.put(`${url}/settings/hours`, data, { withCredentials: true })
+            .then(result => {
+                setSnackbar({
+                    type: 'success',
+                    msg: result.data.message
                 })
-        else {
-            setSnackbar({
-                type: 'warning',
-                msg: 'Opening/closing hours did not change.'
             })
-            handleClick()
-        }
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: err.response.data.error
+                })
+            })
+            .finally(() => {
+                handleClick()
+            })
     }
 
     return (

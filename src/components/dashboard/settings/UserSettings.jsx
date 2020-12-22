@@ -29,14 +29,31 @@ const UserSettings = ({ userSettings }) => {
     }
 
     const onSubmit = (data) => {
-        axios.put(`${url}/settings/users`, { userSettings: data.settings }, { withCredentials: true })
-            .then(result => {
-                setSnackbar({
-                    type: 'success',
-                    msg: result.data.message
+        let updated = false
+
+        for (let i = 0; i < userSettings.length; i++) {
+            if (parseInt(userSettings[i].value) !== parseInt(data.settings[i].value)) {
+                updated = true
+                break
+            }
+        }
+
+        if (updated)
+            axios.put(`${url}/settings/users`, { userSettings: data.settings }, { withCredentials: true })
+                .then(result => {
+                    setSnackbar({
+                        type: 'success',
+                        msg: result.data.message
+                    })
+                    handleClick()
                 })
-                handleClick()
+        else {
+            setSnackbar({
+                type: 'warning',
+                msg: 'Settings did not change.'
             })
+            handleClick()
+        }
     }
 
     return (

@@ -4,6 +4,8 @@ import url from '../../../settings/api'
 import OverdueBooks from './librarian/OverdueBooks'
 import DueBooks from './librarian/DueBooks'
 import Reservations from './librarian/Reservations'
+import IssueBook from './librarian/IssueBook'
+import ReturnBook from './librarian/ReturnBook'
 
 const MainDashboard = ({ user }) => {
     const [loading, setLoading] = useState(true)
@@ -171,6 +173,8 @@ const MainDashboard = ({ user }) => {
             <>
                 {loading ? null :
                     <React.Fragment>
+                        <IssueBook />
+                        <ReturnBook />
                         <OverdueBooks overdueBooks={overdueBooks} handleCheck={handleCheck} handleCheckAll={handleCheckAll} handleUncheckAll={handleUncheckAll} />
                         <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} />
                         <Reservations reservations={reservations} />
