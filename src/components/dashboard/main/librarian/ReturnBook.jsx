@@ -49,16 +49,18 @@ const ReturnBook = () => {
     const handleClose = () => {
         setOpen(false)
         setMessage()
+        setPaymentID()
+        setPaymentMsg()
         reset()
     }
 
     return (
         <>
             <Button variant="outlined" onClick={handleClickOpen}>
-                Issue Book
+                Return Book
             </Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
-                <DialogTitle id="form-dialog-title">Issue book</DialogTitle>
+                <DialogTitle id="form-dialog-title">Return book</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>
                         <Grid container spacing={2}>
@@ -106,7 +108,7 @@ const ReturnBook = () => {
                                     <Typography variant="body1" align="center">
                                         Paid fine?
                                     </Typography>
-                                    <Button onClick={handleFine}>Yes</Button>
+                                    <Button variant="outlined" onClick={handleFine}>Yes</Button>
                                     {paymentMsg &&
                                         <Typography variant="body1" align="center">
                                             {paymentMsg}

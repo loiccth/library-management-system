@@ -22,10 +22,10 @@ const IssueBook = () => {
     const onSubmit = (data) => {
         axios.post(`${url}/books/issue`, data, { withCredentials: true })
             .then(result => {
-                if (result.response.status === 201) {
+                if (result.status === 201) {
                     setMessage(`Book titled ${result.data.title} issued to ${data.userid} and is due on ${result.data.dueDate}`)
                 }
-                else if (result.response.status === 200) {
+                else if (result.status === 200) {
                     setMessage(result.data.message)
                 }
             })

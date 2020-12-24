@@ -14,6 +14,7 @@ import MainDashboard from './components/dashboard/main'
 import ManageBooks from './components/dashboard/managebooks'
 import Settings from './components/dashboard/settings'
 import Profile from './components/dashboard/profile'
+import Reports from './components/dashboard/reports'
 import ManageMembership from './components/dashboard/managemembership'
 import ChangePassword from './components/dashboard/profile/ChangePassword'
 
@@ -115,6 +116,7 @@ function App() {
                                 <Route path='/' element={<MainDashboard user={user} />} />
                                 <Route path='/managebooks' element={<ManageBooks user={user} />} />
                                 <Route path='/settings' element={<Settings user={user} />} />
+                                <Route path='/reports' element={<Reports user={user} />} />
                                 <Route path='/profile' element={<Profile user={user} handlePasswordChange={handlePasswordChange} />} />
                                 <Route path='/managememberships' element={<ManageMembership user={user} />} />
                             </Route>

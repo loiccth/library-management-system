@@ -50,9 +50,17 @@ baseUserSchema.pre('save', function (next) {
 
 baseUserSchema.methods.login = async function (candidatePassword, email, phone, res) {
     if (this.temporaryPassword) {
-        const temporaryTimer = await Setting.findOne({ setting: 'TEMPORARY_PASSWORD' })
+        let temporaryTimer = await Setting.findOne({ setting: 'BOOKS' })
+
+        for (let i = 0; i < temporaryTimer.options.length; i++) {
+            if (temporaryTimer.options[i].id === 'temp_password') {
+                temporaryTimer = temporaryTimer.options[i].value
+                break
+            }
+        }
+
         const now = new Date()
-        const expireDate = new Date(new Date(this.updatedOn).getTime() + (parseInt(temporaryTimer.option) * 1000))
+        const expireDate = new Date(new Date(this.updatedOn).getTime() + (temporaryTimer * 1000))
         if (now > expireDate) return res.status(401).json({ 'error': 'Temporary password expired.' })
     }
 
@@ -277,53 +285,53 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
 }
 
 baseUserSchema.methods.renewBook = async function (borrowid, res) {
-    let borrow = await Borrow.findById(borrowid)
+    const borrow = await Borrow.findById(borrowid)
+    const bookSettings = await Setting.findOne({ setting: 'BOOKS' })
+    let renewalsAllowed
 
-    const numOfReservations = await Reserve.countDocuments({ bookid: borrow.bookid, archive: false })
-    const renewalsAllowed = await Setting.findOne({ setting: 'RENEWALS_ALLOWED' })
+    for (let i = 0; i < bookSettings.options.length; i++) {
+        if (bookSettings.options[i].id === 'max_number_of_renewals') {
+            renewalsAllowed = bookSettings.options[i].value
+            break
+        }
+    }
 
-    if (borrow.isHighDemand === true) return res.json({ 'error': 'Cannot renew high demand book.' })
-    else if (numOfReservations >= parseInt(renewalsAllowed.option)) return res.json({ 'error': 'Cannot renew book because there are reservations.' })
-    else if (borrow.renews > 2) return res.json({ 'error': 'Reached max number of renewals.' })
-    else {
-        const now = new Date(new Date().toDateString())
-        const borrowDate = new Date(borrow.dueDate.toDateString())
-        let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
-        if (numOfDays > 2) return res.json({ 'error': 'Can only renew within 2 days of due date.' })
-        else if (numOfDays < -5) return res.json({ 'error': `Cannot renew book, overdue by ${numOfDays * -1} days.` })
+    if (borrow) {
+        const book = await Book.findById(borrow.bookid)
+
+        if (book.reservation.length > book.noOfBooksOnHold)
+            return res.json({ 'error': 'Cannot renew book because there are reservations.' })
         else {
-            if (numOfDays < 0) {
-                numOfDays *= -1
+            if (borrow.isHighDemand === true) return res.json({ 'error': 'Cannot renew high demand book.' })
+            else if (borrow.renews >= renewalsAllowed) return res.json({ 'error': 'Reached max number of renewals.' })
+            else {
+                const now = new Date(new Date().toDateString())
+                const borrowDate = new Date(borrow.dueDate.toDateString())
+                let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+                if (numOfDays > 2) return res.json({ 'error': 'Can only renew within 2 days of due date.' })
+                else if (numOfDays < 0) return res.json({ 'error': `Book overdue by ${numOfDays * -1} day(s).` })
+                else {
+                    const newDueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-                const price = await Setting.findOne({ option: 'FINE_PER_DAY' })
+                    borrow.renews++
+                    borrow.dueDate = newDueDate
+                    borrow.renewedOn = Date()
 
-                const newPayment = new Payment({
-                    userid: this._id,
-                    bookid: borrow.bookid,
-                    copyid: borrow.copyid,
-                    numOfDays,
-                    pricePerDay: parseInt(price.option)
-                })
-                // TODO: send email/sms notif
-                await newPayment.save().catch(err => console.log(err))
+                    await Book.findOne({ _id: borrow.bookid })
+                        .then(book => {
+                            for (let i = 0; i < book.copies.length; i++) {
+                                if (book.copies[i].borrower.userid.toString() === this._id.toString()) {
+                                    book.copies[i].borrower.renews++
+                                    book.copies[i].borrower.dueDate = newDueDate
+                                    break
+                                }
+                            }
+                            book.save().catch(err => console.log(err))
+                        })
+
+                    await borrow.save().then(borrow => res.json(borrow)).catch(err => console.log(err))
+                }
             }
-            borrow.renews = borrow.renews + 1;
-            borrow.dueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
-            borrow.renewedOn = Date()
-
-            await Book.findOne({ _id: borrow.bookid })
-                .then(book => {
-                    for (let i = 0; i < book.copies.length; i++) {
-                        if (book.copies[i].borrower.userid.toString() === this._id.toString()) {
-                            book.copies[i].borrower.renews = book.copies[i].borrower.renews + 1
-                            book.copies[i].borrower.dueDate = new Date(book.copies[i].borrower.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
-                            break
-                        }
-                    }
-                    book.save().catch(err => console.log(err))
-                })
-
-            await borrow.save().then(borrow => res.json(borrow)).catch(err => console.log(err))
         }
     }
 }

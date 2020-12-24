@@ -24,9 +24,6 @@ import logo from '../../img/logo.png'
 const drawerWidth = 240
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        display: "flex"
-    },
     drawer: {
         [theme.breakpoints.up("lg")]: {
             width: drawerWidth,
@@ -50,16 +47,16 @@ const useStyles = makeStyles(theme => ({
         width: drawerWidth
     },
     content: {
-        flexGrow: 1,
-        paddingTop: theme.spacing(3),
-        overflowX: 'auto'
+        [theme.breakpoints.up("lg")]: {
+            marginLeft: drawerWidth,
+            width: `calc(100% - ${drawerWidth}px)`
+        }
     },
 
     title: {
         flexGrow: 1
     }
 }))
-
 
 const Dashboard = (props) => {
     const { window } = props
@@ -107,19 +104,14 @@ const Dashboard = (props) => {
             link: '/dashboard/profile'
         },
         {
-            sidebarMenu: 'Book Reports',
-            link: '/dashboard/bookreports',
+            sidebarMenu: 'Reports',
+            link: '/dashboard/reports',
             permission: 'Librarian'
         },
         {
-            sidebarMenu: 'Member Reports',
-            link: '/dashboard/memberreports',
+            sidebarMenu: 'Reports',
+            link: '/dashboard/reports',
             permission: 'Admin'
-        },
-        {
-            sidebarMenu: 'Payment Reports',
-            link: '/dashboard/paymentreports',
-            permission: 'Librarian'
         }
     ])
 
@@ -155,7 +147,7 @@ const Dashboard = (props) => {
             window !== undefined ? () => window().document.body : undefined
 
         return (
-            <div className={classes.root}>
+            <div>
                 <AppBar position="fixed" className={classes.appBar}>
                     <Toolbar>
                         <IconButton

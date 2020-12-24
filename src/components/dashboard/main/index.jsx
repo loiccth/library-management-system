@@ -81,7 +81,7 @@ const MainDashboard = ({ user }) => {
     }
 
     const getNewDueBooks = async (date) => {
-        if (date[0] !== null && date[1] !== null) {
+        if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             const getDue = await getDueBooks(date[0], date[1])
             setDueBooks(
                 getDue.data.map(borrow => {
