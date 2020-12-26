@@ -5,7 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import LibraryHours from './LibraryHours'
 import BookSettings from './BookSettings'
 import UserSettings from './UserSettings'
-import Container from '@material-ui/core/Container'
+import Box from '@material-ui/core/Box'
+import Grid from '@material-ui/core/Grid'
+import Divider from '@material-ui/core/Divider'
 
 const Settings = ({ user }) => {
     const navigate = useNavigate()
@@ -38,11 +40,27 @@ const Settings = ({ user }) => {
     return (
         <>
             {loading ? null :
-                <Container>
-                    <LibraryHours hours={hours} />
-                    <BookSettings bookSettings={books} />
-                    <UserSettings userSettings={users} />
-                </Container>
+                <>
+                    <Box sx={{ my: 5 }}>
+                        <Grid container justifyContent="center">
+                            <Grid item xs={12} sm={5} md={4}>
+                                <LibraryHours hours={hours} />
+                            </Grid>
+                            <Divider orientation="vertical" flexItem={true} />
+                            <Grid item xs={12} sm={5} md={4}>
+                                <Grid container direction="column" justifyContent="center">
+                                    <Grid item xs={12}>
+                                        <BookSettings bookSettings={books} />
+                                    </Grid>
+                                    <Divider />
+                                    <Grid item xs={12}>
+                                        <UserSettings userSettings={users} />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                </>
             }
         </>
     )

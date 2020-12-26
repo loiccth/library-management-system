@@ -6,7 +6,7 @@ const Footer = (props) => {
     const classes = useStyles()
 
     return (
-        <Paper component="footer" style={props.style} className={classes.footer}>
+        <Paper component="footer" className={classes.footer}>
             <div>hey guys :) whats up!</div>
         </Paper>
     )

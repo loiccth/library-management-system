@@ -60,77 +60,86 @@ const PaymentsReport = (props) => {
                     />
                 </LocalizationProvider>
 
-                <Grid container justifyContent="flex-end" spacing={3}>
-                    <Grid item xs={12} sm={3} md={2}>
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            height: '100%'
-                        }}
-                        >
-                            <Button variant="outlined" onClick={handleDownloadCSV}>Download CSV</Button>
-                            <CSVLink
-                                data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
-                                filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
-                                ref={csvlink}
-                            />
-                        </Box>
+                <Box sx={{ mt: 1 }}>
+                    <Grid container justifyContent="flex-end" spacing={3}>
+                        <Grid item xs={12} sm={3} md={2}>
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                height: '100%'
+                            }}
+                            >
+                                <Button variant="contained" onClick={handleDownloadCSV}>Download CSV</Button>
+                                <CSVLink
+                                    data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
+                                    filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
+                                    ref={csvlink}
+                                />
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={3} md={2}>
+                            <TextField
+                                name="paid"
+                                fullWidth
+                                variant="standard"
+                                label="Paid"
+                                select
+                                value={props.filterPayment.paid}
+                                onChange={props.handlePayChange}
+                            >
+                                <MenuItem value="All">All</MenuItem>
+                                <MenuItem value="Paid">Paid</MenuItem>
+                                <MenuItem value="Unpaid">Unpaid</MenuItem>
+                            </TextField>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={3} md={2}>
-                        <TextField
-                            name="paid"
-                            fullWidth
-                            variant="standard"
-                            label="Paid"
-                            select
-                            value={props.filterPayment.paid}
-                            onChange={props.handlePayChange}
-                        >
-                            <MenuItem value="All">All</MenuItem>
-                            <MenuItem value="Paid">Paid</MenuItem>
-                            <MenuItem value="Unpaid">Unpaid</MenuItem>
-                        </TextField>
-                    </Grid>
-                </Grid>
+                </Box>
             </Container>
-            <Grid container justifyContent="center">
-                <Grid item xs={12} md={10}>
-                    <Paper className={classes.paper}>
-                        <Table className={classes.table}>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Payment Details</TableCell>
-                                    <TableCell>MemberID</TableCell>
-                                    <TableCell>Book Details</TableCell>
-                                    <TableCell>Amount</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {props.filteredPayments.map(record => (
-                                    <TableRow key={record.PaymentID}>
-                                        <TableCell>
-                                            <Typography variant="caption" display="block">ID: {record.PaymentID}</Typography>
-                                            <Typography variant="caption" display="block">Paid: {record.Paid === true ? 'Yes' : 'No'}</Typography>
-                                            <Typography variant="caption" display="block">Date: {record.Created}</Typography>
-                                        </TableCell>
-                                        <TableCell>{record.MemberID}</TableCell>
-                                        <TableCell>
-                                            <Typography variant="caption" display="block">Title: {record.BookTitle}</Typography>
-                                            <Typography variant="caption" display="block">ISBN: {record.BookISBN}</Typography>
-                                            {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">CopyID: {record.BookCopyID}</Typography>}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="caption" display="block">Price per day: Rs {record.PricePerDay}</Typography>
-                                            <Typography variant="caption" display="block">Day(s) overdue: {record.NumberOfDays}</Typography>
-                                            <Typography variant="caption" display="block">Total: Rs {record.PricePerDay * record.NumberOfDays}</Typography>
-                                        </TableCell>
+            <Box sx={{ mt: 3 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={12} md={10}>
+                        <Paper className={classes.paper}>
+                            <Table className={classes.table}>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Payment Details</TableCell>
+                                        <TableCell>MemberID</TableCell>
+                                        <TableCell>Book Details</TableCell>
+                                        <TableCell>Amount</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </Paper>
+                                </TableHead>
+                                <TableBody>
+                                    {props.filteredPayments.length === 0 &&
+                                        <TableRow>
+                                            <TableCell colSpan={4} align="center">No records found.</TableCell>
+                                        </TableRow>
+                                    }
+                                    {props.filteredPayments.map(record => (
+                                        <TableRow key={record.PaymentID}>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">ID: {record.PaymentID}</Typography>
+                                                <Typography variant="caption" display="block">Paid: {record.Paid === true ? 'Yes' : 'No'}</Typography>
+                                                <Typography variant="caption" display="block">Date: {record.Created}</Typography>
+                                            </TableCell>
+                                            <TableCell>{record.MemberID}</TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">Title: {record.BookTitle}</Typography>
+                                                <Typography variant="caption" display="block">ISBN: {record.BookISBN}</Typography>
+                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">CopyID: {record.BookCopyID}</Typography>}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">Price per day: Rs {record.PricePerDay}</Typography>
+                                                <Typography variant="caption" display="block">Day(s) overdue: {record.NumberOfDays}</Typography>
+                                                <Typography variant="caption" display="block">Total: Rs {record.PricePerDay * record.NumberOfDays}</Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </Paper>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </Box>
         </>
     )
 }

@@ -56,7 +56,7 @@ const ReturnBook = () => {
 
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen}>
+            <Button variant="contained" onClick={handleClickOpen}>
                 Return Book
             </Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
@@ -120,7 +120,7 @@ const ReturnBook = () => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Close</Button>
+                    <Button variant="contained" color="secondary" onClick={handleClose}>Close</Button>
                 </DialogActions>
             </Dialog>
         </>

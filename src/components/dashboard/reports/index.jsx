@@ -3,6 +3,7 @@ import axios from 'axios'
 import url from '../../../settings/api'
 import { useNavigate } from 'react-router-dom'
 import Divider from '@material-ui/core/Divider'
+import Box from '@material-ui/core/Box'
 import BooksReport from './librarian/BooksReport'
 import PaymentsReport from './librarian/PaymentsReport'
 
@@ -168,11 +169,13 @@ const Reports = ({ user }) => {
         return (
             <>
                 {loading ? null :
-                    <>
+                    <Box sx={{ my: 5 }}>
                         <BooksReport filteredBooks={filteredBooks} getNewBooksReport={getNewBooksReport} handleBookChange={handleBookChange} filterBooks={filterBooks} />
-                        <Divider />
+                        <Box sx={{ my: 7 }}>
+                            <Divider />
+                        </Box>
                         <PaymentsReport filteredPayments={filteredPayments} getNewPaymentsReport={getNewPaymentsReport} handlePayChange={handlePayChange} filterPayment={filterPayment} />
-                    </>
+                    </Box>
                 }
             </>
         )

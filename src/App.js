@@ -16,7 +16,7 @@ import Settings from './components/dashboard/settings'
 import Profile from './components/dashboard/profile'
 import Reports from './components/dashboard/reports'
 import ManageMembership from './components/dashboard/managemembership'
-import ChangePassword from './components/dashboard/profile/ChangePassword'
+import ForcePasswordChange from './components/others/ForcePasswordChange'
 
 import NotFound from './components/NotFound'
 
@@ -95,8 +95,7 @@ function App() {
                 <CssBaseline />
                 <div className="App">
                     <Router>
-                        <Navbar user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />
-                        <ChangePassword handlePasswordChange={handlePasswordChange} />
+                        <ForcePasswordChange user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} handlePasswordChange={handlePasswordChange} />
                     </Router>
                 </div>
             </ThemeProvider>

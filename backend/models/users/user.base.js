@@ -50,7 +50,7 @@ baseUserSchema.pre('save', function (next) {
 
 baseUserSchema.methods.login = async function (candidatePassword, email, phone, res) {
     if (this.temporaryPassword) {
-        let temporaryTimer = await Setting.findOne({ setting: 'BOOKS' })
+        let temporaryTimer = await Setting.findOne({ setting: 'USER' })
 
         for (let i = 0; i < temporaryTimer.options.length; i++) {
             if (temporaryTimer.options[i].id === 'temp_password') {

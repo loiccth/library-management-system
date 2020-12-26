@@ -6,6 +6,9 @@ import DueBooks from './librarian/DueBooks'
 import Reservations from './librarian/Reservations'
 import IssueBook from './librarian/IssueBook'
 import ReturnBook from './librarian/ReturnBook'
+import Grid from '@material-ui/core/Grid'
+import Box from '@material-ui/core/Box'
+import Divider from '@material-ui/core/Divider'
 
 const MainDashboard = ({ user }) => {
     const [loading, setLoading] = useState(true)
@@ -172,13 +175,28 @@ const MainDashboard = ({ user }) => {
         return (
             <>
                 {loading ? null :
-                    <React.Fragment>
-                        <IssueBook />
-                        <ReturnBook />
+                    <Box sx={{ my: 5 }}>
+                        <Grid container justifyContent="center">
+                            <Grid item xs={5} sm={3}>
+                                <IssueBook />
+                            </Grid>
+                            <Grid item xs={5} sm={3}>
+                                <ReturnBook />
+                            </Grid>
+                        </Grid>
+                        <Box sx={{ my: 7 }}>
+                            <Divider />
+                        </Box>
                         <OverdueBooks overdueBooks={overdueBooks} handleCheck={handleCheck} handleCheckAll={handleCheckAll} handleUncheckAll={handleUncheckAll} />
+                        <Box sx={{ my: 7 }}>
+                            <Divider />
+                        </Box>
                         <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} />
+                        <Box sx={{ my: 7 }}>
+                            <Divider />
+                        </Box>
                         <Reservations reservations={reservations} />
-                    </React.Fragment>
+                    </Box>
                 }
             </>
         )

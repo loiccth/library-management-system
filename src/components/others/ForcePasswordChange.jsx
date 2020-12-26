@@ -1,26 +1,22 @@
 import React from 'react'
+import Navbar from '../navbar/Navbar'
+import ChangePassword from '../dashboard/profile/ChangePassword'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
-import Hidden from '@material-ui/core/Hidden'
-import ProfileDetails from './ProfileDetails'
-import ChangePassword from './ChangePassword'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
 
-const Profile = (props) => {
+const ForcePasswordChange = (props) => {
     const classes = useStyles()
 
     return (
         <>
+            <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
             <Container className={classes.wrapper}>
-                <Grid container spacing={3} justifyContent="center">
-                    <Grid item xs={10} sm={5} md={4}>
-                        <ProfileDetails user={props.user} />
-                    </Grid>
-                    <Hidden smDown>
-                        <Divider orientation="vertical" flexItem={true} />
-                    </Hidden>
-                    <Grid item xs={10} sm={5} md={4}>
+                <Grid container spacing={10} justifyContent="center">
+                    <Grid item xs={10} sm={5} md={4} component={Paper}>
+                        <Typography variant="h6">Change password to proceed.</Typography>
                         <ChangePassword handlePasswordChange={props.handlePasswordChange} />
                     </Grid>
                 </Grid>
@@ -44,4 +40,4 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default Profile
+export default ForcePasswordChange

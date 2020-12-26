@@ -50,7 +50,7 @@ const IssueBook = () => {
 
     return (
         <>
-            <Button variant="outlined" onClick={handleClickOpen}>
+            <Button variant="contained" onClick={handleClickOpen}>
                 Issue Book
             </Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
@@ -62,7 +62,6 @@ const IssueBook = () => {
                                 <TextField
                                     autoFocus
                                     required
-                                    margin="normal"
                                     id="userid"
                                     name="userid"
                                     label="MemberID"
@@ -70,13 +69,12 @@ const IssueBook = () => {
                                     variant="standard"
                                     inputRef={register({ required: "MemberID is required." })}
                                     error={!!errors.userid}
-                                    helperText={!!errors.userid ? errors.userid.message : " "}
+                                    helperText={!!errors.userid ? errors.userid.message : ""}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     required
-                                    margin="normal"
                                     id="isbn"
                                     name="isbn"
                                     label="ISBN"
@@ -84,11 +82,11 @@ const IssueBook = () => {
                                     variant="standard"
                                     inputRef={register({ required: "ISBN is required." })}
                                     error={!!errors.isbn}
-                                    helperText={!!errors.isbn ? errors.isbn.message : " "}
+                                    helperText={!!errors.isbn ? errors.isbn.message : ""}
                                 />
                             </Grid>
                         </Grid>
-                        <Button type="submit" variant="outlined">Issue Book</Button>
+                        <Button type="submit" variant="contained">Issue Book</Button>
                     </form>
 
                     {check &&
@@ -98,7 +96,7 @@ const IssueBook = () => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Close</Button>
+                    <Button variant="contained" color="secondary" onClick={handleClose}>Close</Button>
                 </DialogActions>
             </Dialog>
         </>
