@@ -5,13 +5,16 @@ import ModifyBook from './ModifyBook'
 import Copies from './Copies'
 import { useForm } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
+import Box from '@material-ui/core/Box'
 import Container from '@material-ui/core/Container'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/core/Alert'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import Divider from '@material-ui/core/Divider'
 
 const SearchBook = (props) => {
     const classes = useStyles()
@@ -78,17 +81,21 @@ const SearchBook = (props) => {
                     {snackbar}
                 </Alert>
             </Snackbar>
-            <Paper>
-                <Container>
-                    <form noValidate onSubmit={handleSubmit(onSubmit)}>
+            <Container>
+                <Toolbar>
+                    <Typography variant="h6">Search a book to modify/delete</Typography>
+                </Toolbar>
+            </Container>
+            <Box sx={{ mt: 3 }}>
+                <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                    <Container maxWidth="sm" className={classes.container}>
                         <TextField
+                            placeholder="Search by ISBN"
                             autoComplete="off"
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="search"
+                            style={{ width: '85%' }}
                             name="search"
-                            label="ISBN"
+                            variant="standard"
+                            error={!!errors.search}
                             inputRef={register({ required: 'ISBN is required.' })}
                             helperText={!!errors.search ? errors.search.message : " "}
                         />
@@ -100,11 +107,18 @@ const SearchBook = (props) => {
                         <IconButton type="submit" className={classes.iconButton} aria-label="search">
                             <SearchIcon />
                         </IconButton>
-                    </form>
-                    {showForm && <ModifyBook book={book} locations={props.locations} />}
-                    {showForm && <Copies copies={copies} isbn={book.isbn} deleteCopies={deleteCopies} />}
-                </Container>
-            </Paper>
+                    </Container>
+                </form>
+            </Box>
+            {showForm &&
+                <>
+                    <ModifyBook book={book} locations={props.locations} />
+                    <Box sx={{ my: 7 }}>
+                        <Divider />
+                    </Box>
+                    <Copies copies={copies} isbn={book.isbn} deleteCopies={deleteCopies} />
+                </>
+            }
         </>
     )
 }
@@ -112,6 +126,12 @@ const SearchBook = (props) => {
 const useStyles = makeStyles(theme => ({
     hidden: {
         display: 'none'
+    },
+    iconButton: {
+        padding: 10
+    },
+    container: {
+        textAlign: 'center'
     }
 }))
 

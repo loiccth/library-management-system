@@ -24,7 +24,6 @@ const Reservations = (props) => {
                     <Typography variant="h6">Book Reservations</Typography>
                 </Toolbar>
             </Container>
-
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={12} md={10}>

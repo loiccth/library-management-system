@@ -9,6 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/core/Alert'
 import Grid from '@material-ui/core/Grid'
+import Box from '@material-ui/core/Box'
 import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import DatePicker from '@material-ui/lab/DatePicker'
@@ -64,172 +65,181 @@ const ModifyBook = (props) => {
                     {snackbar.msg}
                 </Alert>
             </Snackbar>
-            <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                <Grid container spacing={3}>
-                    <Grid item md={6}>
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="title"
-                            name="title"
-                            label="Title"
-                            error={!!errors.title}
-                            inputRef={register({ required: "Empty title field." })}
-                            helperText={!!errors.title ? errors.title.message : " "}
-                        />
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            label="ISBN"
-                            value={props.book.isbn}
-                            disabled
-                        />
-                        <TextField className={classes.hidden}
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="isbn"
-                            name="isbn"
-                            label="ISBN"
-                            inputRef={register()}
-                        />
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="author"
-                            name="author"
-                            label="Author(s)"
-                            error={!!errors.author}
-                            inputRef={register({ required: "Empty author field." })}
-                            helperText={!!errors.author ? errors.author.message : "Seperate using comma (,)"}
-                        />
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="categories"
-                            name="categories"
-                            label="Categories"
-                            error={!!errors.categories}
-                            inputRef={register({ required: "Empty categories field." })}
-                            helperText={!!errors.categories ? errors.categories.message : "Seperate using comma (,)"}
-                        />
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="publisher"
-                            name="publisher"
-                            label="Publisher"
-                            error={!!errors.publisher}
-                            inputRef={register({ required: "Empty publisher field." })}
-                            helperText={!!errors.publisher ? errors.publisher.message : " "}
-                        />
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <Controller
-                                render={({ onChange, value }) => (
-                                    <DatePicker
-                                        label="Published Date *"
-                                        value={value}
-                                        onChange={onChange}
-                                        disableFuture
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="standard"
-                                                name="publishedDate"
-                                                fullWidth
-                                                helperText={params.errors ? "Invalid date" : params.helperText}
-                                            />
-                                        )}
+            <Box sx={{ mt: 3 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={10} md={10}>
+                        <form noValidate onSubmit={handleSubmit(onSubmit)}>
+                            <Grid container spacing={3}>
+                                <Grid item md={6}>
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="title"
+                                        name="title"
+                                        label="Title"
+                                        error={!!errors.title}
+                                        inputRef={register({ required: "Empty title field." })}
+                                        helperText={!!errors.title ? errors.title.message : " "}
                                     />
-                                )}
-                                name="publishedDate"
-                                control={control}
-                                defaultValue={{}}
-                            />
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item md={6}>
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="noOfPages"
-                            name="noOfPages"
-                            label="Number of pages"
-                            inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
-                            error={!!errors.noOfPages}
-                            helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
-                        />
-                        <Controller
-                            as={
-                                <TextField
-                                    fullWidth
-                                    variant="standard"
-                                    margin="normal"
-                                    required
-                                    label="Campus"
-                                    select
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        label="ISBN"
+                                        value={props.book.isbn}
+                                        disabled
+                                    />
+                                    <TextField className={classes.hidden}
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="isbn"
+                                        name="isbn"
+                                        label="ISBN"
+                                        inputRef={register()}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="author"
+                                        name="author"
+                                        label="Author(s)"
+                                        error={!!errors.author}
+                                        inputRef={register({ required: "Empty author field." })}
+                                        helperText={!!errors.author ? errors.author.message : "Seperate using comma (,)"}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="categories"
+                                        name="categories"
+                                        label="Categories"
+                                        error={!!errors.categories}
+                                        inputRef={register({ required: "Empty categories field." })}
+                                        helperText={!!errors.categories ? errors.categories.message : "Seperate using comma (,)"}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="publisher"
+                                        name="publisher"
+                                        label="Publisher"
+                                        error={!!errors.publisher}
+                                        inputRef={register({ required: "Empty publisher field." })}
+                                        helperText={!!errors.publisher ? errors.publisher.message : " "}
+                                    />
+                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                        <Controller
+                                            render={({ onChange, value }) => (
+                                                <DatePicker
+                                                    label="Published Date *"
+                                                    value={value}
+                                                    onChange={onChange}
+                                                    disableFuture
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            variant="standard"
+                                                            name="publishedDate"
+                                                            fullWidth
+                                                            helperText={params.errors ? "Invalid date" : params.helperText}
+                                                        />
+                                                    )}
+                                                />
+                                            )}
+                                            name="publishedDate"
+                                            control={control}
+                                            defaultValue={{}}
+                                        />
+                                    </LocalizationProvider>
+                                </Grid>
+                                <Grid item md={6}>
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="noOfPages"
+                                        name="noOfPages"
+                                        label="Number of pages"
+                                        inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
+                                        error={!!errors.noOfPages}
+                                        helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
+                                    />
+                                    <Controller
+                                        as={
+                                            <TextField
+                                                fullWidth
+                                                variant="standard"
+                                                margin="normal"
+                                                required
+                                                label="Campus"
+                                                select
+                                            >
+                                                <MenuItem value="rhill">Rose-Hill Campus</MenuItem>
+                                                <MenuItem value="pam">Swami Dayanand Campus</MenuItem>
+                                            </TextField>
+                                        }
+                                        name="campus"
+                                        control={control}
+                                    />
+                                    <Controller
+                                        as={
+                                            <TextField
+                                                fullWidth
+                                                variant="standard"
+                                                margin="normal"
+                                                required
+                                                error={!!errors.location}
+                                                label="Location"
+                                                select
+                                                helperText={!!errors.location ? errors.location.message : " "}
+                                            >
+                                                {watch('campus') === 'rhill' ?
+                                                    props.locations.rhill.options.map(location => (
+                                                        <MenuItem key={location} value={location}>{location}</MenuItem>
+                                                    ))
+                                                    :
+                                                    props.locations.pam.options.map(location => (
+                                                        <MenuItem key={location} value={location}>{location}</MenuItem>
+                                                    ))
+                                                }
+                                            </TextField>
+                                        }
+                                        name="location"
+                                        control={control}
+                                        rules={{ required: "Location is required." }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        id="description"
+                                        name="description"
+                                        label="Description"
+                                        multiline
+                                        rows={5}
+                                        error={!!errors.description}
+                                        inputRef={register({ required: "Empty description field." })}
+                                        helperText={!!errors.description ? errors.description.message : " "}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Box sx={{ mt: 3 }} className={classes.boxAlign}>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
                                 >
-                                    <MenuItem value="rhill">Rose-Hill Campus</MenuItem>
-                                    <MenuItem value="pam">Swami Dayanand Campus</MenuItem>
-                                </TextField>
-                            }
-                            name="campus"
-                            control={control}
-                        />
-                        <Controller
-                            as={
-                                <TextField
-                                    fullWidth
-                                    variant="standard"
-                                    margin="normal"
-                                    required
-                                    error={!!errors.location}
-                                    label="Location"
-                                    select
-                                    helperText={!!errors.location ? errors.location.message : " "}
-                                >
-                                    {watch('campus') === 'rhill' ?
-                                        props.locations.rhill.options.map(location => (
-                                            <MenuItem key={location} value={location}>{location}</MenuItem>
-                                        ))
-                                        :
-                                        props.locations.pam.options.map(location => (
-                                            <MenuItem key={location} value={location}>{location}</MenuItem>
-                                        ))
-                                    }
-                                </TextField>
-                            }
-                            name="location"
-                            control={control}
-                            rules={{ required: "Location is required." }}
-                        />
-                        <TextField
-                            fullWidth
-                            variant="standard"
-                            margin="normal"
-                            id="description"
-                            name="description"
-                            label="Description"
-                            multiline
-                            rows={5}
-                            error={!!errors.description}
-                            inputRef={register({ required: "Empty description field." })}
-                            helperText={!!errors.description ? errors.description.message : " "}
-                        />
+                                    Modify Book
+                            </Button>
+                            </Box>
+                        </form>
                     </Grid>
                 </Grid>
-                <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                >Modify Book</Button>
-            </form>
+            </Box>
         </>
     )
 }
@@ -237,6 +247,9 @@ const ModifyBook = (props) => {
 const useStyles = makeStyles(theme => ({
     hidden: {
         display: 'none'
+    },
+    boxAlign: {
+        textAlign: 'center'
     }
 }))
 

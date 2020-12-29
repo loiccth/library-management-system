@@ -9,8 +9,10 @@ import ReturnBook from './librarian/ReturnBook'
 import Grid from '@material-ui/core/Grid'
 import Box from '@material-ui/core/Box'
 import Divider from '@material-ui/core/Divider'
+import { makeStyles } from '@material-ui/core/styles'
 
 const MainDashboard = ({ user }) => {
+    const classes = useStyles()
     const [loading, setLoading] = useState(true)
     const [overdueBooks, setOverdueBooks] = useState()
     const [dueBooks, setDueBooks] = useState()
@@ -176,11 +178,11 @@ const MainDashboard = ({ user }) => {
             <>
                 {loading ? null :
                     <Box sx={{ my: 5 }}>
-                        <Grid container justifyContent="center">
-                            <Grid item xs={5} sm={3}>
+                        <Grid container justifyContent="space-evenly">
+                            <Grid item xs={5} sm={3} md={2} lg={1} className={classes.button}>
                                 <IssueBook />
                             </Grid>
-                            <Grid item xs={5} sm={3}>
+                            <Grid item xs={5} sm={3} md={2} lg={1} className={classes.button}>
                                 <ReturnBook />
                             </Grid>
                         </Grid>
@@ -209,5 +211,11 @@ const MainDashboard = ({ user }) => {
         )
     }
 }
+
+const useStyles = makeStyles(theme => ({
+    button: {
+        textAlign: 'center'
+    }
+}))
 
 export default MainDashboard

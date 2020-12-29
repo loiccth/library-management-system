@@ -75,12 +75,11 @@ const Home = (props) => {
                         <form className={classes.form} onSubmit={handleSubmit(handleSearch)}>
                             <Container maxWidth="sm" className={classes.container}>
                                 <TextField
-                                    className={classes.searchbar}
                                     placeholder="Search books"
                                     style={{ width: '85%' }}
                                     name="search"
                                     variant="standard"
-                                    inputRef={register}
+                                    inputRef={register()}
                                 />
                                 <IconButton type="submit" className={classes.iconButton} aria-label="search">
                                     <SearchIcon />

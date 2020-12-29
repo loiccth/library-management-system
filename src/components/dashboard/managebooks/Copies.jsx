@@ -6,7 +6,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
+import Paper from '@material-ui/core/Paper'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
@@ -76,11 +76,11 @@ const Copies = (props) => {
                     {snackbar.msg}
                 </Alert>
             </Snackbar>
-            <Grid container>
-                <Grid item>
-                    <TableContainer>
+            <Grid container justifyContent="center">
+                <Grid item xs={12} md={10}>
+                    <Paper className={classes.paper}>
                         <form onSubmit={handleSubmit(onSubmit)} noValidate>
-                            <Table>
+                            <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Check</TableCell>
@@ -122,7 +122,7 @@ const Copies = (props) => {
                                                     id="reason"
                                                     name={`copies[${index}].reason`}
                                                     error={errors.copies === undefined ? false : errors.copies[index] === undefined ? false : true}
-                                                    helperText={errors.copies === undefined ? " " : errors.copies[index] === undefined ? " " : "Reason for removing copy cannot be empty."}
+                                                    helperText={errors.copies === undefined ? " " : errors.copies[index] === undefined ? " " : "Field cannot be empty."}
                                                     inputRef={register({
                                                         validate: value => {
                                                             if (getValues(`copies[${index}].checked`) && value === "") {
@@ -144,7 +144,7 @@ const Copies = (props) => {
                                 fullWidth
                             >Remove copies</Button>
                         </form>
-                    </TableContainer>
+                    </Paper>
                 </Grid>
             </Grid>
         </>
@@ -152,8 +152,15 @@ const Copies = (props) => {
 }
 
 const useStyles = makeStyles(theme => ({
+    table: {
+        minWidth: 650,
+        overflowX: 'auto'
+    },
     hidden: {
         display: 'none'
+    },
+    paper: {
+        overflowX: 'auto'
     }
 }))
 

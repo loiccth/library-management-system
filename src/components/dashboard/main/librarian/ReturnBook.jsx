@@ -11,12 +11,14 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
+import Box from '@material-ui/core/Box'
 
 const ReturnBook = () => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState()
     const [paymentID, setPaymentID] = useState()
+    const [click, setClick] = useState(false)
     const [paymentMsg, setPaymentMsg] = useState()
     const { register, handleSubmit, errors, reset } = useForm()
 
@@ -36,10 +38,15 @@ const ReturnBook = () => {
     }
 
     const handleFine = () => {
+        setClick(true)
         axios.post(`${url}/user/payfine/${paymentID}`)
             .then(() => {
                 setPaymentMsg('Payment record updated successfully.')
             })
+    }
+
+    const handleClick = () => {
+        setClick(true)
     }
 
     const handleClickOpen = () => {
@@ -48,6 +55,15 @@ const ReturnBook = () => {
 
     const handleClose = () => {
         setOpen(false)
+        setClick(false)
+        setMessage()
+        setPaymentID()
+        setPaymentMsg()
+        reset()
+    }
+
+    const handleReset = () => {
+        setClick(false)
         setMessage()
         setPaymentID()
         setPaymentMsg()
@@ -56,7 +72,7 @@ const ReturnBook = () => {
 
     return (
         <>
-            <Button variant="contained" onClick={handleClickOpen}>
+            <Button variant="contained" fullWidth onClick={handleClickOpen}>
                 Return Book
             </Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
@@ -68,7 +84,7 @@ const ReturnBook = () => {
                                 <TextField
                                     autoFocus
                                     required
-                                    margin="normal"
+                                    autoComplete="off"
                                     id="userid"
                                     name="userid"
                                     label="MemberID"
@@ -76,13 +92,13 @@ const ReturnBook = () => {
                                     variant="standard"
                                     inputRef={register({ required: "MemberID is required." })}
                                     error={!!errors.userid}
-                                    helperText={!!errors.userid ? errors.userid.message : " "}
+                                    helperText={!!errors.userid ? errors.userid.message : ""}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     required
-                                    margin="normal"
+                                    autoComplete="off"
                                     id="isbn"
                                     name="isbn"
                                     label="ISBN"
@@ -90,11 +106,13 @@ const ReturnBook = () => {
                                     variant="standard"
                                     inputRef={register({ required: "ISBN is required." })}
                                     error={!!errors.isbn}
-                                    helperText={!!errors.isbn ? errors.isbn.message : " "}
+                                    helperText={!!errors.isbn ? errors.isbn.message : ""}
                                 />
                             </Grid>
                         </Grid>
-                        <Button type="submit" variant="outlined">Return Book</Button>
+                        <Box sx={{ mt: 3 }}>
+                            <Button type="submit" variant="contained">Return Book</Button>
+                        </Box>
                     </form>
 
                     {message &&
@@ -105,10 +123,15 @@ const ReturnBook = () => {
 
                             {paymentID &&
                                 <>
-                                    <Typography variant="body1" align="center">
-                                        Paid fine?
-                                    </Typography>
-                                    <Button variant="outlined" onClick={handleFine}>Yes</Button>
+                                    {!click &&
+                                        <>
+                                            <Typography variant="body1" align="center">
+                                                Paid fine?
+                                            </Typography>
+                                            <Button variant="outlined" onClick={handleFine}>Yes</Button>
+                                            <Button variant="outlined" onClick={handleClick}>No</Button>
+                                        </>
+                                    }
                                     {paymentMsg &&
                                         <Typography variant="body1" align="center">
                                             {paymentMsg}
@@ -120,6 +143,7 @@ const ReturnBook = () => {
                     }
                 </DialogContent>
                 <DialogActions>
+                    <Button variant="contained" color="primary" onClick={handleReset}>Reset</Button>
                     <Button variant="contained" color="secondary" onClick={handleClose}>Close</Button>
                 </DialogActions>
             </Dialog>

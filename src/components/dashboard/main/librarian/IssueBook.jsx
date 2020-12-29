@@ -11,6 +11,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
+import Box from '@material-ui/core/Box'
 
 const IssueBook = () => {
     const classes = useStyles()
@@ -48,9 +49,15 @@ const IssueBook = () => {
         reset()
     }
 
+    const handleReset = () => {
+        setCheck(false)
+        setMessage()
+        reset()
+    }
+
     return (
         <>
-            <Button variant="contained" onClick={handleClickOpen}>
+            <Button variant="contained" fullWidth onClick={handleClickOpen}>
                 Issue Book
             </Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
@@ -62,6 +69,7 @@ const IssueBook = () => {
                                 <TextField
                                     autoFocus
                                     required
+                                    autoComplete="off"
                                     id="userid"
                                     name="userid"
                                     label="MemberID"
@@ -75,6 +83,7 @@ const IssueBook = () => {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     required
+                                    autoComplete="off"
                                     id="isbn"
                                     name="isbn"
                                     label="ISBN"
@@ -86,7 +95,9 @@ const IssueBook = () => {
                                 />
                             </Grid>
                         </Grid>
-                        <Button type="submit" variant="contained">Issue Book</Button>
+                        <Box sx={{ mt: 3 }}>
+                            <Button type="submit" variant="contained">Issue Book</Button>
+                        </Box>
                     </form>
 
                     {check &&
@@ -96,6 +107,7 @@ const IssueBook = () => {
                     }
                 </DialogContent>
                 <DialogActions>
+                    <Button variant="contained" color="primary" onClick={handleReset}>Reset</Button>
                     <Button variant="contained" color="secondary" onClick={handleClose}>Close</Button>
                 </DialogActions>
             </Dialog>
