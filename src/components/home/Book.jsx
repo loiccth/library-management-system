@@ -114,8 +114,8 @@ const Book = (props) => {
                         {snackbar.msg}
                     </Alert>
                 </Snackbar>
-                <Box class={classes.wrapper}>
-                    <Box class={classes.bookcontainer}>
+                <Box className={classes.wrapper}>
+                    <Box className={classes.bookcontainer}>
                         <Container component={Paper}>
                             <Grid container spacing={3} className={classes.container}>
                                 <Grid item xs={12} sm={4}>
@@ -147,10 +147,10 @@ const Book = (props) => {
                                                         <DialogActions>
                                                             <Button onClick={handleToggle} color="secondary">
                                                                 Cancel
-                                                    </Button>
+                                                            </Button>
                                                             <Button onClick={handleConfirm} autoFocus>
                                                                 Confirm
-                                                    </Button>
+                                                            </Button>
                                                         </DialogActions>
                                                     </Dialog>
                                                 </React.Fragment>

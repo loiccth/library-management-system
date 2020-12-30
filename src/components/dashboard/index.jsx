@@ -100,10 +100,6 @@ const Dashboard = (props) => {
             permission: 'Admin'
         },
         {
-            sidebarMenu: 'Profile',
-            link: '/dashboard/profile'
-        },
-        {
             sidebarMenu: 'Reports',
             link: '/dashboard/reports',
             permission: 'Librarian'
@@ -112,6 +108,15 @@ const Dashboard = (props) => {
             sidebarMenu: 'Reports',
             link: '/dashboard/reports',
             permission: 'Admin'
+        },
+        {
+            sidebarMenu: 'My Books',
+            link: '/dashboard/mybooks',
+            permission: 'staff'
+        },
+        {
+            sidebarMenu: 'Profile',
+            link: '/dashboard/profile'
         }
     ])
 
@@ -131,6 +136,12 @@ const Dashboard = (props) => {
                 <List>
                     {sidebar.map(item => {
                         if (item.permission === props.user.memberType || item.permission === undefined)
+                            return (
+                                <ListItem button key={item.sidebarMenu} component={Link} to={item.link}>
+                                    <ListItemText primary={item.sidebarMenu} />
+                                </ListItem>
+                            )
+                        else if (item.permission === 'staff' && (props.user.memberType === 'Librarian' || props.user.memberType === 'Admin'))
                             return (
                                 <ListItem button key={item.sidebarMenu} component={Link} to={item.link}>
                                     <ListItemText primary={item.sidebarMenu} />

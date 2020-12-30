@@ -12,10 +12,11 @@ import LoginPage from './components/login'
 import Dashboard from './components/dashboard'
 import MainDashboard from './components/dashboard/main'
 import ManageBooks from './components/dashboard/managebooks'
-import Settings from './components/dashboard/settings'
-import Profile from './components/dashboard/profile'
-import Reports from './components/dashboard/reports'
 import ManageMembership from './components/dashboard/managemembership'
+import Settings from './components/dashboard/settings'
+import Reports from './components/dashboard/reports'
+import MyBooks from './components/dashboard/mybooks'
+import Profile from './components/dashboard/profile'
 import ForcePasswordChange from './components/others/ForcePasswordChange'
 
 import NotFound from './components/NotFound'
@@ -114,10 +115,11 @@ function App() {
                             <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />}>
                                 <Route path='/' element={<MainDashboard user={user} />} />
                                 <Route path='/managebooks' element={<ManageBooks user={user} />} />
+                                <Route path='/managememberships' element={<ManageMembership user={user} />} />
                                 <Route path='/settings' element={<Settings user={user} />} />
                                 <Route path='/reports' element={<Reports user={user} />} />
+                                <Route path='/mybooks' element={<MyBooks />} />
                                 <Route path='/profile' element={<Profile user={user} handlePasswordChange={handlePasswordChange} />} />
-                                <Route path='/managememberships' element={<ManageMembership user={user} />} />
                             </Route>
                             <Route path='/*' element={<NotFound />} />
                         </Routes>

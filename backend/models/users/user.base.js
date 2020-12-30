@@ -184,7 +184,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
 
     const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
-    if (numOfReservations > maxReservations) return res.json({ 'error': `Cannot reserve more than ${maxReservations} books` })
+    if (numOfReservations >= maxReservations) return res.json({ 'error': `Cannot reserve more than ${maxReservations} books` })
     else if (transaction !== null) {
         if (transaction.transactionType === 'Borrow') res.status(400).json({ 'error': 'You already have a copy borrowed' })
         else res.status(400).json({ 'error': 'Book already reserved' })
@@ -300,16 +300,16 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
         const book = await Book.findById(borrow.bookid)
 
         if (book.reservation.length > book.noOfBooksOnHold)
-            return res.json({ 'error': 'Cannot renew book because there are reservations.' })
+            return res.status(400).json({ 'error': 'Cannot renew book because there are reservations.' })
         else {
-            if (borrow.isHighDemand === true) return res.json({ 'error': 'Cannot renew high demand book.' })
-            else if (borrow.renews >= renewalsAllowed) return res.json({ 'error': 'Reached max number of renewals.' })
+            if (borrow.isHighDemand === true) return res.status(400).json({ 'error': 'Cannot renew high demand book.' })
+            else if (borrow.renews >= renewalsAllowed) return res.status(400).json({ 'error': 'Reached max number of renewals.' })
             else {
                 const now = new Date(new Date().toDateString())
                 const borrowDate = new Date(borrow.dueDate.toDateString())
                 let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
-                if (numOfDays > 2) return res.json({ 'error': 'Can only renew within 2 days of due date.' })
-                else if (numOfDays < 0) return res.json({ 'error': `Book overdue by ${numOfDays * -1} day(s).` })
+                if (numOfDays > 2) return res.status(400).json({ 'error': 'Can only renew within 2 days of due date.' })
+                else if (numOfDays < 0) return res.status(400).json({ 'error': `Book overdue by ${numOfDays * -1} day(s).` })
                 else {
                     const newDueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
 
@@ -317,7 +317,7 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                     borrow.dueDate = newDueDate
                     borrow.renewedOn = Date()
 
-                    await Book.findOne({ _id: borrow.bookid })
+                    Book.findOne({ _id: borrow.bookid })
                         .then(book => {
                             for (let i = 0; i < book.copies.length; i++) {
                                 if (book.copies[i].borrower.userid.toString() === this._id.toString()) {
@@ -329,7 +329,7 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                             book.save().catch(err => console.log(err))
                         })
 
-                    await borrow.save().then(borrow => res.json(borrow)).catch(err => console.log(err))
+                    borrow.save().then(borrow => res.json(borrow)).catch(err => console.log(err))
                 }
             }
         }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import url from '../../../settings/api'
+import MyBooks from '../../dashboard/mybooks'
 import OverdueBooks from './librarian/OverdueBooks'
 import DueBooks from './librarian/DueBooks'
 import Reservations from './librarian/Reservations'
@@ -168,9 +169,7 @@ const MainDashboard = ({ user }) => {
 
     if (user.memberType === 'Member' || user.memberType === 'MemberA' || user.memberType === 'MemberNA') {
         return (
-            <>
-                hellow rold
-            </>
+            <MyBooks />
         )
     }
     else if (user.memberType === 'Librarian') {

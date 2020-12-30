@@ -154,6 +154,7 @@ const DueBooks = (props) => {
                                                 <Typography variant="caption" display="block">Renews: {row.renews}</Typography>
                                             </TableCell>
                                             <TableCell>
+                                                {/* TODO: get amount from db */}
                                                 {row.renews === 3 &&
                                                     <Tooltip title="Max Renews" arrow>
                                                         <AutorenewIcon />
