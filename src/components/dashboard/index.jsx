@@ -20,6 +20,7 @@ import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 import logo from '../../img/logo.png'
+import whitelogo from '../../img/logo_white.png'
 
 const drawerWidth = 240
 
@@ -172,7 +173,7 @@ const Dashboard = (props) => {
                         </IconButton>
                         <div className={classes.title}>
                             <Link to='/'>
-                                <img src={logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
+                                <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
                             </Link>
                         </div>
                         {props.darkMode ?

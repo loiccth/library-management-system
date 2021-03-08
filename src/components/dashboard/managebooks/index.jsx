@@ -19,7 +19,6 @@ const ManageBooks = ({ user }) => {
         csv: false,
         api: true
     })
-    const [useAPI, setUseAPI] = useState(true)
     const [locations, setLocations] = useState({
         pam: {
             options: []

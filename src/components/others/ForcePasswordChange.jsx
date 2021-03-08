@@ -17,7 +17,7 @@ const ForcePasswordChange = (props) => {
                 <Grid container spacing={10} justifyContent="center">
                     <Grid item xs={10} sm={5} md={4} component={Paper}>
                         <Typography variant="h6">Change password to proceed.</Typography>
-                        <ChangePassword handlePasswordChange={props.handlePasswordChange} />
+                        <ChangePassword handlePasswordChange={props.handlePasswordChange} parent='forcePasswordChange' />
                     </Grid>
                 </Grid>
             </Container>

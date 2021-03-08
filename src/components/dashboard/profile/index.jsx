@@ -21,7 +21,7 @@ const Profile = (props) => {
                         <Divider orientation="vertical" flexItem={true} />
                     </Hidden>
                     <Grid item xs={10} sm={5} md={4}>
-                        <ChangePassword handlePasswordChange={props.handlePasswordChange} />
+                        <ChangePassword handlePasswordChange={props.handlePasswordChange} parent='profile' />
                     </Grid>
                 </Grid>
             </Container>

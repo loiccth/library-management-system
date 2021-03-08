@@ -181,7 +181,7 @@ const Reports = ({ user }) => {
         )
     }
     else if (user.memberType === 'Admin') {
-        (
+        return (
             <>
                 hello admin {user.memberType}
             </>

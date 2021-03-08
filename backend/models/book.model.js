@@ -37,7 +37,7 @@ const bookSchema = new Schema({
         createdAt: { type: Date },
         reason: { type: String }
     }]
-})
+}, { timestamps: true })
 
 const Book = mongoose.model('Book', bookSchema)
 

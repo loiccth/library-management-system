@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 
 const baseOptions = {
     discriminatorKey: 'udmType',
-    collection: 'udm'
+    collection: 'udm',
+    timestamps: true
 }
 
 const baseUDMSchema = new Schema({
@@ -13,8 +14,7 @@ const baseUDMSchema = new Schema({
     email: { type: String, required: true, unique: true, trim: true },
     phone: { type: Number, required: true, unique: true, trim: true },
     dateOfBirth: { type: Date, required: true },
-    address: { type: String, required: true, trim: true },
-    createdAt: { type: Date, default: Date() },
+    address: { type: String, required: true, trim: true }
 }, baseOptions)
 
 const UDM = mongoose.model('UDM', baseUDMSchema)

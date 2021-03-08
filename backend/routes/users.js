@@ -3,6 +3,8 @@ const router = express.Router()
 const jwt = require('express-jwt')
 const axios = require('axios')
 const generator = require('generate-password')
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/users/' })
 const User = require('../models/users/user.base')
 const Member = require('../models/users/member.model')
 const MemberA = require('../models/users/member_academic.model')
@@ -27,7 +29,7 @@ router.post('/login', (req, res) => {
         .then(user => {
             if (user === null) {
                 return res.status(401).json({
-                    'error': 'Invalid MemberID or Password.'
+                    'error': 'Invalid MemberID or password.'
                 })
             }
             else {
@@ -76,6 +78,16 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
             else return res.json({ 'error': 'Account already exist' })
         }
         else return res.json({ 'error': 'Email not found' })
+    }
+})
+
+router.post('/register_csv', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), upload.single('csv'), (req, res) => {
+    if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    else {
+        Admin.findOne({ _id: req.user._id })
+            .then(admin => {
+                admin.registerCSV(req.file.path, res)
+            })
     }
 })
 
@@ -141,13 +153,14 @@ router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) 
 
 // Update password
 router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (req.body.password === undefined || req.body.oldPassword === undefined)
+    if (!req.body.confirmpassword || !req.body.newpassword || !req.body.oldpassword)
         return res.status(400).json({
             'error': 'Missing password param'
         })
-
+    else if (req.body.newpassword !== req.body.confirmpassword) return res.status(400).json({ 'error': 'New password does not match with confirm password' })
+    else if (req.body.newpassword === req.body.oldpassword || req.body.confirmpassword === req.body.oldpassword) return res.status(400).json({ 'error': 'New password should not match old password' })
     User.findOne({ _id: req.user._id })
-        .then(user => user.changePassword(req.body.oldPassword, req.body.password, res))
+        .then(user => user.changePassword(req.body.oldpassword, req.body.newpassword, res))
         .catch(err => console.log(err))
 })
 

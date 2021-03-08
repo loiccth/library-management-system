@@ -1,20 +1,26 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import url from '../../../settings/api'
 import { useForm } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton';
-import Input from '@material-ui/core/Input';
-import InputLabel from '@material-ui/core/InputLabel';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import FormControl from '@material-ui/core/FormControl';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import IconButton from '@material-ui/core/IconButton'
+import Input from '@material-ui/core/Input'
+import InputLabel from '@material-ui/core/InputLabel'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import FormControl from '@material-ui/core/FormControl'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 import FormHelperText from '@material-ui/core/FormHelperText'
+import Snackbar from '@material-ui/core/Snackbar'
+import Alert from '@material-ui/core/Alert'
 
 const ChangePassword = (props) => {
     const classes = useStyles()
+    const navigate = useNavigate()
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, reset, watch } = useForm()
     const [showPasswords, setShowPassword] = useState({
         oldpassword: false,
@@ -22,13 +28,29 @@ const ChangePassword = (props) => {
         confirmpassword: false
     })
 
+    // TODO: Add form validation to check new pwd = old pwd
+
     const onSubmit = (data) => {
-        axios.patch(`${url}/users`, { data }, { withCredentials: true })
+        axios.patch(`${url}/users`, data, { withCredentials: true })
             .then(() => {
-                props.handlePasswordChange()
+                props.handlePasswordChange(props.parent)
+
+                if (props.parent === 'forcePasswordChange')
+                    navigate('/dashboard', { replace: true })
+                else
+                    setSnackbar({
+                        type: 'success',
+                        msg: 'Password successfully updated.'
+                    })
             })
             .catch(err => {
-                console.log(err)
+                setSnackbar({
+                    type: 'error',
+                    msg: err.response.data.error
+                })
+            })
+            .finally(() => {
+                handleClick()
             })
         reset()
     }
@@ -54,6 +76,13 @@ const ChangePassword = (props) => {
         })
     }
 
+    const handleClick = () => {
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
 
     const handleMouseDownPassword = (e) => {
         e.preventDefault();
@@ -61,6 +90,11 @@ const ChangePassword = (props) => {
 
     return (
         <>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
             <form onSubmit={handleSubmit(onSubmit)} noValidate className={classes.form}>
                 <FormControl fullWidth>
                     <InputLabel htmlFor="oldpassword">Old Password</InputLabel>
@@ -74,7 +108,7 @@ const ChangePassword = (props) => {
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
-                                    id="oldpassword"
+                                    id="oldpasswordtoggle"
                                     aria-label="toggle password visibility"
                                     onClick={handleClickShowOldPassword}
                                     onMouseDown={handleMouseDownPassword}
@@ -104,7 +138,7 @@ const ChangePassword = (props) => {
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
-                                    id="newpassword"
+                                    id="newpasswordtoggle"
                                     aria-label="toggle password visibility"
                                     onClick={handleClickShowNewPassword}
                                     onMouseDown={handleMouseDownPassword}
@@ -132,7 +166,7 @@ const ChangePassword = (props) => {
                         endAdornment={
                             <InputAdornment position="end">
                                 <IconButton
-                                    id="confirmpassword"
+                                    id="confirmpasswordtoggle"
                                     aria-label="toggle password visibility"
                                     onClick={handleClickShowConfirmPassword}
                                     onMouseDown={handleMouseDownPassword}

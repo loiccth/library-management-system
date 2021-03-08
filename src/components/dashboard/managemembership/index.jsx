@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import RegisterMemberCSV from './RegisterMemberCSV'
 import RegisterMember from './RegisterMember'
 
 const ManageMenbership = (props) => {
@@ -10,9 +11,10 @@ const ManageMenbership = (props) => {
     }
 
     return (
-        <div className="manage-membership container">
+        <>
+            <RegisterMemberCSV />
             <RegisterMember />
-        </div>
+        </>
     )
 }
 

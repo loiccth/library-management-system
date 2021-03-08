@@ -7,7 +7,7 @@ const Transaction = require('../transactions/transaction.base')
 const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
-const Payment = require('../payment.model')
+const Payment = require('../payment.model') //TODO: Check why this is here
 const Setting = require('../setting.model')
 const UDM = require('../udm/udm.base')
 
@@ -17,7 +17,8 @@ const secret = process.env.JWT_SECRET
 
 const baseOptions = {
     discriminatorKey: 'memberType',
-    collection: 'members'
+    collection: 'members',
+    timestamps: true
 }
 
 const baseUserSchema = new Schema({
@@ -25,9 +26,7 @@ const baseUserSchema = new Schema({
     userid: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     status: { type: String, required: true, enum: ['active', 'suspended'], default: 'active' },
-    temporaryPassword: { type: Boolean, required: true, default: true },
-    createdAt: { type: Date, default: Date() },
-    updatedOn: { type: Date, default: Date() }
+    temporaryPassword: { type: Boolean, required: true, default: true }
 }, baseOptions)
 
 
@@ -49,62 +48,59 @@ baseUserSchema.pre('save', function (next) {
 })
 
 baseUserSchema.methods.login = async function (candidatePassword, email, phone, res) {
-    if (this.temporaryPassword) {
-        let temporaryTimer = await Setting.findOne({ setting: 'USER' })
-
-        for (let i = 0; i < temporaryTimer.options.length; i++) {
-            if (temporaryTimer.options[i].id === 'temp_password') {
-                temporaryTimer = temporaryTimer.options[i].value
-                break
-            }
-        }
-
-        const now = new Date()
-        const expireDate = new Date(new Date(this.updatedOn).getTime() + (temporaryTimer * 1000))
-        if (now > expireDate) return res.status(401).json({ 'error': 'Temporary password expired.' })
-    }
-
     bcrypt.compare(candidatePassword, this.password)
-        .then((result) => {
+        .then(async (result) => {
             if (result) {
-                if (this.status === 'suspended') {
-                    res.status(401).json({ 'error': 'Account suspended.' })
+                if (this.temporaryPassword) {
+                    let temporaryTimer = await Setting.findOne({ setting: 'USER' })
+
+                    for (let i = 0; i < temporaryTimer.options.length; i++) {
+                        if (temporaryTimer.options[i].id === 'temp_password') {
+                            temporaryTimer = temporaryTimer.options[i].value
+                            break
+                        }
+                    }
+
+                    const now = new Date()
+                    const expireDate = new Date(new Date(this.updatedAt).getTime() + (temporaryTimer * 1000))
+                    if (now > expireDate) return res.status(401).json({ 'error': 'Temporary password expired.' })
                 }
-                else {
-                    const { _id, userid, memberType, temporaryPassword } = this
-                    const token = jsonwebtoken.sign({
-                        _id,
-                        userid,
-                        email,
-                        phone,
-                        memberType,
-                        temporaryPassword
-                    }, secret, { expiresIn: '7d' })
-
-                    res.cookie('jwttoken', token, {
-                        expires: new Date(Date.now() + 604800000),
-                        secure: false,
-                        httpOnly: true,
-                        sameSite: 'Lax'
-                    })
-
-                    res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
-                        expires: new Date(Date.now() + 604800000),
-                        secure: false,
-                        httpOnly: false,
-                        sameSite: 'Lax',
-                        // domain: 'udmlibrary.com'
-                    })
-
-                    res.json({
-                        _id,
-                        userid,
-                        email,
-                        phone,
-                        memberType,
-                        temporaryPassword
-                    })
+                else if (this.status === 'suspended') {
+                    return res.status(401).json({ 'error': 'Account suspended.' })
                 }
+                const { _id, userid, memberType, temporaryPassword } = this
+                const token = jsonwebtoken.sign({
+                    _id,
+                    userid,
+                    email,
+                    phone,
+                    memberType,
+                    temporaryPassword
+                }, secret, { expiresIn: '7d' })
+
+                res.cookie('jwttoken', token, {
+                    expires: new Date(Date.now() + 604800000),
+                    secure: false,
+                    httpOnly: true,
+                    sameSite: 'Lax'
+                })
+
+                res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
+                    expires: new Date(Date.now() + 604800000),
+                    secure: false,
+                    httpOnly: false,
+                    sameSite: 'Lax',
+                    // domain: 'udmlibrary.com'
+                })
+
+                res.json({
+                    _id,
+                    userid,
+                    email,
+                    phone,
+                    memberType,
+                    temporaryPassword
+                })
             }
             else {
                 res.status(401).json({
@@ -127,14 +123,40 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
             if (result) {
                 this.temporaryPassword = false
                 this.password = newPassword
-                this.updatedOn = Date()
+                this.updatedAt = Date()
 
                 this.save()
-                    .then(() => res.sendStatus(200))
+                    .then(() => {
+                        const token = jsonwebtoken.sign({
+                            _id: this._id,
+                            userid: this.userid,
+                            email: this.email,
+                            phone: this.phone,
+                            memberType: this.memberType,
+                            temporaryPassword: false
+                        }, secret, { expiresIn: '7d' })
+
+                        res.cookie('jwttoken', token, {
+                            expires: new Date(Date.now() + 604800000),
+                            secure: false,
+                            httpOnly: true,
+                            sameSite: 'Lax'
+                        })
+
+                        res.cookie('user', JSON.stringify({ isLoggedIn: true, _id: this._id, userid: this.userid, email: this.email, phone: this.phone, memberType: this.memberType, temporaryPassword: false }), {
+                            expires: new Date(Date.now() + 604800000),
+                            secure: false,
+                            httpOnly: false,
+                            sameSite: 'Lax',
+                            // domain: 'udmlibrary.com'
+                        })
+
+                        res.sendStatus(200)
+                    })
                     .catch(err => console.log(err))
             }
             else {
-                res.sendStatus(403)
+                res.status(403).json({ 'error': 'Old password does not match' })
             }
         })
 }
@@ -143,7 +165,7 @@ baseUserSchema.methods.resetPassword = async function (res) {
     const pwd = generator.generate({ length: 10, numbers: true })
     this.password = pwd
     this.temporaryPassword = true
-    this.updatedOn = Date()
+    this.updatedAt = Date()
 
     console.log(pwd)
 
@@ -309,6 +331,7 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                 const borrowDate = new Date(borrow.dueDate.toDateString())
                 let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
                 if (numOfDays > 2) return res.status(400).json({ 'error': 'Can only renew within 2 days of due date.' })
+                // TODO: allow renew if overdue
                 else if (numOfDays < 0) return res.status(400).json({ 'error': `Book overdue by ${numOfDays * -1} day(s).` })
                 else {
                     const newDueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)

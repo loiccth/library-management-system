@@ -4,14 +4,14 @@ const Schema = mongoose.Schema
 
 const baseOptions = {
     discriminatorKey: 'transactionType',
-    collection: 'transactions'
+    collection: 'transactions',
+    timestamps: true
 }
 
 const baseTransactionSchema = new Schema({
     userid: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     bookid: { type: Schema.Types.ObjectId, ref: 'Book', required: true },
     status: { type: String, required: true, default: 'active', enum: ['active', 'expired', 'archive'] },
-    createdAt: { type: Date, default: Date() },
 }, baseOptions)
 
 const Transaction = mongoose.model('Transaction', baseTransactionSchema)

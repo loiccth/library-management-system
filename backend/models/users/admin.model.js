@@ -4,6 +4,11 @@ const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
 const Setting = require('../setting.model')
+const UDM = require('../udm/udm.base')
+const Student = require('../udm/student.model')
+const Staff = require('../udm/staff.model')
+const csv = require('csv-parser')
+const fs = require('fs')
 const transporter = require('../../config/mail.config')
 
 const Schema = mongoose.Schema
@@ -157,6 +162,83 @@ adminSchema.methods.registerMember = function (udmid, userid, memberType, passwo
             })
         })
         .catch(err => console.log(err))
+}
+
+adminSchema.methods.registerCSV = function (file, res) {
+    let success = []
+    let fail = []
+    let promises = []
+
+    fs.createReadStream(file)
+        .pipe(csv())
+        .on('data', user => {
+            promises.push(new Promise(async (resolve) => {
+                const { email } = user
+
+                const udm = await UDM.findOne({ email })
+
+                if (udm) {
+                    const user = await User.findOne({ udmid: udm._id })
+
+                    if (!user) {
+                        const password = generator.generate({ length: 10, numbers: true })
+                        console.log(password)
+
+                        let userid = null
+                        if (udm.udmType === 'Student') {
+                            userid = udm.studentid
+                            memberType = 'Member'
+                        }
+                        else {
+                            userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
+                            if (udm.academic) memberType = 'MemberA'
+                            else memberType = 'MemberNA'
+                        }
+
+                        const newMember = new User({
+                            memberType,
+                            udmid,
+                            userid,
+                            password
+                        })
+
+                        newMember.save()
+                            .then(member => {
+                                res.json({
+                                    member
+                                })
+
+                                const mailRegister = {
+                                    from: 'no-reply@udmlibrary.com',
+                                    to: email,
+                                    subject: 'Register password',
+                                    text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
+                                }
+                                transporter.sendMail(mailRegister, (err, info) => {
+                                    if (err) return resolve(fail.push(`Error sending email - ${email}`))
+                                    console.log(info)
+                                    resolve(success.push(`MemberID ${userid} registered with ${email}`))
+                                })
+                            })
+                            .catch(err => console.log(err))
+                    }
+                    else
+                        resolve(fail.push(`Account already exist - ${email}`))
+                }
+                else
+                    resolve(fail.push(`Email not found - ${email}`))
+
+            }))
+        })
+        .on('end', () => {
+            Promise.all(promises)
+                .then(() => {
+                    res.status(201).json({
+                        success,
+                        fail
+                    })
+                })
+        })
 }
 
 adminSchema.methods.toggleStatus = function (userid, res) {

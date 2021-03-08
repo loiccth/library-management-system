@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import url from '../../../settings/api'
 import MyBooks from '../../dashboard/mybooks'
+import AdminAnalytics from '../../dashboard/adminanalytics'
 import OverdueBooks from './librarian/OverdueBooks'
 import DueBooks from './librarian/DueBooks'
 import Reservations from './librarian/Reservations'
@@ -204,9 +205,7 @@ const MainDashboard = ({ user }) => {
     }
     else if (user.memberType === 'Admin') {
         return (
-            <>
-                admin dashboard
-            </>
+            <AdminAnalytics />
         )
     }
 }

@@ -15,6 +15,7 @@ import IconButton from '@material-ui/core/IconButton'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
 import logo from '../../img/logo.png'
+import whitelogo from '../../img/logo_white.png'
 
 const Navbar = (props) => {
     const classes = useStyles()
@@ -42,7 +43,7 @@ const Navbar = (props) => {
                 <Toolbar>
                     <div className={classes.title}>
                         <Link to='/'>
-                            <img src={logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
+                            <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
                         </Link>
                     </div>
                     {props.darkMode ?

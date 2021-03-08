@@ -9,9 +9,8 @@ const paymentSchema = new Schema({
     numOfDays: { type: Number, required: true },
     pricePerDay: { type: Number, required: true },
     paid: { type: Boolean, required: true, default: false },
-    paidDate: { type: Date },
-    createdAt: { type: Date, default: Date() }
-})
+    paidDate: { type: Date }
+}, { timestamps: true })
 
 const Payment = mongoose.model('Payment', paymentSchema)
 
