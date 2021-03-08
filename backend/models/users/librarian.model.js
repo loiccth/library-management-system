@@ -24,14 +24,8 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, createdAt: { $gte: firstDay, $lte: lastDay } })
-        let bookLimit = await Setting.findOne({ setting: 'USER' })
-
-        for (let i = 0; i < bookLimit.options.length; i++) {
-            if (bookLimit.options[i].id === 'non_academic_borrow_count') {
-                bookLimit = bookLimit.options[i].value
-                break
-            }
-        }
+        const userSettings = await Setting.findOne({ setting: 'USER' })
+        const bookLimit = userSettings.options.non_academic_borrow.value
 
         if (numOfBooksBorrowed >= bookLimit) return res.json({ 'message': `Cannot borrow more than ${bookLimit} books in a month.` })
         else {
@@ -334,20 +328,11 @@ librarianSchema.methods.returnBook = async function (isbn, userid, res) {
                                     .then(async borrow => {
                                         if (borrow) {
 
-                                            const bookSettings = await Setting.findOne({ setting: 'BOOKS' })
+                                            const bookSettings = await Setting.findOne({ setting: 'BOOK' })
                                             let numOfDays
-                                            let finePerDay
-                                            let timeOnHold
+                                            const finePerDay = bookSettings.options.fine_per_day.value
+                                            const timeOnHold = bookSettings.options.time_onhold.value
                                             let paymentID
-
-                                            for (let i = 0; i < bookSettings.options.length; i++) {
-                                                if (bookSettings.options[i].id === 'fine_per_day') {
-                                                    finePerDay = bookSettings.options[i].value
-                                                }
-                                                else if (bookSettings.options[i].id === 'time_onhold') {
-                                                    timeOnHold = bookSettings.options[i].value
-                                                }
-                                            }
 
                                             borrow.returnedOn = Date()
                                             borrow.status = 'archive'

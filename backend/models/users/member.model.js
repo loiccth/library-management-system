@@ -14,14 +14,8 @@ memberSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     if (bookBorrowed !== null) return res.json({ 'message': 'Cannot borrow multiple copies of the same book.' })
     else {
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active' })
-        let bookLimit = await Setting.findOne({ setting: 'USER' })
-
-        for (let i = 0; i < bookLimit.options.length; i++) {
-            if (bookLimit.options[i].id === 'student_borrow_count') {
-                bookLimit = bookLimit.options[i].value
-                break
-            }
-        }
+        const userSettings = await Setting.findOne({ setting: 'USER' })
+        const bookLimit = userSettings.options.student_borrow.value
 
         if (numOfBooksBorrowed >= bookLimit) return res.json({ 'message': `Cannot borrow more than ${bookLimit} books at the same time.` })
         else {

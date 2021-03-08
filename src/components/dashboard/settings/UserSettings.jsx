@@ -11,7 +11,7 @@ import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 
-const UserSettings = ({ userSettings }) => {
+const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
@@ -48,6 +48,7 @@ const UserSettings = ({ userSettings }) => {
                         type: 'success',
                         msg: result.data.message
                     })
+                    handleUpdateUserSettings(data.settings)
                     handleClick()
                 })
         else {

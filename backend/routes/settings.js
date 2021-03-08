@@ -78,17 +78,21 @@ router.put('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) =>
     }
 })
 
-router.get('/books', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
-    const bookSettings = await Setting.findOne({ 'setting': 'BOOKS' }).select('options')
+router.get('/books_test', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const bookSettings = await Setting.findOne({ 'setting': 'BOOK' }).select('options')
+    bookSettings.options.time_onhold.value /= 60
 
-    for (let i = 0; i < bookSettings.options.length; i++) {
-        if (bookSettings.options[i].name === 'Time onhold') {
-            bookSettings.options[i].value /= 60
-            break
-        }
+    const temp = []
+
+    for (let i in bookSettings.options) {
+        temp.push({
+            name: bookSettings.options[i].name,
+            value: bookSettings.options[i].value,
+            id: i
+        })
     }
 
-    res.json(bookSettings.options)
+    res.json(temp)
 })
 
 router.put('/books', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
@@ -96,13 +100,18 @@ router.put('/books', jwt({ secret, credentialsRequired: true, getToken: (req) =>
 
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
-        Setting.findOne({ 'setting': 'BOOKS' })
+        Setting.findOne({ 'setting': 'BOOK' })
             .then(settings => {
                 for (let i = 0; i < bookSettings.length; i++) {
-                    if (settings.options[i].name === 'Time onhold')
-                        settings.options[i].value = bookSettings[i].value * 60
-                    else
-                        settings.options[i].value = bookSettings[i].value
+                    if (bookSettings[i].name === 'Time onhold')
+                        settings.options.time_onhold.value = bookSettings[i].value * 60
+                    else {
+                        let temp = bookSettings[i].name
+                        temp = temp.split(' ').join('_')
+                        temp = temp.toLowerCase()
+
+                        settings.options[temp].value = bookSettings[i].value
+                    }
                 }
                 settings.markModified('options')
                 settings.save()
@@ -111,17 +120,21 @@ router.put('/books', jwt({ secret, credentialsRequired: true, getToken: (req) =>
     }
 })
 
-router.get('/users', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+router.get('/users_test', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     const userSettings = await Setting.findOne({ 'setting': 'USER' }).select('options')
+    userSettings.options.temp_password.value /= 60
 
-    for (let i = 0; i < userSettings.options.length; i++) {
-        if (userSettings.options[i].name === 'Temporary password') {
-            userSettings.options[i].value /= 60
-            break
-        }
+    const temp = []
+
+    for (let i in userSettings.options) {
+        temp.push({
+            name: userSettings.options[i].name,
+            value: userSettings.options[i].value,
+            id: i
+        })
     }
 
-    res.json(userSettings.options)
+    res.json(temp)
 })
 
 router.put('/users', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
@@ -132,10 +145,16 @@ router.put('/users', jwt({ secret, credentialsRequired: true, getToken: (req) =>
         Setting.findOne({ 'setting': 'USER' })
             .then(settings => {
                 for (let i = 0; i < userSettings.length; i++) {
-                    if (settings.options[i].name === 'Temporary password')
-                        settings.options[i].value = userSettings[i].value * 60
-                    else
-                        settings.options[i].value = userSettings[i].value
+                    if (userSettings[i].name === 'Temporary password')
+                        settings.options.temp_password.value = userSettings[i].value * 60
+                    else {
+                        let temp = userSettings[i].name
+                        temp = temp.split(' ').join('_')
+                        temp = temp.replace('-', '_')
+                        temp = temp.toLowerCase()
+
+                        settings.options[temp].value = userSettings[i].value
+                    }
                 }
                 settings.markModified('options')
                 settings.save()

@@ -23,15 +23,23 @@ const Settings = ({ user }) => {
                 opening: workingHrs.data.opening.options,
                 closing: workingHrs.data.closing.options
             })
-            const bookSettings = await axios.get(`${url}/settings/books`, { withCredentials: true })
+            const bookSettings = await axios.get(`${url}/settings/books_test`, { withCredentials: true })
             setBooks(bookSettings.data)
-            const userSettings = await axios.get(`${url}/settings/users`, { withCredentials: true })
+            const userSettings = await axios.get(`${url}/settings/users_test`, { withCredentials: true })
             setUsers(userSettings.data)
             setLoading(false)
         }
         getSettings()
 
     }, [])
+
+    const handleUpdateBookSettings = (data) => {
+        setBooks(data)
+    }
+
+    const handleUpdateUserSettings = (data) => {
+        setUsers(data)
+    }
 
     if (user.memberType !== 'Librarian') {
         navigate('/dashboard', { replace: true })
@@ -50,11 +58,11 @@ const Settings = ({ user }) => {
                             <Grid item xs={12} sm={5} md={4}>
                                 <Grid container direction="column" justifyContent="center">
                                     <Grid item xs={12}>
-                                        <BookSettings bookSettings={books} />
+                                        <BookSettings bookSettings={books} handleUpdateBookSettings={handleUpdateBookSettings} />
                                     </Grid>
                                     <Divider />
                                     <Grid item xs={12}>
-                                        <UserSettings userSettings={users} />
+                                        <UserSettings userSettings={users} handleUpdateUserSettings={handleUpdateUserSettings} />
                                     </Grid>
                                 </Grid>
                             </Grid>

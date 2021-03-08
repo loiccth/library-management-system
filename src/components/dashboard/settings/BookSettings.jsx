@@ -11,7 +11,7 @@ import Box from '@material-ui/core/Box'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 
-const BookSettings = ({ bookSettings }) => {
+const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
@@ -50,6 +50,7 @@ const BookSettings = ({ bookSettings }) => {
                         type: 'success',
                         msg: result.data.message
                     })
+                    handleUpdateBookSettings(data.settings)
                     handleClick()
                 })
         else {

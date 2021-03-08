@@ -52,14 +52,8 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
         .then(async (result) => {
             if (result) {
                 if (this.temporaryPassword) {
-                    let temporaryTimer = await Setting.findOne({ setting: 'USER' })
-
-                    for (let i = 0; i < temporaryTimer.options.length; i++) {
-                        if (temporaryTimer.options[i].id === 'temp_password') {
-                            temporaryTimer = temporaryTimer.options[i].value
-                            break
-                        }
-                    }
+                    const userSettings = await Setting.findOne({ setting: 'USER' })
+                    const temporaryTimer = userSettings.options.temp_password.value
 
                     const now = new Date()
                     const expireDate = new Date(new Date(this.updatedAt).getTime() + (temporaryTimer * 1000))
@@ -191,18 +185,9 @@ baseUserSchema.methods.resetPassword = async function (res) {
 
 baseUserSchema.methods.reserveBook = async function (bookid, res) {
     const numOfReservations = await Reserve.countDocuments({ userid: this._id, status: "active" })
-    let bookSettings = await Setting.findOne({ setting: 'BOOKS' })
-    let maxReservations
-    let timeOnHold
-
-    for (let i = 0; i < bookSettings.options.length; i++) {
-        if (bookSettings.options[i].id === 'max_number_of_reservations') {
-            maxReservations = bookSettings.options[i].value
-        }
-        else if (bookSettings.options[i].id === 'time_onhold') {
-            timeOnHold = bookSettings.options[i].value
-        }
-    }
+    const bookSettings = await Setting.findOne({ setting: 'BOOK' })
+    const maxReservations = bookSettings.options.number_of_reservations.value
+    const timeOnHold = bookSettings.options.time_onhold.value
 
     const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
@@ -268,15 +253,9 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
                             // TODO: if book was on hold, inform next member in queue, if any.
 
                             if (book.reservation.length - book.noOfBooksOnHold > 0) {
-                                let bookSettings = await Setting.findOne({ setting: 'BOOKS' })
-                                let timeOnHold
+                                const bookSettings = await Setting.findOne({ setting: 'BOOK' })
+                                const timeOnHold = bookSettings.options.time_onhold.value
 
-                                for (let i = 0; i < bookSettings.options.length; i++) {
-                                    if (bookSettings.options[i].id === 'time_onhold') {
-                                        timeOnHold = bookSettings.options[i].value
-                                        break
-                                    }
-                                }
                                 // TODO: need testing
                                 for (let k = 0; k < book.reservation.length; k++) {
                                     if (book.reservation[k].expireAt === null) {
@@ -308,15 +287,8 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
 
 baseUserSchema.methods.renewBook = async function (borrowid, res) {
     const borrow = await Borrow.findById(borrowid)
-    const bookSettings = await Setting.findOne({ setting: 'BOOKS' })
-    let renewalsAllowed
-
-    for (let i = 0; i < bookSettings.options.length; i++) {
-        if (bookSettings.options[i].id === 'max_number_of_renewals') {
-            renewalsAllowed = bookSettings.options[i].value
-            break
-        }
-    }
+    const bookSettings = await Setting.findOne({ setting: 'BOOK' })
+    const renewalsAllowed = bookSettings.options.renewals_allowed.value
 
     if (borrow) {
         const book = await Book.findById(borrow.bookid)
