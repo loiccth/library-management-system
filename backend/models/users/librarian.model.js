@@ -275,42 +275,17 @@ librarianSchema.methods.editBook = function (bookDetails, res) {
 librarianSchema.methods.returnBook = async function (isbn, userid, res) {
     let today = new Date()
     today.setHours(0, 0, 0, 0)
-    const dayOfWeek = today.getDay()
+    let dayOfWeek = today.getDay()
     const closeSettings = await Setting.findOne({ setting: 'CLOSING_HOURS' })
     const openSettings = await Setting.findOne({ setting: 'OPENING_HOURS' })
-    let libraryOpenTime
-    let libraryCloseTime
 
-    switch (dayOfWeek) {
-        case 0:
-            libraryOpenTime = openSettings.options[6].time
-            libraryCloseTime = closeSettings.options[6].time
-            break
-        case 1:
-            libraryOpenTime = openSettings.options[0].time
-            libraryCloseTime = closeSettings.options[0].time
-            break
-        case 2:
-            libraryOpenTime = openSettings.options[1].time
-            libraryCloseTime = closeSettings.options[1].time
-            break
-        case 3:
-            libraryOpenTime = openSettings.options[2].time
-            libraryCloseTime = closeSettings.options[2].time
-            break
-        case 4:
-            libraryOpenTime = openSettings.options[3].time
-            libraryCloseTime = closeSettings.options[3].time
-            break
-        case 5:
-            libraryOpenTime = openSettings.options[4].time
-            libraryCloseTime = closeSettings.options[4].time
-            break
-        case 6:
-            libraryOpenTime = openSettings.options[5].time
-            libraryCloseTime = closeSettings.options[5].time
-            break
-    }
+    if (dayOfWeek === 0)
+        dayOfWeek = 6
+    else
+        dayOfWeek -= 1
+
+    const libraryOpenTime = openSettings.options[dayOfWeek].time
+    const libraryCloseTime = closeSettings.options[dayOfWeek].time
 
     const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
     const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
@@ -455,39 +430,14 @@ librarianSchema.methods.issueBook = async function (isbn, userid, res) {
     const dayOfWeek = today.getDay()
     const closeSettings = await Setting.findOne({ setting: 'CLOSING_HOURS' })
     const openSettings = await Setting.findOne({ setting: 'OPENING_HOURS' })
-    let libraryOpenTime
-    let libraryCloseTime
 
-    switch (dayOfWeek) {
-        case 0:
-            libraryOpenTime = openSettings.options[6].time
-            libraryCloseTime = closeSettings.options[6].time
-            break
-        case 1:
-            libraryOpenTime = openSettings.options[0].time
-            libraryCloseTime = closeSettings.options[0].time
-            break
-        case 2:
-            libraryOpenTime = openSettings.options[1].time
-            libraryCloseTime = closeSettings.options[1].time
-            break
-        case 3:
-            libraryOpenTime = openSettings.options[2].time
-            libraryCloseTime = closeSettings.options[2].time
-            break
-        case 4:
-            libraryOpenTime = openSettings.options[3].time
-            libraryCloseTime = closeSettings.options[3].time
-            break
-        case 5:
-            libraryOpenTime = openSettings.options[4].time
-            libraryCloseTime = closeSettings.options[4].time
-            break
-        case 6:
-            libraryOpenTime = openSettings.options[5].time
-            libraryCloseTime = closeSettings.options[5].time
-            break
-    }
+    if (dayOfWeek === 0)
+        dayOfWeek = 6
+    else
+        dayOfWeek -= 1
+
+    const libraryOpenTime = openSettings.options[dayOfWeek].time
+    const libraryCloseTime = closeSettings.options[dayOfWeek].time
 
     const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
     const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
