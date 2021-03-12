@@ -150,7 +150,7 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
                     .catch(err => console.log(err))
             }
             else {
-                res.status(403).json({ 'error': 'Old password does not match' })
+                res.status(400).json({ 'error': 'Old password does not match' })
             }
         })
 }
@@ -217,7 +217,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                     expireAt: bookAvailable ? new Date(new Date().getTime() + (timeOnHold * 1000)) : null
                 })
 
-                book.save().catch(err => console.log(err))
+                await book.save().catch(err => console.log(err))
 
                 const newReservation = new Reserve({
                     userid: this._id,

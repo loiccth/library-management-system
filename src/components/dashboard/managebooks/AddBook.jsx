@@ -107,12 +107,12 @@ const AddBook = (props) => {
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                error={!!errors.author}
-                                                id="author"
-                                                name="author"
+                                                error={!!errors.authors}
+                                                id="authors"
+                                                name="authors"
                                                 label="Author(s)"
                                                 inputRef={register({ required: "Empty author field" })}
-                                                helperText={!!errors.author ? errors.author.message : "Seperate using comma (,)"}
+                                                helperText={!!errors.authors ? errors.authors.message : "Seperate using comma (,)"}
                                             />
 
                                             <TextField

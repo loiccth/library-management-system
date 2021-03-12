@@ -140,7 +140,7 @@ adminSchema.methods.registerMember = function (udmid, userid, memberType, passwo
 
     newMember.save()
         .then(member => {
-            res.json({
+            res.status(201).json({
                 member
             })
 
@@ -198,6 +198,7 @@ adminSchema.methods.registerCSV = function (file, res) {
 
                         newMember.save()
                             .then(member => {
+                                // TODO: verify this
                                 res.json({
                                     member
                                 })

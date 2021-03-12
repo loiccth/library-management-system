@@ -11,7 +11,7 @@ const bookSchema = new Schema({
     categories: { type: [String], required: true },
     description: { type: String, required: true },
     noOfPages: { type: Number, required: true },
-    thumbnail: { type: String, required: true },
+    thumbnail: { type: String },
     location: { type: String, required: true },
     campus: { type: String, required: true, enum: ['pam', 'rhill'] },
     noOfBooksOnLoan: { type: Number, required: true, default: 0 },

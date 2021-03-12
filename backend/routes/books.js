@@ -19,13 +19,24 @@ const secret = process.env.JWT_SECRET
 
 // Add a single book
 router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    const { title, authors, isbn, publisher, publishedDate, categories, description, noOfPages, location, campus, noOfCopies } = req.body
+
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else {
-        Librarian.findOne({ _id: req.user._id })
-            .then(librarian => {
-                librarian.addBook(req.body, res)
+    else if (req.body.APIValidation) {
+        if (!location || !campus || !isbn || !noOfCopies) return res.status(400).json({
+            'error': 'Missing params.'
+        })
+    }
+    else if (!req.body.APIValidation) {
+        if (!title || !authors || !isbn || !publisher || !publishedDate || !categories ||
+            !description || !noOfPages || !location || !campus || !noOfCopies) return res.status(400).json({
+                'error': 'Missing params.'
             })
     }
+    Librarian.findOne({ _id: req.user._id })
+        .then(librarian => {
+            librarian.addBook(req.body, res)
+        })
 })
 
 // Add multiple book from csv file

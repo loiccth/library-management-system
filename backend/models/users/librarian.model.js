@@ -131,49 +131,47 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
 }
 
 librarianSchema.methods.addBook = async function (book, res) {
-    const { location, campus, isbn, noOfCopies } = book
-
+    const { location, campus, isbn, noOfCopies, APIValidation } = book
     const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
-
-    if (googleBookAPI.data.totalItems === 0) res.status(404).json({ 'error': 'Book not found.' })
-    else {
-        Book.findOne({ isbn })
-            .then(book => {
-                const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
-                if (book === null) {
-                    let image = imageLinks.thumbnail
-                    let secureImg = image.replace('http:', 'https:')
-
-                    const newBook = new Book({
-                        title,
-                        author: authors,
-                        isbn,
-                        publisher,
-                        publishedDate,
-                        categories,
-                        description,
-                        noOfPages: pageCount,
-                        thumbnail: secureImg,
-                        location,
-                        campus,
-                        copies: []
-                    })
-                    for (let i = 0; i < noOfCopies; i++)
-                        newBook.copies.push({})
-                    newBook.save()
-                        .then(() => res.status(201).json({ 'title': title }))
-                        .catch(err => res.json({ 'error': err.message }))
-                }
-                else {
-                    for (let i = 0; i < noOfCopies; i++)
-                        book.copies.push({})
-                    book.save()
-                        .then(() => res.status(201).json({ 'title': title }))
-                        .catch(err => res.json({ 'error': err._message }))
-                }
-            })
-            .catch(err => console.log(err))
+    if (APIValidation) {
+        if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ 'error': 'Book not found.' })
     }
+    Book.findOne({ isbn })
+        .then(result => {
+            if (!result) {
+                const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
+                const image = imageLinks.thumbnail
+                const secureImg = image.replace('http:', 'https:')
+
+                const newBook = new Book({
+                    title: APIValidation ? title : book.title,
+                    author: APIValidation ? authors : book.authors,
+                    isbn,
+                    publisher: APIValidation ? publisher : book.publisher,
+                    publishedDate: APIValidation ? publishedDate : book.publishedDate,
+                    categories: APIValidation ? categories : book.categories,
+                    description: APIValidation ? description : book.description,
+                    noOfPages: APIValidation ? pageCount : book.noOfPages,
+                    thumbnail: APIValidation ? secureImg : null,
+                    location,
+                    campus,
+                    copies: []
+                })
+                for (let i = 0; i < noOfCopies; i++)
+                    newBook.copies.push({})
+                newBook.save()
+                    .then(() => res.status(201).json({ 'title': APIValidation ? title : book.title }))
+                    .catch(err => res.json({ 'error': err.message }))
+            }
+            else {
+                for (let i = 0; i < noOfCopies; i++)
+                    result.copies.push({})
+                result.save()
+                    .then(() => res.status(201).json({ 'title': result.title }))
+                    .catch(err => res.json({ 'error': err._message }))
+            }
+        })
+        .catch(err => console.log(err))
 }
 
 librarianSchema.methods.addBookCSV = function (file, res) {
@@ -427,7 +425,7 @@ librarianSchema.methods.issueBook = async function (isbn, userid, res) {
 
     let today = new Date()
     today.setHours(0, 0, 0, 0)
-    const dayOfWeek = today.getDay()
+    let dayOfWeek = today.getDay()
     const closeSettings = await Setting.findOne({ setting: 'CLOSING_HOURS' })
     const openSettings = await Setting.findOne({ setting: 'OPENING_HOURS' })
 

@@ -44,7 +44,7 @@ router.post('/login', (req, res) => {
 router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
 
-    else if (req.body.email === undefined) res.sendStatus(400)
+    else if (!req.body.email) return res.sendStatus(400)
 
     else {
         const { email } = req.body
@@ -56,7 +56,6 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
 
             if (user === null) {
                 const password = generator.generate({ length: 10, numbers: true })
-                console.log(password)
 
                 let userid = null
                 if (udm.udmType === 'Student') {
@@ -75,9 +74,9 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
                     })
                     .catch(err => console.log(err))
             }
-            else return res.json({ 'error': 'Account already exist' })
+            else return res.status(400).json({ 'error': 'Account already exist' })
         }
-        else return res.json({ 'error': 'Email not found' })
+        else return res.status(400).json({ 'error': 'Email not found' })
     }
 })
 
