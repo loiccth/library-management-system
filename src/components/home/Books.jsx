@@ -1,106 +1,194 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import queryString from 'query-string'
 import { makeStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import { DataGrid } from '@material-ui/data-grid'
+import { Box, Typography, Tooltip } from '@material-ui/core'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import FiberNewIcon from '@material-ui/icons/FiberNew'
-import Tooltip from '@material-ui/core/Tooltip'
-import Pagination from '@material-ui/core/Pagination'
+import CustomNoRowsOverlay from '../../components/others/CustomNoRowsOverlay'
 
 const Books = (props) => {
     const navigate = useNavigate()
     const { search } = useLocation()
     const searchQuery = queryString.parse(search)
     const classes = useStyles()
-    const [page, setPage] = useState(searchQuery.page ? parseInt(searchQuery.page) : 1)
-
-    const bookSubset = props.books.slice((page - 1) * 10, (page * 10))
+    const [page, setPage] = useState(searchQuery.page ? parseInt(searchQuery.page) : 0)
+    const [numPerPage, setNumPerPage] = useState(searchQuery.rowsperpage ? parseInt(searchQuery.rowsperpage) : 10)
 
     useEffect(() => {
-        setPage(searchQuery.page ? parseInt(searchQuery.page) : 1)
-    }, [searchQuery.page])
+        setPage(searchQuery.page ? parseInt(searchQuery.page) : 0)
+        setNumPerPage(searchQuery.rowsperpage ? parseInt(searchQuery.rowsperpage) : 10)
+    }, [searchQuery])
 
-    const handlePagination = (e, value) => {
-        setPage(value)
-        searchQuery.page = value
+    const handlePagination = (value) => {
+        setNumPerPage(value.pageSize)
+        setPage(value.page)
+        searchQuery.page = value.page
+        searchQuery.rowsperpage = value.pageSize
         const stringified = queryString.stringify(searchQuery)
         navigate(`?${stringified}`)
     }
 
+    const columns = [
+        {
+            field: 'id',
+            hide: true
+        },
+        {
+            field: 'thumbnail',
+            headerName: 'Thumbnail',
+            sortable: false,
+            width: 120,
+            renderCell: (param) => (
+                param.value ? <img className={classes.thumbnail} src={param.value} alt="thumbnail" /> : null
+            )
+        },
+        {
+            field: 'title',
+            headerName: 'Title',
+            flex: 1,
+            renderCell: (param) => (
+                <Typography variant="body2" display="block">{param.value}</Typography>
+            )
+        },
+        {
+            field: 'authors',
+            headerName: 'Authors',
+            width: 200,
+            renderCell: (param) => (
+                <Typography variant="body2" display="block">{param.value}</Typography>
+            )
+        },
+        {
+            field: 'category',
+            headerName: 'Category',
+            width: 180
+        },
+        { field: 'year', headerName: 'Year', type: 'date', width: 110 },
+        {
+            field: 'information',
+            headerName: 'Information',
+            sortable: false,
+            width: 260,
+            renderCell: (param) => (
+                <div>
+                    <Typography variant="caption" display="block">ISBN: {param.value.isbn}</Typography>
+                    <Typography variant="caption" display="block">Shelf Location: {param.value.location}</Typography>
+                    <Typography variant="caption" display="block">Available at: {param.value.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
+                    <Typography variant="caption" display="block">Number of holdings: {param.value.copies}</Typography>
+                </div>
+            )
+        },
+        {
+            field: 'flags',
+            headerName: 'Flags',
+            sortable: false,
+            width: 90,
+            renderCell: (param) => {
+                if (param.value.highDemand && param.value.recentlyAdded) {
+                    return (
+                        <>
+                            <Tooltip title="High Demand" arrow>
+                                <PriorityHighIcon className={classes.highpriority} />
+                            </Tooltip>
+                            <Tooltip title="Recently Added" arrow>
+                                <FiberNewIcon />
+                            </Tooltip>
+                        </>
+                    )
+                }
+                else if (param.value.highDemand && !param.value.recentlyAdded) {
+                    return (
+                        <Tooltip title="High Demand" arrow>
+                            <PriorityHighIcon className={classes.highpriority} />
+                        </Tooltip>
+                    )
+                }
+                else if (!param.value.highDemand && param.value.recentlyAdded) {
+                    return (
+                        <Tooltip title="Recently Added" arrow>
+                            <FiberNewIcon />
+                        </Tooltip>
+                    )
+                }
+                else
+                    return <></>
+            }
+        }
+    ]
+
+    const rows = []
+
+    props.books.forEach(book => {
+        let temp = ''
+
+        for (let i = 0; i < book.author.length; i++) {
+            temp += book.author[i]
+            if (book.author.length - 1 > i)
+                temp += ', '
+        }
+
+        rows.push({
+            id: book._id,
+            thumbnail: book.thumbnail ? book.thumbnail : null,
+            title: book.title,
+            authors: temp,
+            category: 'Software Engineering',
+            year: new Date(book.publishedDate).toLocaleDateString(),
+            information: {
+                isbn: book.isbn,
+                location: book.location,
+                campus: book.campus,
+                copies: book.copies.length
+            },
+            flags: {
+                highDemand: book.isHighDemand,
+                recentlyAdded: (new Date() - new Date(book.createdAt)) / (1000 * 60 * 60 * 24) <= 3
+            }
+        })
+    })
+
     return (
         <React.Fragment>
-            <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="books table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Thumbnail</TableCell>
-                            <TableCell>Title</TableCell>
-                            <TableCell>Author</TableCell>
-                            <TableCell>Year</TableCell>
-                            <TableCell className={classes.info}>Information</TableCell>
-                            <TableCell className={classes.flag}>Flag(s)</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {bookSubset.map(row => (
-                            <TableRow key={row._id}>
-                                <TableCell component="th" scope="row">
-                                    <img className={classes.thumbnail} src={row.thumbnail} alt="thumbnail" />
-                                </TableCell>
-                                <TableCell><Link to={'/book/' + row._id}>{row.title}</Link></TableCell>
-                                <TableCell>
-                                    {row.author.map((author, index) => (
-                                        <span key={row._id + author}>{(index ? ', ' : '') + author}</span>
-                                    ))}
-                                </TableCell>
-                                <TableCell>{new Date(row.publishedDate).toLocaleDateString()}</TableCell>
-                                <TableCell>
-                                    {<React.Fragment>
-                                        <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
-                                        <Typography variant="caption" display="block">Shelf Location: {row.location}</Typography>
-                                        <Typography variant="caption" display="block">Available at: {row.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
-                                        <Typography variant="caption" display="block">Number of holdings: {row.copies.length}</Typography>
-                                    </React.Fragment>}
-                                </TableCell>
-                                <TableCell>
-                                    <Tooltip title="Recently Added" arrow>
-                                        <FiberNewIcon />
-                                    </Tooltip>
-                                    {row.isHighDemand ?
-                                        <Tooltip title="High Demand" arrow>
-                                            <PriorityHighIcon className={classes.highpriority} />
-                                        </Tooltip>
-                                        : null}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <Pagination className={classes.pagination} count={Math.ceil(props.books.length / 10)} page={page} onChange={handlePagination} />
-        </React.Fragment>
+            <Box sx={{ mb: 7 }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    disableSelectionOnClick
+                    className={classes.table}
+                    autoHeight
+                    page={page}
+                    pageSize={numPerPage}
+                    rowsPerPageOptions={[10, 15, 20, 25]}
+                    rowHeight={150}
+                    onPageChange={(param) => {
+                        handlePagination(param)
+                    }}
+                    onPageSizeChange={(param) => {
+                        handlePagination(param)
+                    }}
+                    onRowClick={(param) => {
+                        navigate(`/book/${param.row.id}`)
+                    }}
+                    components={{
+                        NoRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                />
+            </Box>
+        </React.Fragment >
     )
 }
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 650,
+        // minWidth: '80%',
         maxWidth: '80%',
-        margin: 'auto'
-    },
-    info: {
-        minWidth: 180
-    },
-    flag: {
-        minWidth: 100
+        margin: 'auto',
+        [theme.breakpoints.down("xl")]: {
+            maxWidth: '95%'
+        }
     },
     thumbnail: {
         maxWidth: '80px'
@@ -108,14 +196,10 @@ const useStyles = makeStyles(theme => ({
     highpriority: {
         color: 'red'
     },
-    pagination: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: theme.spacing(5),
-        paddingBottom: theme.spacing(5)
-    }
 }))
 
+Books.propTypes = {
+    books: PropTypes.array.isRequired
+}
 
 export default Books

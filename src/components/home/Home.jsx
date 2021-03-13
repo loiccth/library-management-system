@@ -60,7 +60,7 @@ const Home = (props) => {
                 setBooks(books.data)
                 const stringified = queryString.stringify({
                     ...data,
-                    page: 1
+                    page: 0
                 })
                 navigate(`?${stringified}`)
             })

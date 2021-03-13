@@ -12,7 +12,7 @@ const Profile = (props) => {
 
     return (
         <>
-            <Container className={classes.wrapper}>
+            <div className={classes.wrapper}>
                 <Grid container spacing={3} justifyContent="center">
                     <Grid item xs={10} sm={5} md={4}>
                         <ProfileDetails user={props.user} />
@@ -24,7 +24,7 @@ const Profile = (props) => {
                         <ChangePassword handlePasswordChange={props.handlePasswordChange} parent='profile' />
                     </Grid>
                 </Grid>
-            </Container>
+            </div>
         </>
     )
 }
@@ -34,6 +34,8 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        maxWidth: '1280px',
+        margin: 'auto',
         minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
         [theme.breakpoints.up("sm")]: {
             minHeight: `calc(100vh - 64px)`

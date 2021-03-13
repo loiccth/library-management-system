@@ -16,8 +16,8 @@ const LoginPage = (props) => {
     return (
         <React.Fragment>
             <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
-            <Container className={classes.container} maxWidth="lg">
-                <Grid container spacing={3}>
+            <div className={classes.container}>
+                <Grid container spacing={0}>
                     <Grid item xs={12} md={6}>
                         <Login handleLogin={props.handleLogin} />
                     </Grid>
@@ -25,7 +25,7 @@ const LoginPage = (props) => {
                         <Reset darkMode={props.darkMode} />
                     </Grid>
                 </Grid>
-            </Container>
+            </div>
         </React.Fragment>
     )
 }
@@ -34,9 +34,16 @@ const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         justifyContent: 'center',
-        minHeight: '70vh',
-        alignItems: 'center',
-        marginTop: theme.spacing(8)
+        margin: 'auto',
+        maxWidth: '1280px',
+        minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
+        [theme.breakpoints.up("sm")]: {
+            minHeight: `calc(100vh - 64px)`
+        },
+        [theme.breakpoints.down("xs")]: {
+            minHeight: `calc(100vh - 48px)`
+        },
+        alignItems: 'center'
     }
 }))
 
