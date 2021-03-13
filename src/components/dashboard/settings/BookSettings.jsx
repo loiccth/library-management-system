@@ -118,7 +118,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
 
 const useStyles = makeStyles(theme => ({
     hidden: {
-        display: 'none'
+        display: 'none !important'
     },
     boxAlign: {
         textAlign: 'center'

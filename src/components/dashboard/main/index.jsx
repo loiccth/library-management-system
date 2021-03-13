@@ -179,22 +179,22 @@ const MainDashboard = ({ user }) => {
                 {loading ? null :
                     <Box sx={{ my: 5 }}>
                         <Grid container justifyContent="space-evenly">
-                            <Grid item xs={5} sm={3} md={2} lg={1} className={classes.button}>
+                            <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
                                 <IssueBook />
                             </Grid>
-                            <Grid item xs={5} sm={3} md={2} lg={1} className={classes.button}>
+                            <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
                                 <ReturnBook />
                             </Grid>
                         </Grid>
-                        <Box sx={{ my: 7 }}>
+                        <Box sx={{ my: 3 }}>
                             <Divider />
                         </Box>
                         <OverdueBooks overdueBooks={overdueBooks} handleCheck={handleCheck} handleCheckAll={handleCheckAll} handleUncheckAll={handleUncheckAll} />
-                        <Box sx={{ my: 7 }}>
+                        <Box sx={{ my: 3 }}>
                             <Divider />
                         </Box>
                         <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} />
-                        <Box sx={{ my: 7 }}>
+                        <Box sx={{ my: 3 }}>
                             <Divider />
                         </Box>
                         <Reservations reservations={reservations} />

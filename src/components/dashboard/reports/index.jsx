@@ -171,7 +171,7 @@ const Reports = ({ user }) => {
                 {loading ? null :
                     <Box sx={{ my: 5 }}>
                         <BooksReport filteredBooks={filteredBooks} getNewBooksReport={getNewBooksReport} handleBookChange={handleBookChange} filterBooks={filterBooks} />
-                        <Box sx={{ my: 7 }}>
+                        <Box sx={{ my: 3 }}>
                             <Divider />
                         </Box>
                         <PaymentsReport filteredPayments={filteredPayments} getNewPaymentsReport={getNewPaymentsReport} handlePayChange={handlePayChange} filterPayment={filterPayment} />

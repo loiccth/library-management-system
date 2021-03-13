@@ -36,65 +36,66 @@ const PaymentsReport = (props) => {
     return (
         <>
             <Container>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateRangePicker
-                        startText="From"
-                        endText="To"
-                        value={date}
-                        onChange={handleDateUpdate}
-                        renderInput={(startProps, endProps) => (
-                            <Grid container justifyContent="flex-end" spacing={3}>
-                                <Grid item className={classes.title} >
-                                    <Toolbar>
-                                        <Typography variant="h6">Payment Report</Typography>
-                                    </Toolbar>
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={2}>
-                                    <TextField {...startProps} variant="standard" fullWidth />
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={2}>
-                                    <TextField {...endProps} variant="standard" fullWidth />
-                                </Grid>
+                <Toolbar>
+                    <Typography variant="h6">Payment Report</Typography>
+                </Toolbar>
+            </Container>
+            <Box sx={{ mt: 1 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={11} md={10}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DateRangePicker
+                                startText="From"
+                                endText="To"
+                                value={date}
+                                onChange={handleDateUpdate}
+                                renderInput={(startProps, endProps) => (
+                                    <Grid container className={classes.heading} spacing={1}>
+                                        <Grid item xs={12} sm={3} md={2}>
+                                            <TextField {...startProps} variant="standard" fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12} sm={3} md={2}>
+                                            <TextField {...endProps} variant="standard" fullWidth />
+                                        </Grid>
+                                    </Grid>
+                                )}
+                            />
+                        </LocalizationProvider>
+                        <Grid container className={classes.heading} spacing={1}>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    height: '100%'
+                                }}
+                                >
+                                    <Button variant="contained" fullWidth onClick={handleDownloadCSV}>Download CSV</Button>
+                                    <CSVLink
+                                        data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
+                                        filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
+                                        ref={csvlink}
+                                    />
+                                </Box>
                             </Grid>
-                        )}
-                    />
-                </LocalizationProvider>
-
-                <Box sx={{ mt: 1 }}>
-                    <Grid container justifyContent="flex-end" spacing={3}>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <Box sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                height: '100%'
-                            }}
-                            >
-                                <Button variant="contained" onClick={handleDownloadCSV}>Download CSV</Button>
-                                <CSVLink
-                                    data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
-                                    filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
-                                    ref={csvlink}
-                                />
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <TextField
-                                name="paid"
-                                fullWidth
-                                variant="standard"
-                                label="Paid"
-                                select
-                                value={props.filterPayment.paid}
-                                onChange={props.handlePayChange}
-                            >
-                                <MenuItem value="All">All</MenuItem>
-                                <MenuItem value="Paid">Paid</MenuItem>
-                                <MenuItem value="Unpaid">Unpaid</MenuItem>
-                            </TextField>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <TextField
+                                    name="paid"
+                                    fullWidth
+                                    variant="standard"
+                                    label="Paid"
+                                    select
+                                    value={props.filterPayment.paid}
+                                    onChange={props.handlePayChange}
+                                >
+                                    <MenuItem value="All">All</MenuItem>
+                                    <MenuItem value="Paid">Paid</MenuItem>
+                                    <MenuItem value="Unpaid">Unpaid</MenuItem>
+                                </TextField>
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Box>
-            </Container>
+                </Grid>
+            </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={12} md={10}>
@@ -154,6 +155,12 @@ const useStyles = makeStyles(theme => ({
     },
     paper: {
         overflowX: 'auto'
+    },
+    heading: {
+        justifyContent: 'flex-end',
+        [theme.breakpoints.down("sm")]: {
+            justifyContent: 'center'
+        }
     }
 }))
 

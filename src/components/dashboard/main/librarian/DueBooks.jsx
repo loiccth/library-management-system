@@ -76,44 +76,46 @@ const DueBooks = (props) => {
                 </Alert>
             </Snackbar>
             <Container>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateRangePicker
-                        startText="From"
-                        endText="To"
-                        value={date}
-                        minDate={new Date()}
-                        onChange={handleDateUpdate}
-                        renderInput={(startProps, endProps) => (
-                            <Grid container justifyContent="flex-end" spacing={3}>
-                                <Grid item className={classes.title} >
-                                    <Toolbar>
-                                        <Typography variant="h6">Due Books</Typography>
-                                    </Toolbar>
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={2}>
-                                    <TextField {...startProps} variant="standard" fullWidth />
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={2}>
-                                    <TextField {...endProps} variant="standard" fullWidth />
-                                </Grid>
+                <Toolbar>
+                    <Typography variant="h6">Due Books</Typography>
+                </Toolbar>
+            </Container>
+            <Box sx={{ mt: 1 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={11} md={10}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DateRangePicker
+                                startText="From"
+                                endText="To"
+                                value={date}
+                                minDate={new Date()}
+                                onChange={handleDateUpdate}
+                                renderInput={(startProps, endProps) => (
+                                    <Grid container className={classes.heading} spacing={1}>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <TextField {...startProps} variant="standard" fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <TextField {...endProps} variant="standard" fullWidth />
+                                        </Grid>
+                                    </Grid>
+                                )}
+                            />
+                        </LocalizationProvider>
+                        <Grid container className={classes.heading} spacing={1}>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={handleOnClick}
+                                >
+                                    Send Reminder
+                                </Button>
                             </Grid>
-                        )}
-                    />
-                </LocalizationProvider>
-                <Box sx={{ mt: 1 }}>
-                    <Grid container justifyContent="flex-end" spacing={3}>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                onClick={handleOnClick}
-                            >
-                                Send Reminder
-                            </Button>
                         </Grid>
                     </Grid>
-                </Box>
-            </Container>
+                </Grid>
+            </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={12} md={10}>
@@ -122,12 +124,12 @@ const DueBooks = (props) => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>
-                                            <Checkbox checked={check} onChange={handleCheckAll} />
+                                            <Checkbox checked={check} color="primary" onChange={handleCheckAll} />
                                         </TableCell>
                                         <TableCell>MemberID</TableCell>
                                         <TableCell>Book Details</TableCell>
                                         <TableCell>Borrow Details</TableCell>
-                                        <TableCell>Flag(s)</TableCell>
+                                        <TableCell>Flags</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -139,7 +141,7 @@ const DueBooks = (props) => {
                                     {props.dueBooks.map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
-                                                <Checkbox value={row._id} checked={row.checked} onChange={props.handleCheckDue} />
+                                                <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheckDue} />
                                             </TableCell>
                                             <TableCell>
                                                 {row.userid}
@@ -188,6 +190,12 @@ const useStyles = makeStyles(theme => ({
     },
     paper: {
         overflowX: 'auto'
+    },
+    heading: {
+        justifyContent: 'flex-end',
+        [theme.breakpoints.down("sm")]: {
+            justifyContent: 'center'
+        }
     }
 }))
 

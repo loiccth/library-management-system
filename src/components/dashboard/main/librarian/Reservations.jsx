@@ -34,7 +34,7 @@ const Reservations = (props) => {
                                         <TableCell>MemberID</TableCell>
                                         <TableCell>Book Details</TableCell>
                                         <TableCell>Reservation Details</TableCell>
-                                        <TableCell>Flag(s)</TableCell>
+                                        <TableCell>Flags</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>

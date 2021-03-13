@@ -125,7 +125,7 @@ const SearchBook = (props) => {
 
 const useStyles = makeStyles(theme => ({
     hidden: {
-        display: 'none'
+        display: 'none !important'
     },
     iconButton: {
         padding: 10

@@ -1,21 +1,25 @@
 import React from 'react'
-import Paper from '@material-ui/core/Paper'
+import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
+import GitHubIcon from '@material-ui/icons/GitHub'
 
-const Footer = (props) => {
+const Footer = () => {
     const classes = useStyles()
 
     return (
-        <Paper component="footer" className={classes.footer}>
-            <div>hey guys :) whats up!</div>
-        </Paper>
+        <Box sx={{ py: 2 }} component="footer" className={classes.footer}>
+            <Typography variant="body2">Developed by Loïc SE 2.1 2020</Typography>
+            <Typography variant="body2"><GitHubIcon /></Typography>
+        </Box>
     )
 }
 
 const useStyles = makeStyles(theme => ({
     footer: {
-        backgroundColor: theme.palette.secondary.main + "!important",
-        borderRadius: 0 + "!important"
+        backgroundColor: theme.palette.primary.main,
+        borderRadius: 0,
+        textAlign: 'center'
     }
 }))
 

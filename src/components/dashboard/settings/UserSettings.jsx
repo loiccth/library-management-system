@@ -116,7 +116,7 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
 
 const useStyles = makeStyles(theme => ({
     hidden: {
-        display: 'none'
+        display: 'none !important'
     },
     boxAlign: {
         textAlign: 'center'

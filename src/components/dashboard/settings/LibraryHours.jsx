@@ -176,7 +176,7 @@ const LibraryHours = ({ hours }) => {
 
 const useStyles = makeStyles(theme => ({
     hidden: {
-        display: 'none'
+        display: 'none !important'
     },
     boxAlign: {
         textAlign: 'center'

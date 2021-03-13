@@ -50,7 +50,7 @@ const ReservedBooks = (props) => {
                                         <TableCell>Reservation Details</TableCell>
                                         <TableCell>Book Details</TableCell>
                                         <TableCell>Availability</TableCell>
-                                        <TableCell>Flag(s)</TableCell>
+                                        <TableCell>Flags</TableCell>
                                         <TableCell></TableCell>
                                     </TableRow>
                                 </TableHead>

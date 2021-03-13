@@ -70,34 +70,38 @@ const OverdueBooks = (props) => {
                 <Toolbar>
                     <Typography variant="h6">Overdue Books</Typography>
                 </Toolbar>
-                <Box sx={{ mt: 1 }}>
-                    <Grid container justifyContent="flex-end" spacing={3}>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                onClick={handleOnClick}
-                            >
-                                Send Reminder
-                            </Button>
+            </Container>
+            <Box sx={{ mt: 1 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={11} md={10}>
+                        <Grid container className={classes.heading} spacing={1}>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={handleOnClick}
+                                >
+                                    Send Reminder
+                                    </Button>
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Box>
-            </Container>
+                </Grid>
+            </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={11} md={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>
-                                            <Checkbox checked={check} onChange={handleCheckAll} />
+                                            <Checkbox checked={check} color="primary" onChange={handleCheckAll} />
                                         </TableCell>
                                         <TableCell>MemberID</TableCell>
                                         <TableCell>Book Details</TableCell>
                                         <TableCell>Borrow Details</TableCell>
-                                        <TableCell>Flag(s)</TableCell>
+                                        <TableCell>Flags</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -109,7 +113,7 @@ const OverdueBooks = (props) => {
                                     {props.overdueBooks.map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
-                                                <Checkbox value={row._id} checked={row.checked} onChange={props.handleCheck} />
+                                                <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheck} />
                                             </TableCell>
                                             <TableCell>
                                                 {row.userid}
@@ -154,6 +158,12 @@ const useStyles = makeStyles(theme => ({
     table: {
         minWidth: 650,
         overflowX: 'auto'
+    },
+    heading: {
+        justifyContent: 'flex-end',
+        [theme.breakpoints.down("sm")]: {
+            justifyContent: 'center'
+        }
     }
 }))
 

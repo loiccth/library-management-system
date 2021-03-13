@@ -35,84 +35,87 @@ const BooksReport = (props) => {
     return (
         <>
             <Container>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateRangePicker
-                        startText="From"
-                        endText="To"
-                        value={date}
-                        onChange={handleDateUpdate}
-                        renderInput={(startProps, endProps) => (
-                            <Grid container justifyContent="flex-end" spacing={3}>
-                                <Grid item className={classes.title} >
-                                    <Toolbar>
-                                        <Typography variant="h6">Transaction Report</Typography>
-                                    </Toolbar>
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={2}>
-                                    <TextField {...startProps} variant="standard" fullWidth />
-                                </Grid>
-                                <Grid item xs={12} sm={3} md={2}>
-                                    <TextField {...endProps} variant="standard" fullWidth />
-                                </Grid>
+                <Toolbar>
+                    <Typography variant="h6">Transaction Report</Typography>
+                </Toolbar>
+            </Container>
+            <Box sx={{ mt: 1 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={11} md={10}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DateRangePicker
+                                startText="From"
+                                endText="To"
+                                value={date}
+                                onChange={handleDateUpdate}
+                                renderInput={(startProps, endProps) => (
+                                    <Grid container className={classes.heading} spacing={1}>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <TextField {...startProps} variant="standard" fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <TextField {...endProps} variant="standard" fullWidth />
+                                        </Grid>
+                                    </Grid>
+                                )}
+                            />
+                        </LocalizationProvider>
+                        <Grid container className={classes.heading} spacing={1}>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    height: '100%'
+                                }}
+                                >
+                                    <Button variant="contained" fullWidth onClick={handleDownloadCSV}>Download CSV</Button>
+                                    <CSVLink
+                                        data={props.filteredBooks.length === 0 ? 'No records found' : props.filteredBooks}
+                                        filename={`Book_Transactions_Report_${new Date().toLocaleDateString()}.csv`}
+                                        ref={csvlink}
+                                    />
+                                </Box>
                             </Grid>
-                        )}
-                    />
-                </LocalizationProvider>
-
-                <Box sx={{ mt: 1 }}>
-                    <Grid container justifyContent="flex-end" spacing={3}>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <Box sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                height: '100%'
-                            }}
-                            >
-                                <Button variant="contained" onClick={handleDownloadCSV}>Download CSV</Button>
-                                <CSVLink
-                                    data={props.filteredBooks.length === 0 ? 'No records found' : props.filteredBooks}
-                                    filename={`Book_Transactions_Report_${new Date().toLocaleDateString()}.csv`}
-                                    ref={csvlink}
-                                />
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <TextField
-                                name="type"
-                                fullWidth
-                                variant="standard"
-                                label="Type"
-                                select
-                                value={props.filterBooks.type}
-                                onChange={props.handleBookChange}
-                            >
-                                <MenuItem value="All">All</MenuItem>
-                                <MenuItem value="Reserve">Reserve</MenuItem>
-                                <MenuItem value="Borrow">Borrow</MenuItem>
-                            </TextField>
-                        </Grid>
-                        <Grid item xs={12} sm={3} md={2}>
-                            <TextField
-                                name="status"
-                                fullWidth
-                                variant="standard"
-                                label="Status"
-                                select
-                                value={props.filterBooks.status}
-                                onChange={props.handleBookChange}
-                            >
-                                <MenuItem value="All">All</MenuItem>
-                                <MenuItem value="active">Active</MenuItem>
-                                <MenuItem value="archive">Archived</MenuItem>
-                                {props.filterBooks.type === 'Reserve' && <MenuItem value="expired">Expired</MenuItem>}
-                            </TextField>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <TextField
+                                    name="type"
+                                    fullWidth
+                                    variant="standard"
+                                    label="Type"
+                                    select
+                                    value={props.filterBooks.type}
+                                    onChange={props.handleBookChange}
+                                >
+                                    <MenuItem value="All">All</MenuItem>
+                                    <MenuItem value="Reserve">Reserve</MenuItem>
+                                    <MenuItem value="Borrow">Borrow</MenuItem>
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <TextField
+                                    name="status"
+                                    fullWidth
+                                    variant="standard"
+                                    label="Status"
+                                    select
+                                    value={props.filterBooks.status}
+                                    onChange={props.handleBookChange}
+                                >
+                                    <MenuItem value="All">All</MenuItem>
+                                    <MenuItem value="active">Active</MenuItem>
+                                    <MenuItem value="archive">Archived</MenuItem>
+                                    {props.filterBooks.type === 'Reserve' && <MenuItem value="expired">Expired</MenuItem>}
+                                </TextField>
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Box>
-            </Container>
+                </Grid>
+            </Box>
+
+
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={11} md={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
@@ -184,6 +187,12 @@ const useStyles = makeStyles(theme => ({
     },
     paper: {
         overflowX: 'auto'
+    },
+    heading: {
+        justifyContent: 'flex-end',
+        [theme.breakpoints.down("sm")]: {
+            justifyContent: 'center'
+        }
     }
 }))
 

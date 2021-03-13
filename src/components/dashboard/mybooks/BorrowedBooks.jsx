@@ -50,7 +50,7 @@ const BorrowedBooks = (props) => {
                                         <TableCell>Book Details</TableCell>
                                         <TableCell>Loan Details</TableCell>
                                         <TableCell>Other Details</TableCell>
-                                        <TableCell>Flag(s)</TableCell>
+                                        <TableCell>Flags</TableCell>
                                         <TableCell></TableCell>
                                     </TableRow>
                                 </TableHead>

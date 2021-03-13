@@ -8,3 +8,6 @@
   white-space: normal !important;
   word-break: normal !important;
 }
+.MuiPickersDay-root {
+  border-radius: 50% !important;
+}
