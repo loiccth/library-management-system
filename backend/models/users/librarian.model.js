@@ -181,65 +181,67 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
 librarianSchema.methods.addBookCSV = function (file, res) {
     let success = []
     let fail = []
+    let promises = []
 
-    const stream = fs.createReadStream(file)
+    fs.createReadStream(file)
         .pipe(csv())
-        .on('data', async (book) => {
-            stream.pause()
-            const { location, campus, isbn, noOfCopies } = book
+        .on('data', (book) => {
+            promises.push(new Promise(async (resolve) => {
+                const { location, campus, isbn, noOfCopies } = book
 
-            const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+                const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
-            if (googleBookAPI.data.totalItems === 0) {
-                fail.push(isbn + ' - Invalid ISBN')
-            }
-            else {
-                await Book.findOne({ isbn })
-                    .then(async (book) => {
-                        const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
-                        if (book === null) {
-                            let image = imageLinks.thumbnail
-                            let secureImg = image.replace('http:', 'https:')
+                if (googleBookAPI.data.totalItems === 0) {
+                    fail.push(isbn + ' - Invalid ISBN')
+                }
+                else {
+                    await Book.findOne({ isbn })
+                        .then(async (book) => {
+                            const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
+                            if (book === null) {
+                                let image = imageLinks.thumbnail
+                                let secureImg = image.replace('http:', 'https:')
 
-                            const newBook = new Book({
-                                title,
-                                author: authors,
-                                isbn,
-                                publisher,
-                                publishedDate,
-                                categories,
-                                description,
-                                noOfPages: pageCount,
-                                thumbnail: secureImg,
-                                location,
-                                campus,
-                                copies: []
-                            })
-                            for (let i = 0; i < noOfCopies; i++)
-                                newBook.copies.push({})
-                            newBook.save()
-                                .then(() => success.push(`${title} (${isbn})`))
-                                .catch(err => fail.push(`${title} (${isbn}) - ${err.message}`))
-                        }
-                        else {
-                            for (let i = 0; i < noOfCopies; i++)
-                                book.copies.push({})
-                            await book.save()
-                                .then(() => success.push(`${title} (${isbn})`))
-                                .catch(err => fail.push(`${title} (${isbn}) - ${err.message}`))
-                        }
-                    })
-                    .catch(err => console.log(err))
-            }
-            stream.resume()
+                                const newBook = new Book({
+                                    title,
+                                    author: authors,
+                                    isbn,
+                                    publisher,
+                                    publishedDate,
+                                    categories,
+                                    description,
+                                    noOfPages: pageCount,
+                                    thumbnail: secureImg,
+                                    location,
+                                    campus,
+                                    copies: []
+                                })
+                                for (let i = 0; i < noOfCopies; i++)
+                                    newBook.copies.push({})
+                                newBook.save()
+                                    .then(() => resolve(success.push(`${title} (${isbn})`)))
+                                    .catch(err => resolve(fail.push(`${title} (${isbn}) - ${err.message}`)))
+                            }
+                            else {
+                                for (let i = 0; i < noOfCopies; i++)
+                                    book.copies.push({})
+                                await book.save()
+                                    .then(() => resolve(success.push(`${title} (${isbn})`)))
+                                    .catch(err => resolve(fail.push(`${title} (${isbn}) - ${err.message}`)))
+                            }
+                        })
+                        .catch(err => console.log(err))
+                }
+            }))
         })
         .on('end', () => {
-            setTimeout(() => {
-                res.status(201).json({
-                    success,
-                    fail
+            Promise.all(promises)
+                .then(() => {
+                    res.status(201).json({
+                        success,
+                        fail
+                    })
                 })
-            }, 1000)
         })
 }
 

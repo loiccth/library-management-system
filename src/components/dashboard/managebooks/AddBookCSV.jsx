@@ -5,32 +5,41 @@ import { useForm, Controller } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import { DropzoneArea } from 'material-ui-dropzone'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box'
+import PopUpWindow from '../../others/PopUpWindow'
 
 const AddBookCSV = () => {
     const classes = useStyles()
-    const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
+    const [result, setResult] = useState({
+        success: [],
+        fail: []
+    })
     const { handleSubmit, errors, reset, control } = useForm()
 
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
+        setResult({
+            success: [],
+            fail: []
+        })
     }
 
     const onSubmit = (data) => {
         const dataForm = new FormData()
         dataForm.append('csv', data.csv[0])
         axios.post(`${url}/books/add`, dataForm, { withCredentials: true })
-            .then(result => console.log(result))
+            .then(result => {
+                setResult(result.data)
+                handleClick()
+            })
         reset()
 
         // TODO: display list of registered user and errors
@@ -38,11 +47,6 @@ const AddBookCSV = () => {
 
     return (
         <>
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
-                    {snackbar.msg}
-                </Alert>
-            </Snackbar>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={10} md={10}>
@@ -77,6 +81,7 @@ const AddBookCSV = () => {
                     </Grid>
                 </Grid>
             </Box>
+            <PopUpWindow open={open} handleClose={handleClose} result={result} />
         </>
     )
 }
