@@ -1,29 +1,43 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import axios from 'axios'
-import url from '../../../../settings/api'
-import { makeStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import Checkbox from '@material-ui/core/Checkbox'
-import Typography from '@material-ui/core/Typography'
+import url from '../../../settings/api'
+import {
+    Alert,
+    Box,
+    Button,
+    Checkbox,
+    Container,
+    Grid,
+    makeStyles,
+    Paper,
+    Snackbar,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField,
+    Toolbar,
+    Tooltip,
+    Typography,
+} from '@material-ui/core'
+import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
+import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import AutorenewIcon from '@material-ui/icons/Autorenew'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
-import Tooltip from '@material-ui/core/Tooltip'
-import { Button, Toolbar, Container } from '@material-ui/core'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Box from '@material-ui/core/Box'
-import Grid from '@material-ui/core/Grid'
 
-const OverdueBooks = (props) => {
+const DueBooks = (props) => {
     const classes = useStyles()
     const [check, setCheck] = useState(false)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
+    const [date, setDate] = useState([new Date(), new Date()])
+
+    const handleDateUpdate = (date) => {
+        setDate(date)
+        props.getNewDueBooks(date)
+    }
 
     const handleClick = () => {
         setOpen(true);
@@ -34,7 +48,7 @@ const OverdueBooks = (props) => {
     }
 
     const handleOnClick = () => {
-        axios.post(`${url}/users/notify`, { type: 'overdue', books: props.overdueBooks }, { withCredentials: true })
+        axios.post(`${url}/users/notify`, { type: 'due', books: props.dueBooks }, { withCredentials: true })
             .then(result => {
                 setSnackbar({
                     type: 'success',
@@ -50,13 +64,13 @@ const OverdueBooks = (props) => {
             .finally(() => {
                 handleClick()
             })
-        props.handleUncheckAll()
+        props.handleUncheckAllDue()
         setCheck(false)
     }
 
     const handleCheckAll = (e) => {
         setCheck(e.target.checked)
-        props.handleCheckAll(e)
+        props.handleCheckAllDue(e)
     }
 
     return (
@@ -68,12 +82,31 @@ const OverdueBooks = (props) => {
             </Snackbar>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Overdue Books</Typography>
+                    <Typography variant="h6">Due Books</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 1 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={11} md={10}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DateRangePicker
+                                startText="From"
+                                endText="To"
+                                value={date}
+                                minDate={new Date()}
+                                onChange={handleDateUpdate}
+                                renderInput={(startProps, endProps) => (
+                                    <Grid container className={classes.heading} spacing={1}>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <TextField {...startProps} variant="standard" fullWidth />
+                                        </Grid>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <TextField {...endProps} variant="standard" fullWidth />
+                                        </Grid>
+                                    </Grid>
+                                )}
+                            />
+                        </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
                             <Grid item xs={12} sm={5} md={3} lg={2}>
                                 <Button
@@ -82,7 +115,7 @@ const OverdueBooks = (props) => {
                                     onClick={handleOnClick}
                                 >
                                     Send Reminder
-                                    </Button>
+                                </Button>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -90,7 +123,7 @@ const OverdueBooks = (props) => {
             </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={11} md={10}>
+                    <Grid item xs={12} md={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
@@ -105,15 +138,15 @@ const OverdueBooks = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.overdueBooks.length === 0 &&
+                                    {props.dueBooks.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">No records found.</TableCell>
                                         </TableRow>
                                     }
-                                    {props.overdueBooks.map(row => (
+                                    {props.dueBooks.map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
-                                                <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheck} />
+                                                <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheckDue} />
                                             </TableCell>
                                             <TableCell>
                                                 {row.userid}
@@ -128,6 +161,7 @@ const OverdueBooks = (props) => {
                                                 <Typography variant="caption" display="block">Renews: {row.renews}</Typography>
                                             </TableCell>
                                             <TableCell>
+                                                {/* TODO: get amount from db */}
                                                 {row.renews === 3 &&
                                                     <Tooltip title="Max Renews" arrow>
                                                         <AutorenewIcon />
@@ -152,11 +186,14 @@ const OverdueBooks = (props) => {
 }
 
 const useStyles = makeStyles(theme => ({
-    paper: {
-        overflowX: 'auto'
-    },
     table: {
         minWidth: 650,
+        overflowX: 'auto'
+    },
+    title: {
+        flex: 1
+    },
+    paper: {
         overflowX: 'auto'
     },
     heading: {
@@ -167,4 +204,12 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default OverdueBooks
+DueBooks.propTypes = {
+    dueBooks: PropTypes.array.isRequired,
+    getNewDueBooks: PropTypes.func.isRequired,
+    handleCheckDue: PropTypes.func.isRequired,
+    handleCheckAllDue: PropTypes.func.isRequired,
+    handleUncheckAllDue: PropTypes.func.isRequired,
+}
+
+export default DueBooks

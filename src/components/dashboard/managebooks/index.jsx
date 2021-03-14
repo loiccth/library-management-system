@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import axios from 'axios'
+import url from '../../../settings/api'
+import {
+    Box,
+    Divider,
+    Container,
+    FormControlLabel,
+    Switch,
+    Toolbar,
+    Typography
+} from '@material-ui/core'
 import AddBook from './AddBook'
 import AddBookNoAPI from './AddBookNoAPI'
 import AddBookCSV from './AddBookCSV'
 import SearchBook from './SearchBook'
-import Divider from '@material-ui/core/Divider'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Switch from '@material-ui/core/Switch'
-import Box from '@material-ui/core/Box'
-import Container from '@material-ui/core/Container'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import axios from 'axios'
-import url from '../../../settings/api'
 
 const ManageBooks = ({ user }) => {
     const navigate = useNavigate()
@@ -88,6 +91,10 @@ const ManageBooks = ({ user }) => {
             </Box>
         </>
     )
+}
+
+ManageBooks.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
 export default ManageBooks

@@ -1,9 +1,9 @@
 import React from 'react'
+import { makeStyles } from '@material-ui/core'
 import { GridOverlay } from '@material-ui/data-grid'
-import { makeStyles } from '@material-ui/core/styles'
 
 const CustomNoRowsOverlay = () => {
-    const classes = useStyles();
+    const classes = useStyles()
 
     return (
         <GridOverlay className={classes.root}>

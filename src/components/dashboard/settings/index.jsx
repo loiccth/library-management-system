@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useNavigate } from 'react-router-dom'
+import { Box, Grid } from '@material-ui/core'
 import LibraryHours from './LibraryHours'
 import BookSettings from './BookSettings'
 import UserSettings from './UserSettings'
 import Categories from './Categories'
 import Locations from './Locations'
-import Box from '@material-ui/core/Box'
-import Grid from '@material-ui/core/Grid'
 
 const Settings = ({ user }) => {
     const navigate = useNavigate()
@@ -103,6 +103,10 @@ const Settings = ({ user }) => {
             }
         </>
     )
+}
+
+Settings.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
 export default Settings

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import url from '../../../settings/api'
-import Box from '@material-ui/core/Box'
-import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
+import { Box, Divider, Grid, makeStyles, Paper } from '@material-ui/core'
 import SessionsChart from './SessionsChart'
 import DevicesPie from './DevicesPie'
 

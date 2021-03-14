@@ -1,9 +1,7 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Pie } from 'react-chartjs-2'
-import Paper from '@material-ui/core/Paper'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { Paper, Box, Typography, makeStyles, useTheme } from '@material-ui/core'
 
 const DevicesPie = ({ devices }) => {
     const classes = useStyles()
@@ -61,10 +59,14 @@ const DevicesPie = ({ devices }) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     title: {
         textAlign: 'center'
     }
 }))
+
+DevicesPie.propTypes = {
+    devices: PropTypes.object.isRequired
+}
 
 export default DevicesPie

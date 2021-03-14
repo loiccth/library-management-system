@@ -1,8 +1,6 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
-import Hidden from '@material-ui/core/Hidden'
+import PropTypes from 'prop-types'
+import { Divider, Grid, Hidden, makeStyles } from '@material-ui/core'
 import ProfileDetails from './ProfileDetails'
 import ChangePassword from './ChangePassword'
 
@@ -44,5 +42,10 @@ const useStyles = makeStyles(theme => ({
         }
     }
 }))
+
+Profile.propTypes = {
+    user: PropTypes.object.isRequired,
+    handlePasswordChange: PropTypes.func.isRequired
+}
 
 export default Profile

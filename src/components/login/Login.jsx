@@ -1,11 +1,20 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import axios from 'axios'
 import url from '../../settings/api'
-import Container from '@material-ui/core/Container'
-import { Button, Checkbox, FormControlLabel, makeStyles, Paper, TextField, Typography } from '@material-ui/core'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
+import {
+    Alert,
+    Button,
+    Checkbox,
+    Container,
+    FormControlLabel,
+    makeStyles,
+    Paper,
+    Snackbar,
+    TextField,
+    Typography
+} from '@material-ui/core'
 
 const Login = (props) => {
     const { register, handleSubmit, errors, reset } = useForm()
@@ -93,7 +102,6 @@ const Login = (props) => {
 
 const useStyles = makeStyles(theme => ({
     paper: {
-        // marginTop: theme.spacing(8),
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -106,5 +114,9 @@ const useStyles = makeStyles(theme => ({
         marginTop: theme.spacing(2),
     }
 }))
+
+Login.propTypes = {
+    handleLogin: PropTypes.func.isRequired
+}
 
 export default Login

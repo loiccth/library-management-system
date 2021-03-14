@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useNavigate } from 'react-router-dom'
-import Divider from '@material-ui/core/Divider'
-import Box from '@material-ui/core/Box'
+import { Box, Divider } from '@material-ui/core'
 import BooksReport from './librarian/BooksReport'
 import PaymentsReport from './librarian/PaymentsReport'
 
@@ -187,6 +187,10 @@ const Reports = ({ user }) => {
             </>
         )
     }
+}
+
+Reports.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
 export default Reports

@@ -1,29 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import axios from 'axios'
 import url from '../../settings/api'
+import {
+    Alert,
+    Box,
+    Button,
+    Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    Grid,
+    makeStyles,
+    Paper,
+    Snackbar,
+    Table,
+    TableBody,
+    TableCell,
+    TableRow,
+    Tooltip,
+    Typography
+} from '@material-ui/core'
+import FiberNewIcon from '@material-ui/icons/FiberNew'
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import Navbar from '../navbar/Navbar'
 import Footer from '../navbar/Footer'
-import { makeStyles } from '@material-ui/core/styles'
-import Container from '@material-ui/core/Container'
-import Paper from '@material-ui/core/Paper'
-import Grid from '@material-ui/core/Grid'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableRow from '@material-ui/core/TableRow'
-import Typography from '@material-ui/core/Typography'
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
-import FiberNewIcon from '@material-ui/icons/FiberNew'
-import Tooltip from '@material-ui/core/Tooltip'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import { Box } from '@material-ui/core'
 
 const Book = (props) => {
     const { id } = useParams()
@@ -35,14 +38,12 @@ const Book = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [openSnack, setOpenSnack] = useState(false)
 
-
-    // SnackBar
     const handleClick = () => {
-        setOpenSnack(true);
+        setOpenSnack(true)
     }
 
     const handleClose = () => {
-        setOpenSnack(false);
+        setOpenSnack(false)
     }
 
     const handleToggle = () => {
@@ -264,5 +265,12 @@ const useStyles = makeStyles(theme => ({
         flex: 1
     }
 }))
+
+Book.propTypes = {
+    user: PropTypes.object.isRequired,
+    darkMode: PropTypes.bool.isRequired,
+    handleToggleTheme: PropTypes.func.isRequired,
+    handleLogout: PropTypes.func.isRequired
+}
 
 export default Book

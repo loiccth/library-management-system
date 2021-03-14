@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import { Controller, useForm } from 'react-hook-form'
 import axios from 'axios'
 import queryString from 'query-string'
-import { Controller, useForm } from 'react-hook-form'
 import url from '../../settings/api'
-import Navbar from '../navbar/Navbar'
-import Footer from '../navbar/Footer'
-import Books from './Books'
-import TextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
+import {
+    Box,
+    Container,
+    FormControl,
+    FormControlLabel,
+    IconButton,
+    makeStyles,
+    MenuItem,
+    Radio,
+    RadioGroup,
+    TextField
+} from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import { makeStyles } from '@material-ui/core/styles'
-import { Container } from '@material-ui/core'
-import Radio from '@material-ui/core/Radio'
-import RadioGroup from '@material-ui/core/RadioGroup'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FormControl from '@material-ui/core/FormControl'
-import Box from '@material-ui/core/Box'
-import MenuItem from '@material-ui/core/MenuItem'
+import Navbar from '../navbar/Navbar'
+import Books from './Books'
+import Footer from '../navbar/Footer'
 
 const Home = (props) => {
     const classes = useStyles()
@@ -177,5 +180,12 @@ const useStyles = makeStyles(theme => ({
         flex: 1
     }
 }))
+
+Home.propTypes = {
+    user: PropTypes.object.isRequired,
+    darkMode: PropTypes.bool.isRequired,
+    handleToggleTheme: PropTypes.func.isRequired,
+    handleLogout: PropTypes.func.isRequired
+}
 
 export default Home

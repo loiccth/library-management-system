@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { useForm, Controller } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm, Controller } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import MenuItem from '@material-ui/core/MenuItem'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
-import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
+import {
+    Alert,
+    Box,
+    Button,
+    Grid,
+    makeStyles,
+    MenuItem,
+    Snackbar,
+    TextField,
+} from '@material-ui/core'
+import { LocalizationProvider, DatePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import DatePicker from '@material-ui/lab/DatePicker'
 
 const ModifyBook = (props) => {
     const classes = useStyles()
@@ -268,7 +270,7 @@ const ModifyBook = (props) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     hidden: {
         display: 'none'
     },
@@ -277,5 +279,10 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+ModifyBook.propTypes = {
+    book: PropTypes.object.isRequired,
+    locations: PropTypes.object.isRequired,
+    categories: PropTypes.array.isRequired
+}
 
 export default ModifyBook

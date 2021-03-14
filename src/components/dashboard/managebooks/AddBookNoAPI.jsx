@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { useForm, Controller } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm, Controller } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import MenuItem from '@material-ui/core/MenuItem'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Grid from '@material-ui/core/Grid'
-import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
+import {
+    Alert,
+    Box,
+    Button,
+    Grid,
+    makeStyles,
+    MenuItem,
+    Snackbar,
+    TextField
+} from '@material-ui/core'
+import { LocalizationProvider, DatePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import DatePicker from '@material-ui/lab/DatePicker'
-import Box from '@material-ui/core/Box'
 
 const AddBookNoAPI = (props) => {
     const classes = useStyles()
@@ -305,7 +307,7 @@ const AddBookNoAPI = (props) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     boxAlign: {
         textAlign: 'right'
     },
@@ -313,5 +315,10 @@ const useStyles = makeStyles(theme => ({
         display: 'none !important'
     }
 }))
+
+AddBookNoAPI.propTypes = {
+    locations: PropTypes.object.isRequired,
+    categories: PropTypes.array.isRequired
+}
 
 export default AddBookNoAPI

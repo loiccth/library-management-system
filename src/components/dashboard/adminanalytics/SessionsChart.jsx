@@ -1,9 +1,7 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Bar } from 'react-chartjs-2'
-import Paper from '@material-ui/core/Paper'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { Paper, Box, Typography, makeStyles, useTheme } from '@material-ui/core'
 
 const SessionsChart = ({ sessions }) => {
     const classes = useStyles()
@@ -70,10 +68,14 @@ const SessionsChart = ({ sessions }) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     title: {
         textAlign: 'center'
     }
 }))
+
+SessionsChart.propTypes = {
+    sessions: PropTypes.object.isRequired
+}
 
 export default SessionsChart

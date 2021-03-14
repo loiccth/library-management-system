@@ -1,63 +1,31 @@
 import React, { useState } from 'react'
 import { Link, Outlet, Navigate } from 'react-router-dom'
-import url from '../../settings/api'
-import axios from 'axios'
 import PropTypes from 'prop-types'
-import AppBar from '@material-ui/core/AppBar'
-import Drawer from '@material-ui/core/Drawer'
-import Hidden from '@material-ui/core/Hidden'
-import IconButton from '@material-ui/core/IconButton'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import MenuIcon from '@material-ui/icons/Menu'
-import Toolbar from '@material-ui/core/Toolbar'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
-import HomeIcon from '@material-ui/icons/Home'
+import axios from 'axios'
+import url from '../../settings/api'
+import {
+    AppBar,
+    Drawer,
+    Hidden,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
+    makeStyles,
+    Menu,
+    MenuItem,
+    Toolbar,
+    useTheme
+} from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Brightness3Icon from '@material-ui/icons/Brightness3'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
-import MenuItem from '@material-ui/core/MenuItem'
-import Menu from '@material-ui/core/Menu'
+import HomeIcon from '@material-ui/icons/Home'
+import MenuIcon from '@material-ui/icons/Menu'
 import logo from '../../img/logo.png'
 import whitelogo from '../../img/logo_white.png'
 
 const drawerWidth = 240
-
-const useStyles = makeStyles(theme => ({
-    drawer: {
-        [theme.breakpoints.up("lg")]: {
-            width: drawerWidth,
-            flexShrink: 0
-        }
-    },
-    appBar: {
-        [theme.breakpoints.up("lg")]: {
-            width: `calc(100% - ${drawerWidth}px)`,
-            marginLeft: drawerWidth
-        }
-    },
-    menuButton: {
-        marginRight: theme.spacing(2),
-        [theme.breakpoints.up("lg")]: {
-            display: "none"
-        }
-    },
-    toolbar: theme.mixins.toolbar,
-    drawerPaper: {
-        width: drawerWidth
-    },
-    content: {
-        [theme.breakpoints.up("lg")]: {
-            marginLeft: drawerWidth,
-            width: `calc(100% - ${drawerWidth}px)`
-        }
-    },
-
-    title: {
-        flexGrow: 1
-    }
-}))
 
 const Dashboard = (props) => {
     const { window } = props
@@ -151,7 +119,6 @@ const Dashboard = (props) => {
                         else return null
                     })}
                 </List>
-                {/* <Divider /> */}
             </div>
         )
 
@@ -268,8 +235,47 @@ const Dashboard = (props) => {
     }
 }
 
+const useStyles = makeStyles(theme => ({
+    drawer: {
+        [theme.breakpoints.up("lg")]: {
+            width: drawerWidth,
+            flexShrink: 0
+        }
+    },
+    appBar: {
+        [theme.breakpoints.up("lg")]: {
+            width: `calc(100% - ${drawerWidth}px)`,
+            marginLeft: drawerWidth
+        }
+    },
+    menuButton: {
+        marginRight: theme.spacing(2),
+        [theme.breakpoints.up("lg")]: {
+            display: "none"
+        }
+    },
+    toolbar: theme.mixins.toolbar,
+    drawerPaper: {
+        width: drawerWidth
+    },
+    content: {
+        [theme.breakpoints.up("lg")]: {
+            marginLeft: drawerWidth,
+            width: `calc(100% - ${drawerWidth}px)`
+        }
+    },
+
+    title: {
+        flexGrow: 1
+    }
+}))
+
 Dashboard.propTypes = {
-    window: PropTypes.func
+    window: PropTypes.func,
+    user: PropTypes.object.isRequired,
+    darkMode: PropTypes.bool.isRequired,
+    handleToggleTheme: PropTypes.func.isRequired,
+    handleLogout: PropTypes.func.isRequired
 }
 
 export default Dashboard

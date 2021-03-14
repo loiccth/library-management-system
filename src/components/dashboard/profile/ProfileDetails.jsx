@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
 const ProfileDetails = ({ user }) => {
     return (
@@ -11,6 +12,10 @@ const ProfileDetails = ({ user }) => {
             </ul>
         </div>
     )
+}
+
+ProfileDetails.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
 export default ProfileDetails

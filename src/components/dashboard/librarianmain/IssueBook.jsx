@@ -1,16 +1,18 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
-import url from '../../../../settings/api'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Box from '@material-ui/core/Box'
+import url from '../../../settings/api'
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Grid,
+    TextField,
+    Typography,
+} from '@material-ui/core'
 
 const IssueBook = () => {
     const [open, setOpen] = useState(false)

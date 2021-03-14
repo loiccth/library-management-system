@@ -1,7 +1,8 @@
 import React from 'react'
-import Navbar from '../navbar/Navbar'
 import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import { Grid, makeStyles } from '@material-ui/core'
+import Navbar from '../navbar/Navbar'
 import Login from './Login'
 import Reset from './Reset'
 
@@ -46,5 +47,13 @@ const useStyles = makeStyles(theme => ({
         alignItems: 'center'
     }
 }))
+
+LoginPage.propTypes = {
+    user: PropTypes.object.isRequired,
+    darkMode: PropTypes.bool.isRequired,
+    handleToggleTheme: PropTypes.func.isRequired,
+    handleLogin: PropTypes.func.isRequired,
+    handleLogout: PropTypes.func.isRequired
+}
 
 export default LoginPage

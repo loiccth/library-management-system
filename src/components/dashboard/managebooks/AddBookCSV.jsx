@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { DropzoneArea } from 'material-ui-dropzone'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm, Controller } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
-import { DropzoneArea } from 'material-ui-dropzone'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Box from '@material-ui/core/Box'
+import {
+    Box,
+    Button,
+    FormHelperText,
+    Grid,
+    makeStyles,
+    Paper
+} from '@material-ui/core'
 import PopUpWindow from '../../others/PopUpWindow'
 
 const AddBookCSV = () => {
@@ -41,8 +43,6 @@ const AddBookCSV = () => {
                 handleClick()
             })
         reset()
-
-        // TODO: display list of registered user and errors
     }
 
     return (
@@ -51,7 +51,7 @@ const AddBookCSV = () => {
                 <Grid container justifyContent="center">
                     <Grid item xs={10} md={10}>
                         <Paper className={classes.paper}>
-                            <form className={classes.root} noValidate onSubmit={handleSubmit(onSubmit)}>
+                            <form noValidate onSubmit={handleSubmit(onSubmit)}>
                                 <Controller
                                     as={<DropzoneArea
                                         acceptedFiles={[".csv, text/csv, application/vnd.ms-excel, application/csv, text/x-csv, application/x-csv, text/comma-separated-values, text/x-comma-separated-values"]}
@@ -86,7 +86,10 @@ const AddBookCSV = () => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
+    paper: {
+        padding: 10
+    },
     previewChip: {
         minWidth: 160,
         maxWidth: 210

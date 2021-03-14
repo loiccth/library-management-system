@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
+import {
+    Alert,
+    Box,
+    Button,
+    Grid,
+    makeStyles,
+    Snackbar,
+    TextField,
+    Typography
+} from '@material-ui/core'
 
 const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
     const classes = useStyles()
@@ -116,7 +119,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     hidden: {
         display: 'none !important'
     },
@@ -125,5 +128,9 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+BookSettings.propTypes = {
+    bookSettings: PropTypes.array.isRequired,
+    handleUpdateBookSettings: PropTypes.func.isRequired
+}
 
 export default BookSettings

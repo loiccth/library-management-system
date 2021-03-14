@@ -1,20 +1,23 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
+import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import Input from '@material-ui/core/Input'
-import InputLabel from '@material-ui/core/InputLabel'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import FormControl from '@material-ui/core/FormControl'
+import {
+    Alert,
+    Button,
+    FormControl,
+    FormHelperText,
+    IconButton,
+    Input,
+    InputLabel,
+    InputAdornment,
+    makeStyles,
+    Snackbar
+} from '@material-ui/core'
 import Visibility from '@material-ui/icons/Visibility'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
 
 const ChangePassword = (props) => {
     const classes = useStyles()
@@ -186,10 +189,15 @@ const ChangePassword = (props) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     form: {
         textAlign: 'center'
     }
 }))
+
+ChangePassword.propTypes = {
+    handlePasswordChange: PropTypes.func.isRequired,
+    parent: PropTypes.string.isRequired
+}
 
 export default ChangePassword

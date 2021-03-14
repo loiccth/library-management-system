@@ -1,12 +1,20 @@
 import React, { useRef, useState } from 'react'
-import axios from 'axios'
+import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
+import axios from 'axios'
 import ReCAPTCHA from 'react-google-recaptcha'
 import url from '../../settings/api'
-import Container from '@material-ui/core/Container'
-import { Button, makeStyles, Paper, TextField, Typography, FormHelperText } from '@material-ui/core'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
+import {
+    Alert,
+    Button,
+    Container,
+    FormHelperText,
+    makeStyles,
+    Paper,
+    Snackbar,
+    TextField,
+    Typography
+} from '@material-ui/core'
 
 const Reset = (props) => {
     const { register, handleSubmit, errors, reset, control, setValue } = useForm()
@@ -125,5 +133,9 @@ const useStyles = makeStyles(theme => ({
         marginTop: '16px'
     }
 }))
+
+Reset.propTypes = {
+    darkMode: PropTypes.bool.isRequired
+}
 
 export default Reset

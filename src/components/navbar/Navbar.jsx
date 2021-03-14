@@ -1,19 +1,21 @@
 import React, { useState } from 'react'
-import axios from 'axios'
-import url from '../../settings/api'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
+import axios from 'axios'
+import url from '../../settings/api'
+import {
+    AppBar,
+    Button,
+    IconButton,
+    Menu,
+    MenuItem,
+    Toolbar
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
-import HomeIcon from '@material-ui/icons/Home'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Brightness3Icon from '@material-ui/icons/Brightness3'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
-import IconButton from '@material-ui/core/IconButton'
-import MenuItem from '@material-ui/core/MenuItem'
-import Menu from '@material-ui/core/Menu'
+import HomeIcon from '@material-ui/icons/Home'
 import logo from '../../img/logo.png'
 import whitelogo from '../../img/logo_white.png'
 
@@ -116,7 +118,10 @@ const useStyles = makeStyles(() => ({
 }))
 
 Navbar.propTypes = {
-    window: PropTypes.func
+    user: PropTypes.object.isRequired,
+    darkMode: PropTypes.bool.isRequired,
+    handleToggleTheme: PropTypes.func.isRequired,
+    handleLogout: PropTypes.func.isRequired,
 }
 
 export default Navbar

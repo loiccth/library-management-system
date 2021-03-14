@@ -1,21 +1,24 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import Paper from '@material-ui/core/Paper'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Checkbox from '@material-ui/core/Checkbox'
-import Grid from '@material-ui/core/Grid'
-import TextField from '@material-ui/core/TextField'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Button from '@material-ui/core/Button'
+import {
+    Alert,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    makeStyles,
+    Paper,
+    Snackbar,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField,
+} from '@material-ui/core'
 
 const Copies = (props) => {
     const classes = useStyles()
@@ -151,7 +154,7 @@ const Copies = (props) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     table: {
         minWidth: 650,
         overflowX: 'auto'
@@ -164,5 +167,10 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+Copies.propTypes = {
+    copies: PropTypes.array.isRequired,
+    isbn: PropTypes.string.isRequired,
+    deleteCopies: PropTypes.func.isRequired,
+}
 
 export default Copies

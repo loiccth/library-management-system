@@ -1,18 +1,21 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import PropTypes from 'prop-types'
+import {
+    Box,
+    Container,
+    Grid,
+    makeStyles,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    Toolbar,
+    Tooltip,
+    Typography,
+} from '@material-ui/core'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
-import Tooltip from '@material-ui/core/Tooltip'
-import { Toolbar } from '@material-ui/core'
-import Container from '@material-ui/core/Container'
-import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
 
 const Reservations = (props) => {
     const classes = useStyles()
@@ -75,7 +78,7 @@ const Reservations = (props) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     paper: {
         overflowX: 'auto'
     },
@@ -84,5 +87,9 @@ const useStyles = makeStyles(theme => ({
         overflowX: 'auto'
     }
 }))
+
+Reservations.propTypes = {
+    reservations: PropTypes.array.isRequired
+}
 
 export default Reservations

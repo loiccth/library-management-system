@@ -1,16 +1,19 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { useForm } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Box from '@material-ui/core/Box'
-import Typography from '@material-ui/core/Typography'
-import MenuItem from '@material-ui/core/MenuItem'
-import Grid from '@material-ui/core/Grid'
+import {
+    Alert,
+    Box,
+    Button,
+    Grid,
+    makeStyles,
+    MenuItem,
+    Snackbar,
+    TextField,
+    Typography
+} from '@material-ui/core'
 
 const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
     const classes = useStyles()
@@ -194,7 +197,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     hidden: {
         display: 'none !important'
     },
@@ -203,5 +206,9 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+Locations.propTypes = {
+    locationSettings: PropTypes.array.isRequired,
+    handleUpdateLocationsSettings: PropTypes.func.isRequired
+}
 
 export default Locations

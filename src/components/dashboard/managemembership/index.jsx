@@ -1,5 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import RegisterMemberCSV from './RegisterMemberCSV'
 import RegisterMember from './RegisterMember'
 
@@ -16,6 +17,10 @@ const ManageMenbership = (props) => {
             <RegisterMember />
         </>
     )
+}
+
+ManageMenbership.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
 export default ManageMenbership

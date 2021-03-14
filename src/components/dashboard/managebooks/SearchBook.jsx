@@ -1,20 +1,23 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
+import {
+    Alert,
+    Box,
+    Container,
+    Divider,
+    IconButton,
+    makeStyles,
+    Snackbar,
+    TextField,
+    Toolbar,
+    Typography
+} from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
 import ModifyBook from './ModifyBook'
 import Copies from './Copies'
-import { useForm } from 'react-hook-form'
-import { makeStyles } from '@material-ui/core/styles'
-import Box from '@material-ui/core/Box'
-import Container from '@material-ui/core/Container'
-import TextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
-import SearchIcon from '@material-ui/icons/Search'
-import Snackbar from '@material-ui/core/Snackbar'
-import Alert from '@material-ui/core/Alert'
-import Toolbar from '@material-ui/core/Toolbar'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
 
 const SearchBook = (props) => {
     const classes = useStyles()
@@ -123,7 +126,7 @@ const SearchBook = (props) => {
     )
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     hidden: {
         display: 'none !important'
     },
@@ -135,5 +138,9 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+SearchBook.propTypes = {
+    locations: PropTypes.object.isRequired,
+    categories: PropTypes.array.isRequired
+}
 
 export default SearchBook

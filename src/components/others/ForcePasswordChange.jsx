@@ -1,11 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Navbar from '../navbar/Navbar'
 import ChangePassword from '../dashboard/profile/ChangePassword'
-import { makeStyles } from '@material-ui/core/styles'
-import Container from '@material-ui/core/Container'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
+import { Container, Grid, makeStyles, Paper, Typography } from '@material-ui/core'
 
 const ForcePasswordChange = (props) => {
     const classes = useStyles()
@@ -39,5 +36,14 @@ const useStyles = makeStyles(theme => ({
         }
     }
 }))
+
+ForcePasswordChange.propTypes = {
+    user: PropTypes.object.isRequired,
+    darkMode: PropTypes.bool.isRequired,
+    handleToggleTheme: PropTypes.func.isRequired,
+    handleLogout: PropTypes.func.isRequired,
+    handlePasswordChange: PropTypes.func.isRequired
+}
+
 
 export default ForcePasswordChange

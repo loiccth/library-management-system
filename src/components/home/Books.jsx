@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-import { makeStyles } from '@material-ui/core/styles'
+import { Box, makeStyles, Tooltip, Typography } from '@material-ui/core'
 import { DataGrid } from '@material-ui/data-grid'
-import { Box, Typography, Tooltip } from '@material-ui/core'
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import FiberNewIcon from '@material-ui/icons/FiberNew'
+import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 import CustomNoRowsOverlay from '../../components/others/CustomNoRowsOverlay'
 
 const Books = (props) => {
@@ -186,7 +185,6 @@ const Books = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        // minWidth: '80%',
         maxWidth: '80%',
         margin: 'auto',
         [theme.breakpoints.down("xl")]: {

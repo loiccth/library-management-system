@@ -1,22 +1,25 @@
 import React, { useState, useRef } from 'react'
-import { CSVLink } from "react-csv"
-import { makeStyles } from '@material-ui/core/styles'
-import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
-import DateRangePicker from '@material-ui/lab/DateRangePicker'
+import PropTypes from 'prop-types'
+import { CSVLink } from 'react-csv'
+import {
+    Box,
+    Button,
+    Container,
+    Grid,
+    makeStyles,
+    MenuItem,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField,
+    Toolbar,
+    Typography
+} from '@material-ui/core'
+import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import MenuItem from '@material-ui/core/MenuItem'
-import Container from '@material-ui/core/Container'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
-import { Toolbar, Grid } from '@material-ui/core'
-import Box from '@material-ui/core/Box'
 
 const BooksReport = (props) => {
     const csvlink = useRef()
@@ -196,5 +199,11 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+BooksReport.propTypes = {
+    filteredBooks: PropTypes.array.isRequired,
+    filterBooks: PropTypes.object.isRequired,
+    getNewBooksReport: PropTypes.func.isRequired,
+    handleBookChange: PropTypes.func.isRequired
+}
 
 export default BooksReport
