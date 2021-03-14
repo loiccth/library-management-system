@@ -130,28 +130,32 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     }
 }
 
-librarianSchema.methods.addBook = async function (book, res) {
-    const { location, campus, isbn, noOfCopies, APIValidation } = book
-    const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+librarianSchema.methods.addBook = async function (book, APIValidation, res) {
+    const { location, campus, isbn, noOfCopies } = book
+    let googleBookAPI
     if (APIValidation) {
+        googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
         if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ 'error': 'Book not found.' })
     }
     Book.findOne({ isbn })
         .then(result => {
             if (!result) {
-                const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
-                const image = imageLinks.thumbnail
-                const secureImg = image.replace('http:', 'https:')
+                let image, secureImg
+
+                if (APIValidation) {
+                    image = googleBookAPI.data.items[0].volumeInfo.imageLinks.thumbnail
+                    secureImg = image.replace('http:', 'https:')
+                }
 
                 const newBook = new Book({
-                    title: APIValidation ? title : book.title,
-                    author: APIValidation ? authors : book.authors,
+                    title: APIValidation ? googleBookAPI.data.items[0].volumeInfo.title : book.title,
+                    author: APIValidation ? googleBookAPI.data.items[0].volumeInfo.authors : book.authors,
                     isbn,
-                    publisher: APIValidation ? publisher : book.publisher,
-                    publishedDate: APIValidation ? publishedDate : book.publishedDate,
-                    categories: APIValidation ? categories : book.categories,
-                    description: APIValidation ? description : book.description,
-                    noOfPages: APIValidation ? pageCount : book.noOfPages,
+                    publisher: APIValidation ? googleBookAPI.data.items[0].volumeInfo.publisher : book.publisher,
+                    publishedDate: APIValidation ? googleBookAPI.data.items[0].volumeInfo.publishedDate : book.publishedDate,
+                    categories: APIValidation ? googleBookAPI.data.items[0].volumeInfo.categories : book.categories,
+                    description: APIValidation ? googleBookAPI.data.items[0].volumeInfo.description : book.description,
+                    noOfPages: APIValidation ? googleBookAPI.data.items[0].volumeInfo.pageCount : book.noOfPages,
                     thumbnail: APIValidation ? secureImg : null,
                     location,
                     campus,

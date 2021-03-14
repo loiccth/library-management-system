@@ -20,14 +20,15 @@ const secret = process.env.JWT_SECRET
 // Add a single book
 router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     const { title, authors, isbn, publisher, publishedDate, categories, description, noOfPages, location, campus, noOfCopies } = req.body
+    const APIValidation = req.body.APIValidation === 'true'
 
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (req.body.APIValidation) {
+    else if (APIValidation) {
         if (!location || !campus || !isbn || !noOfCopies) return res.status(400).json({
             'error': 'Missing params.'
         })
     }
-    else if (!req.body.APIValidation) {
+    else if (!APIValidation) {
         if (!title || !authors || !isbn || !publisher || !publishedDate || !categories ||
             !description || !noOfPages || !location || !campus || !noOfCopies) return res.status(400).json({
                 'error': 'Missing params.'
@@ -35,7 +36,7 @@ router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (r
     }
     Librarian.findOne({ _id: req.user._id })
         .then(librarian => {
-            librarian.addBook(req.body, res)
+            librarian.addBook(req.body, APIValidation, res)
         })
 })
 

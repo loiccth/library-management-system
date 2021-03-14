@@ -33,6 +33,12 @@ const AddBook = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [watch('campus')])
 
+    useEffect(() => {
+        setValue('APIValidation', props.api)
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.api])
+
     const handleClick = () => {
         setOpen(true);
     }
@@ -59,6 +65,7 @@ const AddBook = (props) => {
                 handleClick()
             })
         reset()
+        setValue('APIValidation', props.api)
     }
 
     return (
@@ -74,6 +81,13 @@ const AddBook = (props) => {
                         <form noValidate onSubmit={handleSubmit(onSubmit)}>
                             <Grid container justifyContent="space-evenly">
                                 <Grid item xs={10} md={5}>
+                                    <TextField
+                                        className={classes.hidden}
+                                        required
+                                        id="APIValidation"
+                                        name="APIValidation"
+                                        inputRef={register({ required: true })}
+                                    />
                                     {!props.api &&
                                         <TextField
                                             fullWidth
@@ -97,7 +111,11 @@ const AddBook = (props) => {
                                         id="isbn"
                                         name="isbn"
                                         label="ISBN"
-                                        inputRef={register({ required: "Empty ISBN field." })}
+                                        inputRef={register({
+                                            required: "Empty ISBN field.",
+                                            validate: value =>
+                                                value.length === 10 || value.length === 13 || "Invalid ISBN length"
+                                        })}
                                         helperText={!!errors.isbn ? errors.isbn.message : " "}
                                     />
                                     {!props.api &&
@@ -308,6 +326,9 @@ const AddBook = (props) => {
 const useStyles = makeStyles(theme => ({
     boxAlign: {
         textAlign: 'center'
+    },
+    hidden: {
+        display: 'none !important'
     }
 }))
 
