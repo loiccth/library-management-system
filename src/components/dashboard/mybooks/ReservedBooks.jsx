@@ -80,9 +80,9 @@ const ReservedBooks = (props) => {
                                                 <Tooltip title="Recently Added" arrow>
                                                     <FiberNewIcon />
                                                 </Tooltip>
-                                                {row.isHighDemand &&
+                                                {row.bookid.isHighDemand &&
                                                     <Tooltip title="High Demand" arrow>
-                                                        <PriorityHighIcon />
+                                                        <PriorityHighIcon className={classes.highpriority} />
                                                     </Tooltip>
                                                 }
                                             </TableCell>
@@ -131,6 +131,9 @@ const useStyles = makeStyles(theme => ({
     },
     paper: {
         overflowX: 'auto'
+    },
+    highpriority: {
+        color: 'red'
     }
 }))
 

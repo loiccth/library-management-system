@@ -191,15 +191,15 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
 
     const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
-    if (numOfReservations >= maxReservations) return res.json({ 'error': `Cannot reserve more than ${maxReservations} books` })
+    if (numOfReservations >= maxReservations) return res.status(400).json({ error: `Cannot reserve more than ${maxReservations} books.` })
     else if (transaction !== null) {
-        if (transaction.transactionType === 'Borrow') res.status(400).json({ 'error': 'You already have a copy borrowed' })
-        else res.status(400).json({ 'error': 'Book already reserved' })
+        if (transaction.transactionType === 'Borrow') res.status(400).json({ error: 'You already have a copy borrowed.' })
+        else res.status(400).json({ error: 'Book already reserved.' })
     }
     else if (transaction === null) {
         Book.findById(bookid)
             .then(async book => {
-                if (book === null) return res.status(404).json({ 'error': 'Book not found' })
+                if (book === null) return res.status(404).json({ error: 'Book not found.' })
                 let bookAvailable = book.noOfBooksOnLoan + book.noOfBooksOnHold < book.copies.length
                 if (bookAvailable) {
                     for (let i = 0; i < book.copies.length; i++) {
@@ -225,7 +225,14 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                     expireAt: bookAvailable ? new Date(new Date().getTime() + (timeOnHold * 1000)) : null
                 })
 
-                newReservation.save().then(res.sendStatus(201)).catch(err => console.log(err))
+                newReservation.save()
+                    .then(reservation => {
+                        res.json({
+                            message: 'Book reservation successful.',
+                            reservation
+                        })
+                    })
+                    .catch(err => console.log(err))
             })
             .catch(err => console.log(err))
     }

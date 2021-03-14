@@ -54,11 +54,11 @@ const Book = (props) => {
 
         if (transaction === null) {
             axios.post(`${url}/books/reserve/${id}`, {}, { withCredentials: true })
-                .then(() => {
+                .then(result => {
                     setTransaction('Reserve')
                     setSnackbar({
                         type: 'success',
-                        msg: 'Book reserved.'
+                        msg: result.data.message
                     })
                     getBook(id)
                 })
