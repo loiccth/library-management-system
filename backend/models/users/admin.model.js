@@ -10,6 +10,7 @@ const Staff = require('../udm/staff.model')
 const csv = require('csv-parser')
 const fs = require('fs')
 const transporter = require('../../config/mail.config')
+const generator = require('generate-password')
 
 const Schema = mongoose.Schema
 
@@ -176,8 +177,6 @@ adminSchema.methods.registerCSV = function (file, res) {
 
                     if (!user) {
                         const password = generator.generate({ length: 10, numbers: true })
-                        console.log(password)
-
                         let userid = null
                         if (udm.udmType === 'Student') {
                             userid = udm.studentid
@@ -191,23 +190,18 @@ adminSchema.methods.registerCSV = function (file, res) {
 
                         const newMember = new User({
                             memberType,
-                            udmid,
+                            udmid: udm._id,
                             userid,
                             password
                         })
 
                         newMember.save()
                             .then(member => {
-                                // TODO: verify this
-                                res.json({
-                                    member
-                                })
-
                                 const mailRegister = {
                                     from: 'no-reply@udmlibrary.com',
                                     to: email,
                                     subject: 'Register password',
-                                    text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
+                                    text: `Your memberid is ${member.userid} and your password is valid for 24 hours:  ${password}`
                                 }
                                 transporter.sendMail(mailRegister, (err, info) => {
                                     if (err) return resolve(fail.push(`Error sending email - ${email}`))
@@ -222,7 +216,6 @@ adminSchema.methods.registerCSV = function (file, res) {
                 }
                 else
                     resolve(fail.push(`Email not found - ${email}`))
-
             }))
         })
         .on('end', () => {
