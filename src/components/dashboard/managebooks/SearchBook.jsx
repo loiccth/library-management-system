@@ -45,7 +45,7 @@ const SearchBook = (props) => {
                         title: book.data[0].title,
                         isbn: book.data[0].isbn,
                         author: book.data[0].author.join(', '),
-                        categories: book.data[0].categories.join(', '),
+                        category: book.data[0].category,
                         publisher: book.data[0].publisher,
                         publishedDate: book.data[0].publishedDate,
                         noOfPages: book.data[0].noOfPages,
@@ -112,8 +112,8 @@ const SearchBook = (props) => {
             </Box>
             {showForm &&
                 <>
-                    <ModifyBook book={book} locations={props.locations} />
-                    <Box sx={{ my: 7 }}>
+                    <ModifyBook book={book} locations={props.locations} categories={props.categories} />
+                    <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>
                     <Copies copies={copies} isbn={book.isbn} deleteCopies={deleteCopies} />

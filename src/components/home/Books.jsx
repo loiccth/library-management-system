@@ -64,7 +64,10 @@ const Books = (props) => {
         {
             field: 'category',
             headerName: 'Category',
-            width: 180
+            width: 180,
+            renderCell: (param) => (
+                <Typography variant="body2" display="block">{param.value}</Typography>
+            )
         },
         { field: 'year', headerName: 'Year', type: 'date', width: 110 },
         {
@@ -135,7 +138,7 @@ const Books = (props) => {
             thumbnail: book.thumbnail ? book.thumbnail : null,
             title: book.title,
             authors: temp,
-            category: 'Software Engineering',
+            category: book.category,
             year: new Date(book.publishedDate).toLocaleDateString(),
             information: {
                 isbn: book.isbn,

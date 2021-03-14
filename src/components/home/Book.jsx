@@ -185,10 +185,7 @@ const Book = (props) => {
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell>Category</TableCell>
-                                                    <TableCell><Typography variant="body2">
-                                                        {book.categories.map((category, index) => (
-                                                            <span key={category}>{(index ? ', ' : '') + category}</span>
-                                                        ))}</Typography></TableCell>
+                                                    <TableCell><Typography variant="body2">{book.category}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell>Number of pages</TableCell>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AddBook from './AddBook'
+import AddBookNoAPI from './AddBookNoAPI'
 import AddBookCSV from './AddBookCSV'
 import SearchBook from './SearchBook'
 import Divider from '@material-ui/core/Divider'
@@ -27,11 +28,17 @@ const ManageBooks = ({ user }) => {
             options: []
         }
     })
+    const [categories, setCategories] = useState([])
 
     useEffect(() => {
         axios.get(`${url}/settings/locations`, { withCredentials: true })
             .then(locations => {
                 setLocations(locations.data)
+            })
+
+        axios.get(`${url}/settings/categories`, { withCredentials: true })
+            .then(locations => {
+                setCategories(locations.data)
             })
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,14 +74,17 @@ const ManageBooks = ({ user }) => {
                     }
                 </Container>
                 {options.csv ?
-                    <AddBook locations={locations} api={options.api} />
+                    options.api ?
+                        <AddBook locations={locations} categories={categories} />
+                        :
+                        <AddBookNoAPI locations={locations} categories={categories} />
                     :
                     <AddBookCSV />
                 }
                 <Box sx={{ my: 7 }}>
                     <Divider />
                 </Box>
-                <SearchBook locations={locations} />
+                <SearchBook locations={locations} categories={categories} />
             </Box>
         </>
     )

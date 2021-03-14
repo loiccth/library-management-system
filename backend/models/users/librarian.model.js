@@ -131,7 +131,7 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
 }
 
 librarianSchema.methods.addBook = async function (book, APIValidation, res) {
-    const { location, campus, isbn, noOfCopies } = book
+    const { location, campus, isbn, noOfCopies, category } = book
     let googleBookAPI
     if (APIValidation) {
         googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
@@ -153,7 +153,7 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                     isbn,
                     publisher: APIValidation ? googleBookAPI.data.items[0].volumeInfo.publisher : book.publisher,
                     publishedDate: APIValidation ? googleBookAPI.data.items[0].volumeInfo.publishedDate : book.publishedDate,
-                    categories: APIValidation ? googleBookAPI.data.items[0].volumeInfo.categories : book.categories,
+                    category,
                     description: APIValidation ? googleBookAPI.data.items[0].volumeInfo.description : book.description,
                     noOfPages: APIValidation ? googleBookAPI.data.items[0].volumeInfo.pageCount : book.noOfPages,
                     thumbnail: APIValidation ? secureImg : null,
@@ -187,7 +187,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         .pipe(csv())
         .on('data', (book) => {
             promises.push(new Promise(async (resolve) => {
-                const { location, campus, isbn, noOfCopies } = book
+                const { location, campus, isbn, noOfCopies, category } = book
 
                 const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
@@ -197,7 +197,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                 else {
                     await Book.findOne({ isbn })
                         .then(async (book) => {
-                            const { title, authors, publisher, publishedDate, categories, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
+                            const { title, authors, publisher, publishedDate, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
                             if (book === null) {
                                 let image = imageLinks.thumbnail
                                 let secureImg = image.replace('http:', 'https:')
@@ -208,7 +208,7 @@ librarianSchema.methods.addBookCSV = function (file, res) {
                                     isbn,
                                     publisher,
                                     publishedDate,
-                                    categories,
+                                    category,
                                     description,
                                     noOfPages: pageCount,
                                     thumbnail: secureImg,
@@ -252,11 +252,8 @@ librarianSchema.methods.editBook = function (bookDetails, res) {
         .then(book => {
             if (book === null) return res.sendStatus(404)
             else {
-                const { title, publisher, publishedDate, description, noOfPages, location, campus } = bookDetails
+                const { title, publisher, publishedDate, description, noOfPages, location, campus, category } = bookDetails
                 const author = bookDetails.author.split(',').map(item => {
-                    return item.trim()
-                })
-                const categories = bookDetails.categories.split(',').map(item => {
                     return item.trim()
                 })
 
@@ -268,7 +265,7 @@ librarianSchema.methods.editBook = function (bookDetails, res) {
                 book.location = location
                 book.campus = campus
                 book.author = author
-                book.categories = categories
+                book.category = category
 
                 book.save().then(() => res.sendStatus(200))
             }

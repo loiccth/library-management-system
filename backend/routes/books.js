@@ -19,17 +19,17 @@ const secret = process.env.JWT_SECRET
 
 // Add a single book
 router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    const { title, authors, isbn, publisher, publishedDate, categories, description, noOfPages, location, campus, noOfCopies } = req.body
+    const { title, authors, isbn, publisher, publishedDate, category, description, noOfPages, location, campus, noOfCopies } = req.body
     const APIValidation = req.body.APIValidation === 'true'
 
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else if (APIValidation) {
-        if (!location || !campus || !isbn || !noOfCopies) return res.status(400).json({
+        if (!location || !campus || !isbn || !noOfCopies || !category) return res.status(400).json({
             'error': 'Missing params.'
         })
     }
     else if (!APIValidation) {
-        if (!title || !authors || !isbn || !publisher || !publishedDate || !categories ||
+        if (!title || !authors || !isbn || !publisher || !publishedDate || !category ||
             !description || !noOfPages || !location || !campus || !noOfCopies) return res.status(400).json({
                 'error': 'Missing params.'
             })
@@ -131,8 +131,12 @@ router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req)
     if (req.body.search === undefined) return res.json({ 'error': 'Empty search query' })
     else {
         const regex = new RegExp(escapeRegExp(req.body.search), 'gi')
-        Book.find({ [req.body.searchType]: regex })
-            .then(books => res.json(books))
+        if (!req.body.category || req.body.category === 'All')
+            Book.find({ [req.body.searchType]: regex, 'copies.0': { $exists: true } })
+                .then(books => res.json(books))
+        else
+            Book.find({ [req.body.searchType]: regex, category: req.body.category, 'copies.0': { $exists: true } })
+                .then(books => res.json(books))
     }
 })
 

@@ -3,34 +3,37 @@ import axios from 'axios'
 import url from '../../../settings/api'
 import { useForm, Controller } from 'react-hook-form'
 import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/core/Alert'
 import Grid from '@material-ui/core/Grid'
-import Box from '@material-ui/core/Box'
 import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import DatePicker from '@material-ui/lab/DatePicker'
+import Box from '@material-ui/core/Box'
 
-const ModifyBook = (props) => {
+const AddBookNoAPI = (props) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
-    const { register, handleSubmit, errors, control, watch, setValue } = useForm({
+    const { register, handleSubmit, errors, reset, control, watch, setValue } = useForm({
         defaultValues: {
-            campus: '',
+            APIValidation: false,
+            noOfCopies: 1,
+            campus: 'rhill',
             location: '',
-            category: ''
+            category: '',
+            publishedDate: new Date()
         }
     })
 
     useEffect(() => {
-        Object.entries(props.book).map(([key, value]) => (
-            setValue(key, value)
-        ))
-    }, [props.book, setValue])
+        setValue('location', '')
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [watch('campus')])
 
     const handleClick = () => {
         setOpen(true);
@@ -41,11 +44,12 @@ const ModifyBook = (props) => {
     }
 
     const onSubmit = (data) => {
-        axios.put(`${url}/books/edit`, data, { withCredentials: true })
-            .then(() => {
+        console.log(data)
+        axios.post(`${url}/books/add_single`, data, { withCredentials: true })
+            .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: 'Success! Book updated.'
+                    msg: `Book added - ${result.data.title}`
                 })
             })
             .catch(err => {
@@ -57,6 +61,8 @@ const ModifyBook = (props) => {
             .finally(() => {
                 handleClick()
             })
+        reset()
+        setValue('APIValidation', false)
     }
 
     return (
@@ -77,49 +83,57 @@ const ModifyBook = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Update Book
+                                            Add Book
                                         </Button>
                                     </Box>
                                 </Grid>
                                 <Grid item xs={10} md={5}>
                                     <TextField
+                                        className={classes.hidden}
+                                        required
+                                        id="APIValidation"
+                                        name="APIValidation"
+                                        inputRef={register({ required: true })}
+                                    />
+                                    <TextField
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
+                                        required
+                                        error={!!errors.title}
                                         id="title"
                                         name="title"
                                         label="Title"
-                                        error={!!errors.title}
-                                        inputRef={register({ required: "Empty title field." })}
+                                        inputRef={register({ required: "Empty title field" })}
                                         helperText={!!errors.title ? errors.title.message : " "}
                                     />
                                     <TextField
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
-                                        label="ISBN"
-                                        value={props.book.isbn}
-                                        disabled
-                                    />
-                                    <TextField className={classes.hidden}
-                                        fullWidth
-                                        variant="standard"
-                                        margin="normal"
+                                        required
+                                        error={!!errors.isbn}
                                         id="isbn"
                                         name="isbn"
                                         label="ISBN"
-                                        inputRef={register()}
+                                        inputRef={register({
+                                            required: "Empty ISBN field.",
+                                            validate: value =>
+                                                value.length === 10 || value.length === 13 || "Invalid ISBN length"
+                                        })}
+                                        helperText={!!errors.isbn ? errors.isbn.message : " "}
                                     />
                                     <TextField
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
-                                        id="author"
-                                        name="author"
+                                        required
+                                        error={!!errors.authors}
+                                        id="authors"
+                                        name="authors"
                                         label="Author(s)"
-                                        error={!!errors.author}
-                                        inputRef={register({ required: "Empty author field." })}
-                                        helperText={!!errors.author ? errors.author.message : "Seperate using comma (,)"}
+                                        inputRef={register({ required: "Empty author field" })}
+                                        helperText={!!errors.authors ? errors.authors.message : "Seperate using comma (,)"}
                                     />
                                     <Controller
                                         as={
@@ -146,11 +160,12 @@ const ModifyBook = (props) => {
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
+                                        required
+                                        error={!!errors.publisher}
                                         id="publisher"
                                         name="publisher"
                                         label="Publisher"
-                                        error={!!errors.publisher}
-                                        inputRef={register({ required: "Empty publisher field." })}
+                                        inputRef={register({ required: "Empty publisher field" })}
                                         helperText={!!errors.publisher ? errors.publisher.message : " "}
                                     />
                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -174,7 +189,6 @@ const ModifyBook = (props) => {
                                             )}
                                             name="publishedDate"
                                             control={control}
-                                            defaultValue={{}}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
@@ -183,12 +197,34 @@ const ModifyBook = (props) => {
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
+                                        required
+                                        error={!!errors.noOfPages}
                                         id="noOfPages"
                                         name="noOfPages"
                                         label="Number of pages"
                                         inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
-                                        error={!!errors.noOfPages}
                                         helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
+                                    />
+                                    <Controller
+                                        as={
+                                            <TextField
+                                                fullWidth
+                                                variant="standard"
+                                                margin="normal"
+                                                required
+                                                label="Copies"
+                                                select
+                                                helperText=" "
+                                            >
+                                                <MenuItem value="1">1</MenuItem>
+                                                <MenuItem value="2">2</MenuItem>
+                                                <MenuItem value="3">3</MenuItem>
+                                                <MenuItem value="4">4</MenuItem>
+                                                <MenuItem value="5">5</MenuItem>
+                                            </TextField>
+                                        }
+                                        name="noOfCopies"
+                                        control={control}
                                     />
                                     <Controller
                                         as={
@@ -199,6 +235,7 @@ const ModifyBook = (props) => {
                                                 required
                                                 label="Campus"
                                                 select
+                                                helperText=" "
                                             >
                                                 <MenuItem value="rhill">Rose-Hill Campus</MenuItem>
                                                 <MenuItem value="pam">Swami Dayanand Campus</MenuItem>
@@ -206,7 +243,6 @@ const ModifyBook = (props) => {
                                         }
                                         name="campus"
                                         control={control}
-                                        rules={{ required: "Campus is required." }}
                                     />
                                     <Controller
                                         as={
@@ -239,13 +275,14 @@ const ModifyBook = (props) => {
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
+                                        required
+                                        error={!!errors.description}
                                         id="description"
                                         name="description"
                                         label="Description"
                                         multiline
-                                        rows={5}
-                                        error={!!errors.description}
-                                        inputRef={register({ required: "Empty description field." })}
+                                        minRows={5}
+                                        inputRef={register({ required: "Empty description field" })}
                                         helperText={!!errors.description ? errors.description.message : " "}
                                     />
                                 </Grid>
@@ -255,7 +292,7 @@ const ModifyBook = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Update Book
+                                            Add Book
                                         </Button>
                                     </Box>
                                 </Grid>
@@ -269,13 +306,12 @@ const ModifyBook = (props) => {
 }
 
 const useStyles = makeStyles(theme => ({
-    hidden: {
-        display: 'none'
-    },
     boxAlign: {
         textAlign: 'right'
+    },
+    hidden: {
+        display: 'none !important'
     }
 }))
 
-
-export default ModifyBook
+export default AddBookNoAPI

@@ -45,7 +45,6 @@ const RegisterMemberCSV = () => {
 
     return (
         <>
-            <button onClick={handleClick}>test</button>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={10} md={10}>

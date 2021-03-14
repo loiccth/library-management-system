@@ -9,9 +9,6 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/core/Alert'
 import Grid from '@material-ui/core/Grid'
-import LocalizationProvider from '@material-ui/lab/LocalizationProvider'
-import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import DatePicker from '@material-ui/lab/DatePicker'
 import Box from '@material-ui/core/Box'
 
 const AddBook = (props) => {
@@ -20,9 +17,11 @@ const AddBook = (props) => {
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, reset, control, watch, setValue } = useForm({
         defaultValues: {
+            APIValidation: true,
             noOfCopies: 1,
             campus: 'rhill',
             location: '',
+            category: '',
             publishedDate: new Date()
         }
     })
@@ -32,12 +31,6 @@ const AddBook = (props) => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [watch('campus')])
-
-    useEffect(() => {
-        setValue('APIValidation', props.api)
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.api])
 
     const handleClick = () => {
         setOpen(true);
@@ -65,7 +58,7 @@ const AddBook = (props) => {
                 handleClick()
             })
         reset()
-        setValue('APIValidation', props.api)
+        setValue('APIValidation', true)
     }
 
     return (
@@ -77,9 +70,9 @@ const AddBook = (props) => {
             </Snackbar>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={11} md={8}>
                         <form noValidate onSubmit={handleSubmit(onSubmit)}>
-                            <Grid container justifyContent="space-evenly">
+                            <Grid container justifyContent="center" spacing={2}>
                                 <Grid item xs={10} md={5}>
                                     <TextField
                                         className={classes.hidden}
@@ -88,20 +81,6 @@ const AddBook = (props) => {
                                         name="APIValidation"
                                         inputRef={register({ required: true })}
                                     />
-                                    {!props.api &&
-                                        <TextField
-                                            fullWidth
-                                            variant="standard"
-                                            margin="normal"
-                                            required
-                                            error={!!errors.title}
-                                            id="title"
-                                            name="title"
-                                            label="Title"
-                                            inputRef={register({ required: "Empty title field" })}
-                                            helperText={!!errors.title ? errors.title.message : " "}
-                                        />
-                                    }
                                     <TextField
                                         fullWidth
                                         variant="standard"
@@ -118,132 +97,50 @@ const AddBook = (props) => {
                                         })}
                                         helperText={!!errors.isbn ? errors.isbn.message : " "}
                                     />
-                                    {!props.api &&
-                                        <>
+                                    <Controller
+                                        as={
                                             <TextField
                                                 fullWidth
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                error={!!errors.authors}
-                                                id="authors"
-                                                name="authors"
-                                                label="Author(s)"
-                                                inputRef={register({ required: "Empty author field" })}
-                                                helperText={!!errors.authors ? errors.authors.message : "Seperate using comma (,)"}
-                                            />
-
+                                                label="Copies"
+                                                select
+                                                helperText=" "
+                                            >
+                                                <MenuItem value="1">1</MenuItem>
+                                                <MenuItem value="2">2</MenuItem>
+                                                <MenuItem value="3">3</MenuItem>
+                                                <MenuItem value="4">4</MenuItem>
+                                                <MenuItem value="5">5</MenuItem>
+                                            </TextField>
+                                        }
+                                        name="noOfCopies"
+                                        control={control}
+                                    />
+                                    <Controller
+                                        as={
                                             <TextField
                                                 fullWidth
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                error={!!errors.categories}
-                                                id="categories"
-                                                name="categories"
-                                                label="Categories"
-                                                inputRef={register({ required: "Empty categories field" })}
-                                                helperText={!!errors.categories ? errors.categories.message : "Seperate using comma (,)"}
-                                            />
-
-                                            <TextField
-                                                fullWidth
-                                                variant="standard"
-                                                margin="normal"
-                                                required
-                                                error={!!errors.publisher}
-                                                id="publisher"
-                                                name="publisher"
-                                                label="Publisher"
-                                                inputRef={register({ required: "Empty publisher field" })}
-                                                helperText={!!errors.publisher ? errors.publisher.message : " "}
-                                            />
-                                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                                <Controller
-                                                    render={({ onChange, value }) => (
-                                                        <DatePicker
-                                                            label="Published Date *"
-                                                            value={value}
-                                                            onChange={onChange}
-                                                            disableFuture
-                                                            renderInput={(params) => (
-                                                                <TextField
-                                                                    {...params}
-                                                                    variant="standard"
-                                                                    name="publishedDate"
-                                                                    fullWidth
-                                                                    helperText={params.errors ? "Invalid date" : params.helperText}
-                                                                />
-                                                            )}
-                                                        />
-                                                    )}
-                                                    name="publishedDate"
-                                                    control={control}
-                                                />
-                                            </LocalizationProvider>
-                                        </>
-                                    }
-                                    {props.api &&
-                                        <Controller
-                                            as={
-                                                <TextField
-                                                    fullWidth
-                                                    variant="standard"
-                                                    margin="normal"
-                                                    required
-                                                    label="Copies"
-                                                    select
-                                                >
-                                                    <MenuItem value="1">1</MenuItem>
-                                                    <MenuItem value="2">2</MenuItem>
-                                                    <MenuItem value="3">3</MenuItem>
-                                                    <MenuItem value="4">4</MenuItem>
-                                                    <MenuItem value="5">5</MenuItem>
-                                                </TextField>
-                                            }
-                                            name="noOfCopies"
-                                            control={control}
-                                        />
-                                    }
+                                                error={!!errors.category}
+                                                label="Category"
+                                                select
+                                                helperText={!!errors.category ? errors.category.message : " "}
+                                            >
+                                                {props.categories.map((category, index) => (
+                                                    <MenuItem key={index} value={category}>{category}</MenuItem>
+                                                ))}
+                                            </TextField>
+                                        }
+                                        name="category"
+                                        control={control}
+                                        rules={{ required: "Category is required." }}
+                                    />
                                 </Grid>
                                 <Grid item xs={10} md={5}>
-                                    {!props.api &&
-                                        <TextField
-                                            fullWidth
-                                            variant="standard"
-                                            margin="normal"
-                                            required
-                                            error={!!errors.noOfPages}
-                                            id="noOfPages"
-                                            name="noOfPages"
-                                            label="Number of pages"
-                                            inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
-                                            helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
-                                        />
-                                    }
-                                    {!props.api &&
-                                        <Controller
-                                            as={
-                                                <TextField
-                                                    fullWidth
-                                                    variant="standard"
-                                                    margin="normal"
-                                                    required
-                                                    label="Copies"
-                                                    select
-                                                    helperText=" "
-                                                >
-                                                    <MenuItem value="1">1</MenuItem>
-                                                    <MenuItem value="2">2</MenuItem>
-                                                    <MenuItem value="3">3</MenuItem>
-                                                    <MenuItem value="4">4</MenuItem>
-                                                    <MenuItem value="5">5</MenuItem>
-                                                </TextField>
-                                            }
-                                            name="noOfCopies"
-                                            control={control}
-                                        />
-                                    }
                                     <Controller
                                         as={
                                             <TextField
@@ -289,32 +186,18 @@ const AddBook = (props) => {
                                         control={control}
                                         rules={{ required: "Location is required." }}
                                     />
-                                    {!props.api &&
-                                        <TextField
-                                            fullWidth
-                                            variant="standard"
-                                            margin="normal"
-                                            required
-                                            error={!!errors.description}
-                                            id="description"
-                                            name="description"
-                                            label="Description"
-                                            multiline
-                                            minRows={5}
-                                            inputRef={register({ required: "Empty description field" })}
-                                            helperText={!!errors.description ? errors.description.message : " "}
-                                        />
-                                    }
+                                </Grid>
+                                <Grid item xs={10} md={10}>
+                                    <Box sx={{ mt: 1 }} className={classes.boxAlign}>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                        >
+                                            Add Book
+                                        </Button>
+                                    </Box>
                                 </Grid>
                             </Grid>
-                            <Box sx={{ mt: 3 }} className={classes.boxAlign}>
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                >
-                                    Add Book
-                            </Button>
-                            </Box>
                         </form>
                     </Grid>
                 </Grid>
@@ -325,7 +208,7 @@ const AddBook = (props) => {
 
 const useStyles = makeStyles(theme => ({
     boxAlign: {
-        textAlign: 'center'
+        textAlign: 'right'
     },
     hidden: {
         display: 'none !important'

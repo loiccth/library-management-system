@@ -24,7 +24,6 @@ const PaymentsReport = (props) => {
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
 
     const handleDateUpdate = (date) => {
-        console.log(date)
         setDate(date)
         props.getNewPaymentsReport(date)
     }

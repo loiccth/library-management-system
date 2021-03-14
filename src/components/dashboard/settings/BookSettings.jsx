@@ -26,11 +26,11 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
     }, [])
 
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
     const onSubmit = (data) => {

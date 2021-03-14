@@ -6,13 +6,182 @@ const Setting = require('../models/setting.model')
 const secret = process.env.JWT_SECRET
 
 router.get('/locations', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
-    const pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
-    const rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        const pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
+        const rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
 
-    res.json({
-        pam: pamLocation,
-        rhill: rhillLocation
-    })
+        res.json({
+            pam: pamLocation,
+            rhill: rhillLocation
+        })
+    }
+})
+
+router.post('/add_locations', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.campus || !req.body.location) return res.sendStatus(400)
+    else {
+        if (req.body.campus === 'pam') {
+            Setting.findOne({ 'setting': 'PAM_LOCATIONS' })
+                .then(setting => {
+                    if (!setting.options.includes(req.body.location)) {
+                        setting.options.push(req.body.location)
+                        setting.options.sort()
+
+                        setting.markModified('options')
+                        setting.save()
+                            .then((newSettings) => {
+                                res.json({
+                                    message: 'Category successfully added.',
+                                    campus: 'pam',
+                                    location: newSettings.options
+                                })
+                            })
+                    }
+                    else
+                        res.status(400).json({
+                            error: 'Cannot add duplicate location.'
+                        })
+                })
+        }
+        else if (req.body.campus === 'rhill') {
+            Setting.findOne({ 'setting': 'RHILL_LOCATIONS' })
+                .then(setting => {
+                    if (!setting.options.includes(req.body.location)) {
+                        setting.options.push(req.body.location)
+                        setting.options.sort()
+
+                        setting.markModified('options')
+                        setting.save()
+                            .then((newSettings) => {
+                                res.json({
+                                    message: 'Category successfully added.',
+                                    campus: 'rhill',
+                                    location: newSettings.options
+                                })
+                            })
+                    }
+                    else
+                        res.status(400).json({
+                            error: 'Cannot add duplicate location.'
+                        })
+                })
+        }
+    }
+})
+
+router.post('/remove_locations', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.campus || !req.body.location) return res.sendStatus(400)
+    else {
+        if (req.body.campus === 'pam') {
+            Setting.findOne({ 'setting': 'PAM_LOCATIONS' })
+                .then(setting => {
+                    if (setting.options.includes(req.body.location)) {
+                        setting.options.splice(setting.options.indexOf(req.body.location), 1)
+                        setting.options.sort()
+
+                        setting.markModified('options')
+                        setting.save()
+                            .then((newSettings) => {
+                                res.json({
+                                    message: 'Category successfully added.',
+                                    campus: 'pam',
+                                    location: newSettings.options
+                                })
+                            })
+                    }
+                    else
+                        res.status(404).json({
+                            error: 'Location not found.'
+                        })
+                })
+        }
+        else if (req.body.campus === 'rhill') {
+            Setting.findOne({ 'setting': 'RHILL_LOCATIONS' })
+                .then(setting => {
+                    if (setting.options.includes(req.body.location)) {
+                        setting.options.splice(setting.options.indexOf(req.body.location), 1)
+                        setting.options.sort()
+
+                        setting.markModified('options')
+                        setting.save()
+                            .then((newSettings) => {
+                                res.json({
+                                    message: 'Category successfully added.',
+                                    campus: 'rhill',
+                                    location: newSettings.options
+                                })
+                            })
+                    }
+                    else
+                        res.status(404).json({
+                            error: 'Location not found.'
+                        })
+                })
+        }
+    }
+})
+
+router.get('/categories', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
+
+    res.json(categories.options)
+})
+
+router.post('/add_categories', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.category) return res.sendStatus(400)
+    else {
+        Setting.findOne({ 'setting': 'CATEGORIES' })
+            .then(setting => {
+                if (!setting.options.includes(req.body.category)) {
+                    setting.options.push(req.body.category)
+                    setting.options.sort()
+
+                    setting.markModified('options')
+                    setting.save()
+                        .then((newSettings) => {
+                            res.json({
+                                message: 'Category successfully added.',
+                                categories: newSettings.options
+                            })
+                        })
+                }
+                else
+                    res.status(400).json({
+                        error: 'Cannot add duplicate category.'
+                    })
+            })
+    }
+})
+
+router.post('/remove_categories', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.category) return res.sendStatus(400)
+    else {
+        Setting.findOne({ 'setting': 'CATEGORIES' })
+            .then(setting => {
+                if (setting.options.includes(req.body.category)) {
+                    setting.options.splice(setting.options.indexOf(req.body.category), 1)
+                    setting.options.sort()
+
+                    setting.markModified('options')
+                    setting.save()
+                        .then((newSettings) => {
+                            res.json({
+                                message: 'Category successfully removed.',
+                                categories: newSettings.options
+                            })
+                        })
+                }
+                else
+                    res.status(404).json({
+                        error: 'Category not found.'
+                    })
+            })
+    }
 })
 
 router.get('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
@@ -78,7 +247,7 @@ router.put('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) =>
     }
 })
 
-router.get('/books_test', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+router.get('/books', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     const bookSettings = await Setting.findOne({ 'setting': 'BOOK' }).select('options')
     bookSettings.options.time_onhold.value /= 60
 
@@ -120,7 +289,7 @@ router.put('/books', jwt({ secret, credentialsRequired: true, getToken: (req) =>
     }
 })
 
-router.get('/users_test', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+router.get('/users', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     const userSettings = await Setting.findOne({ 'setting': 'USER' }).select('options')
     userSettings.options.temp_password.value /= 60
 

@@ -24,11 +24,11 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
     }, [userSettings, setValue])
 
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
     const onSubmit = (data) => {

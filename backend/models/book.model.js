@@ -8,7 +8,7 @@ const bookSchema = new Schema({
     isbn: { type: String, require: true, unique: true, minlength: 10, maxlength: 13 },
     publisher: { type: String, required: true },
     publishedDate: { type: Date, required: true },
-    categories: { type: [String], required: true },
+    category: { type: String, required: true },
     description: { type: String, required: true },
     noOfPages: { type: Number, required: true },
     thumbnail: { type: String },

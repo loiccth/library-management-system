@@ -17,15 +17,18 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
 import Box from '@material-ui/core/Box'
+import MenuItem from '@material-ui/core/MenuItem'
 
 const Home = (props) => {
     const classes = useStyles()
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
     const [books, setBooks] = useState(null)
+    const [categories, setCategories] = useState([])
     const { register, handleSubmit, setValue, control } = useForm({
         defaultValues: {
-            searchType: 'title'
+            searchType: 'title',
+            category: 'All'
         },
         shouldUnregister: false
     })
@@ -53,6 +56,13 @@ const Home = (props) => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery.search, searchQuery.searchType])
+
+    useEffect(() => {
+        axios.get(`${url}/settings/categories`)
+            .then(result => {
+                setCategories(result.data)
+            })
+    }, [])
 
     const handleSearch = (data) => {
         axios.post(`${url}/books/search`, data)
@@ -86,6 +96,24 @@ const Home = (props) => {
                                 </IconButton>
 
                                 <FormControl component="fieldset">
+                                    <Controller
+                                        as={
+                                            <TextField
+                                                fullWidth
+                                                variant="standard"
+                                                margin="normal"
+                                                label="Category"
+                                                select
+                                            >
+                                                <MenuItem value="All">All</MenuItem>
+                                                {categories.map((category, index) => (
+                                                    <MenuItem key={index} value={category}>{category}</MenuItem>
+                                                ))}
+                                            </TextField>
+                                        }
+                                        name="category"
+                                        control={control}
+                                    />
                                     <Controller
                                         as={
                                             <RadioGroup row name="searchType">

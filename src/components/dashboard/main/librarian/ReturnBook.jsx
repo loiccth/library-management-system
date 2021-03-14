@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../../settings/api'
-import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Dialog from '@material-ui/core/Dialog'
@@ -14,7 +13,6 @@ import Typography from '@material-ui/core/Typography'
 import Box from '@material-ui/core/Box'
 
 const ReturnBook = () => {
-    const classes = useStyles()
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState()
     const [paymentID, setPaymentID] = useState()
@@ -150,8 +148,5 @@ const ReturnBook = () => {
         </>
     )
 }
-
-const useStyles = makeStyles(theme => ({
-}))
 
 export default ReturnBook
