@@ -43,40 +43,13 @@ router.post('/login', (req, res) => {
 // Register a new member
 router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
-
     else if (!req.body.email) return res.sendStatus(400)
-
     else {
-        const { email } = req.body
-
-        const udm = await UDM.findOne({ email })
-
-        if (udm !== null) {
-            const user = await User.findOne({ udmid: udm._id })
-
-            if (user === null) {
-                const password = generator.generate({ length: 10, numbers: true })
-
-                let userid = null
-                if (udm.udmType === 'Student') {
-                    userid = udm.studentid
-                    memberType = 'Member'
-                }
-                else {
-                    userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
-                    if (udm.academic) memberType = 'MemberA'
-                    else memberType = 'MemberNA'
-                }
-
-                Admin.findOne({ _id: req.user._id })
-                    .then(admin => {
-                        admin.registerMember(udm._id, userid, memberType, password, email, res)
-                    })
-                    .catch(err => console.log(err))
-            }
-            else return res.status(400).json({ 'error': 'Account already exist' })
-        }
-        else return res.status(400).json({ 'error': 'Email not found' })
+        Admin.findOne({ _id: req.user._id })
+            .then(admin => {
+                admin.registerMember(req.body.email, res)
+            })
+            .catch(err => console.log(err))
     }
 })
 

@@ -131,32 +131,59 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     }
 }
 
-adminSchema.methods.registerMember = function (udmid, userid, memberType, password, email, res) {
-    const newMember = new User({
-        memberType,
-        udmid,
-        userid,
-        password
-    })
+adminSchema.methods.registerMember = function (email, res) {
+    email = email.trim()
 
-    newMember.save()
-        .then(member => {
-            res.status(201).json({
-                member
-            })
+    UDM.findOne({ email })
+        .then(udm => {
+            if (udm) {
+                User.findOne({ udmid: udm._id })
+                    .then(user => {
+                        if (!user) {
+                            const password = generator.generate({ length: 10, numbers: true })
 
-            const mailRegister = {
-                from: 'no-reply@udmlibrary.com',
-                to: email,
-                subject: 'Register password',
-                text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
+                            let userid = null
+                            if (udm.udmType === 'Student') {
+                                userid = udm.studentid
+                                memberType = 'Member'
+                            }
+                            else {
+                                userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
+                                if (udm.academic) memberType = 'MemberA'
+                                else memberType = 'MemberNA'
+                            }
+
+                            const newMember = new User({
+                                memberType,
+                                udmid: udm._id,
+                                userid,
+                                password
+                            })
+
+                            newMember.save()
+                                .then(member => {
+                                    res.status(201).json({
+                                        member
+                                    })
+
+                                    const mailRegister = {
+                                        from: 'no-reply@udmlibrary.com',
+                                        to: email,
+                                        subject: 'Register password',
+                                        text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
+                                    }
+                                    transporter.sendMail(mailRegister, (err, info) => {
+                                        if (err) return console.log(err.message)
+                                        console.log(info)
+                                    })
+                                })
+                                .catch(err => console.log(err))
+                        }
+                        else return res.status(400).json({ 'error': 'Account already exist' })
+                    })
             }
-            transporter.sendMail(mailRegister, (err, info) => {
-                if (err) return console.log(err.message)
-                console.log(info)
-            })
+            else return res.status(400).json({ 'error': 'Email not found' })
         })
-        .catch(err => console.log(err))
 }
 
 adminSchema.methods.registerCSV = function (file, res) {
@@ -168,7 +195,9 @@ adminSchema.methods.registerCSV = function (file, res) {
         .pipe(csv())
         .on('data', user => {
             promises.push(new Promise(async (resolve) => {
-                const { email } = user
+                let { email } = user
+
+                email = email.trim()
 
                 const udm = await UDM.findOne({ email })
 

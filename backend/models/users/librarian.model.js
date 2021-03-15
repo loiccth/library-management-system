@@ -131,8 +131,35 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
 }
 
 librarianSchema.methods.addBook = async function (book, APIValidation, res) {
-    const { location, campus, isbn, noOfCopies, category } = book
+    let pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
+    let rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
+    let categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
+
+    pamLocation = pamLocation.options
+    rhillLocation = rhillLocation.options
+    categories = categories.options
+
+    let { isbn, category, campus, location, noOfCopies } = book
+
+    isbn = isbn.trim()
+    category = category.trim()
+    campus = campus.trim()
+    location = location.trim()
+    noOfCopies = noOfCopies.trim()
+
+    if (isbn.length !== 10 && isbn.length !== 13)
+        return res.status(404).json({ 'error': 'Invalid ISBN length.' })
+    else if (campus !== 'pam' && campus !== 'rhill')
+        return res.status(404).json({ 'error': 'Invalid campus.' })
+    else if (!pamLocation.includes(location) && !rhillLocation.includes(location))
+        return res.status(404).json({ 'error': 'Invalid location.' })
+    else if (!categories.includes(category))
+        return res.status(404).json({ 'error': 'Invalid category.' })
+    else if (noOfCopies < 1)
+        return res.status(404).json({ 'error': 'Number of copies must be greater than 0' })
+
     let googleBookAPI
+
     if (APIValidation) {
         googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
         if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ 'error': 'Book not found.' })
@@ -270,7 +297,15 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
         })
 }
 
-librarianSchema.methods.editBook = function (bookDetails, res) {
+librarianSchema.methods.editBook = async function (bookDetails, res) {
+    let pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
+    let rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
+    let categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
+
+    pamLocation = pamLocation.options
+    rhillLocation = rhillLocation.options
+    categories = categories.options
+
     const { isbn } = bookDetails
 
     Book.findOne({ isbn })
@@ -281,6 +316,15 @@ librarianSchema.methods.editBook = function (bookDetails, res) {
                 const author = bookDetails.author.split(',').map(item => {
                     return item.trim()
                 })
+
+                if (campus !== 'pam' && campus !== 'rhill')
+                    return res.status(404).json({ 'error': 'Invalid campus.' })
+                else if (!pamLocation.includes(location) && !rhillLocation.includes(location))
+                    return res.status(404).json({ 'error': 'Invalid location.' })
+                else if (!categories.includes(category))
+                    return res.status(404).json({ 'error': 'Invalid category.' })
+                else if (noOfCopies < 1)
+                    return res.status(404).json({ 'error': 'Number of copies must be greater than 0' })
 
                 book.title = title
                 book.publisher = publisher
