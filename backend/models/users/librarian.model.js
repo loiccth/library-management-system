@@ -178,7 +178,15 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
         .catch(err => console.log(err))
 }
 
-librarianSchema.methods.addBookCSV = function (file, res) {
+librarianSchema.methods.addBookCSV = async function (file, res) {
+    let pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
+    let rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
+    let categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
+
+    pamLocation = pamLocation.options
+    rhillLocation = rhillLocation.options
+    categories = categories.options
+
     let success = []
     let fail = []
     let promises = []
@@ -187,12 +195,29 @@ librarianSchema.methods.addBookCSV = function (file, res) {
         .pipe(csv())
         .on('data', (book) => {
             promises.push(new Promise(async (resolve) => {
-                const { location, campus, isbn, noOfCopies, category } = book
+                let { isbn, category, campus, location, noOfCopies } = book
+
+                isbn = isbn.trim()
+                category = category.trim()
+                campus = campus.trim()
+                location = location.trim()
+                noOfCopies = noOfCopies.trim()
+
+                if (!isbn || (isbn.length !== 10 && isbn.length !== 13))
+                    resolve(fail.push(isbn + ' - Invalid ISBN'))
+                else if (!campus || (campus !== 'pam' && campus !== 'rhill'))
+                    resolve(fail.push(isbn + ' - Invalid campus'))
+                else if (!location || (!pamLocation.includes(location) && !rhillLocation.includes(location)))
+                    resolve(fail.push(isbn + ' - Invalid location'))
+                else if (!category || (!categories.includes(category)))
+                    resolve(fail.push(isbn + ' - Invalid category'))
+                else if (!noOfCopies || noOfCopies < 1)
+                    resolve(fail.push(isbn + ' - Invalid number of copies'))
 
                 const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
                 if (googleBookAPI.data.totalItems === 0) {
-                    fail.push(isbn + ' - Invalid ISBN')
+                    resolve(fail.push(isbn + ' - Invalid ISBN'))
                 }
                 else {
                     await Book.findOne({ isbn })
