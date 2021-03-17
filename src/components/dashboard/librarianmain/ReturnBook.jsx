@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -9,7 +9,13 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
+    FormLabel,
     Grid,
+    Radio,
+    RadioGroup,
     TextField,
     Typography,
 } from '@material-ui/core'
@@ -20,13 +26,17 @@ const ReturnBook = () => {
     const [paymentID, setPaymentID] = useState()
     const [click, setClick] = useState(false)
     const [paymentMsg, setPaymentMsg] = useState()
-    const { register, handleSubmit, errors, reset } = useForm()
+    const { register, handleSubmit, errors, reset, control } = useForm({
+        defaultValues: {
+            campus: ''
+        }
+    })
 
     const onSubmit = (data) => {
         axios.post(`${url}/books/return_book`, data, { withCredentials: true })
             .then(result => {
                 if (result.data.noOfDaysOverdue <= 0)
-                    setMessage('Book record successfully updated.')
+                    setMessage('Book record successfully updated. No overdue fees.')
                 else {
                     setMessage(`Book record successfully updated. Book overdue for ${result.data.noOfDaysOverdue} day(s). Fine per day: Rs ${result.data.finePerDay}. Total fine: Rs ${result.data.noOfDaysOverdue * result.data.finePerDay}`)
                     setPaymentID(result.data.paymentID)
@@ -34,6 +44,9 @@ const ReturnBook = () => {
             })
             .catch(err => {
                 setMessage(err.response.data.error)
+            })
+            .finally(() => {
+                reset()
             })
     }
 
@@ -108,6 +121,31 @@ const ReturnBook = () => {
                                     error={!!errors.isbn}
                                     helperText={!!errors.isbn ? errors.isbn.message : ""}
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormControl component="fieldset" error={!!errors.campus} >
+                                    <FormLabel component="legend">Campus</FormLabel>
+                                    <Controller
+                                        as={
+                                            <RadioGroup row name="campus">
+                                                <FormControlLabel
+                                                    control={<Radio color="primary" />}
+                                                    label="Rose-Hill Campus"
+                                                    value="rhill"
+                                                />
+                                                <FormControlLabel
+                                                    control={<Radio color="primary" />}
+                                                    label="Swami Dayanand Campus"
+                                                    value="pam"
+                                                />
+                                            </RadioGroup>
+                                        }
+                                        name="campus"
+                                        control={control}
+                                        rules={{ required: "Campus is required." }}
+                                    />
+                                    {!!errors.campus && <FormHelperText>{errors.campus.message}</FormHelperText>}
+                                </FormControl>
                             </Grid>
                         </Grid>
                         <Box sx={{ mt: 3 }}>

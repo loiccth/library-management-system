@@ -89,11 +89,11 @@ router.post('/renew/:borrowid', jwt({ secret, credentialsRequired: true, getToke
 // Return a borrowed book
 router.post('/return_book', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (!req.body.userid || !req.body.isbn) return res.sendStatus(400)
+    else if (!req.body.userid || !req.body.isbn || !req.body.campus) return res.sendStatus(400)
     else {
         Librarian.findOne({ _id: req.user._id })
             .then(librarian => {
-                librarian.returnBook(req.body.isbn, req.body.userid, res)
+                librarian.returnBook(req.body.isbn, req.body.userid, req.body.campus, res)
             })
     }
 })
@@ -117,11 +117,11 @@ router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req)
 // Issue book
 router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType != 'Librarian') return res.sendStatus(403)
-    else if (!req.body.isbn || !req.body.userid) return res.sendStatus(400)
+    else if (!req.body.isbn || !req.body.userid || !req.body.campus) return res.sendStatus(400)
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
-                librarian.issueBook(req.body.isbn, req.body.userid, res)
+                librarian.issueBook(req.body.isbn, req.body.userid, req.body.campus, res)
             })
     }
 })

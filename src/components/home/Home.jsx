@@ -39,7 +39,7 @@ const Home = (props) => {
 
     const searchQuery = queryString.parse(search)
     useEffect(() => {
-        if (!searchQuery.search) {
+        if (!searchQuery.search && !searchQuery.category) {
             setValue('search', '')
             setValue('searchType', 'title')
             axios.get(`${url}/books`)
@@ -58,7 +58,7 @@ const Home = (props) => {
         setLoading(false)
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchQuery.search, searchQuery.searchType])
+    }, [searchQuery.search, searchQuery.searchType, searchQuery.category])
 
     useEffect(() => {
         axios.get(`${url}/settings/categories`)
@@ -68,15 +68,11 @@ const Home = (props) => {
     }, [])
 
     const handleSearch = (data) => {
-        axios.post(`${url}/books/search`, data)
-            .then(books => {
-                setBooks(books.data)
-                const stringified = queryString.stringify({
-                    ...data,
-                    page: 0
-                })
-                navigate(`?${stringified}`)
-            })
+        const stringified = queryString.stringify({
+            ...data,
+            page: 0
+        })
+        navigate(`?${stringified}`)
     }
 
     return (

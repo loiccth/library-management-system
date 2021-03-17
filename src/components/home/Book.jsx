@@ -123,11 +123,14 @@ const Book = (props) => {
                                     <Grid item xs={12} sm={4}>
                                         <img className={classes.thumbnail} src={book.thumbnail} alt="thumbnail" />
                                         <Grid container spacing={3} className={classes.container}>
-                                            <Grid item xs={6}>
+                                            <Grid item xs={4}>
                                                 <Typography variant="body2" align="center">Loan: {book.noOfBooksOnLoan}</Typography>
                                             </Grid>
-                                            <Grid item xs={6}>
+                                            <Grid item xs={4}>
                                                 <Typography variant="body2" align="center">Reservations: {book.reservation.length}</Typography>
+                                            </Grid>
+                                            <Grid item xs={4}>
+                                                <Typography variant="body2" align="center">On hold: {book.noOfBooksOnHold}</Typography>
                                             </Grid>
                                             <Grid item xs={12} style={{ textAlign: 'center' }}>
                                                 {props.user.isLoggedIn ?
