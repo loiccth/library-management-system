@@ -1,68 +1,108 @@
 import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import axios from 'axios'
 import url from '../../../settings/api'
+import {
+    Alert,
+    Box,
+    Button,
+    Grid,
+    makeStyles,
+    Snackbar,
+    TextField,
+} from '@material-ui/core'
 
 const RegisterMember = () => {
-    const [register, setRegister] = useState({
-        email: ''
-    })
-    const [msg, setMsg] = useState({
-        message: ''
-    })
+    const classes = useStyles()
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [open, setOpen] = useState(false)
+    const { register, handleSubmit, errors, reset } = useForm()
 
-    const handleOnChange = (e) => {
-        setRegister({
-            [e.target.name]: e.target.value
-        })
+    const handleClick = () => {
+        setOpen(true);
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        if (register.email === '')
-            setMsg({
-                'type': 'error',
-                'message': 'Cannot submit empty form'
+    const handleClose = () => {
+        setOpen(false);
+    }
+
+    const onSubmit = (data) => {
+        console.log(data)
+        axios.post(`${url}/users/register`, data, { withCredentials: true })
+            .then(result => {
+                setSnackbar({
+                    type: 'success',
+                    msg: `User registered - ${result.data.member.userid}`
+                })
             })
-        else {
-            axios.post(`${url}/users/register`, register, { withCredentials: true })
-                .then(result => {
-                    setRegister({
-                        email: ''
-                    })
-                    if (result.data.error)
-                        setMsg({
-                            'type': 'error',
-                            'message': result.data.error
-                        })
-                    else {
-                        setMsg({
-                            'type': 'success',
-                            'message': 'Account successfully created.'
-                        })
-                    }
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: err.response.data.error
                 })
-                .catch(err => {
-                    // TODO
-                })
-        }
+            })
+            .finally(() => {
+                handleClick()
+                reset()
+            })
     }
 
     return (
-        <div className="register">
-            {msg.type === "error" ? <div className="alert alert-warning" role="alert">
-                {msg.message}
-            </div> : null}
-            {msg.type === "success" ? <div className="alert alert-success" role="alert">
-                {msg.message}
-            </div> : null}
-            <form onSubmit={handleSubmit}>
-                Register<br />
-                <label htmlFor="email">Email: </label>
-                <input type="text" name="email" id="email" value={register.email} onChange={handleOnChange} /><br />
-                <button type="submit">Register</button>
-            </form>
-        </div>
+        <>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
+            <Box sx={{ mt: 3 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={11} md={8}>
+                        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                            <Grid container justifyContent="center" spacing={2}>
+                                <Grid item xs={10} md={5}>
+                                    <TextField
+                                        autoComplete="off"
+                                        fullWidth
+                                        variant="standard"
+                                        margin="normal"
+                                        required
+                                        id="email"
+                                        name="email"
+                                        label="Email"
+                                        error={!!errors.email}
+                                        helperText={!!errors.email ? errors.email.message : " "}
+                                        inputRef={register({
+                                            required: "Email is required.",
+                                            pattern: {
+                                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                message: "Invalid email address."
+                                            }
+                                        })}
+                                    />
+                                </Grid>
+                                <Grid item xs={10} md={10}>
+                                    <Box sx={{ mt: 1 }} className={classes.boxAlign}>
+                                        <Button
+                                            type="submit"
+                                            variant="contained"
+                                        >
+                                            Register
+                                        </Button>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        </form>
+                    </Grid>
+                </Grid>
+            </Box>
+        </>
     )
 }
+
+const useStyles = makeStyles(() => ({
+    boxAlign: {
+        textAlign: 'right'
+    }
+}))
 
 export default RegisterMember

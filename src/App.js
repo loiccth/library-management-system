@@ -8,6 +8,7 @@ import url from './settings/api'
 import { ThemeProvider, createMuiTheme, Snackbar, Alert } from '@material-ui/core'
 import CssBaseline from "@material-ui/core/CssBaseline"
 import Home from './components/home/Home'
+import Info from './components/info'
 import Book from './components/home/Book'
 import LoginPage from './components/login'
 import Dashboard from './components/dashboard'
@@ -155,6 +156,7 @@ function App() {
                     :
                     <Routes>
                         <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
+                        <Route path='/info' element={<Info user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
                         <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} handleLogin={handleLogin} />} />
                         <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
                         <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />}>

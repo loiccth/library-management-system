@@ -16,6 +16,7 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 import Brightness3Icon from '@material-ui/icons/Brightness3'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import HomeIcon from '@material-ui/icons/Home'
+import InfoIcon from '@material-ui/icons/Info'
 import logo from '../../img/logo.png'
 import whitelogo from '../../img/logo_white.png'
 
@@ -65,6 +66,14 @@ const Navbar = (props) => {
                             <Brightness3Icon />
                         </IconButton>
                     }
+                    <IconButton
+                        aria-haspopup="false"
+                        color="inherit"
+                        component={Link}
+                        to="/info"
+                    >
+                        <InfoIcon />
+                    </IconButton>
                     <IconButton
                         aria-haspopup="false"
                         color="inherit"

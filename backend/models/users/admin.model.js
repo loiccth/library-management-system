@@ -261,11 +261,17 @@ adminSchema.methods.registerCSV = function (file, res) {
 adminSchema.methods.toggleStatus = function (userid, res) {
     User.findById(userid)
         .then(user => {
-            if (user === null) res.json({ 'error': 'User not found' })
+            if (!user) res.status(404).json({ error: 'User not found' })
             else {
-                user.status = !user.status
+                user.status = user.status === 'active' ? 'suspended' : 'active'
                 user.save()
-                    .then(() => res.sendStatus(200))
+                    .then(user => res.json({
+                        message: `${user.userid} ${user.status}.`,
+                        _id: user._id,
+                        status: user.status,
+                        memberType: user.memberType,
+                        userid: user.userid
+                    }))
                     .catch(err => console.log(err))
             }
         })

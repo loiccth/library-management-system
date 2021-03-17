@@ -1,0 +1,115 @@
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import axios from 'axios'
+import url from '../../../settings/api'
+import {
+    Alert,
+    Button,
+    Grid,
+    makeStyles,
+    Paper,
+    Snackbar,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+} from '@material-ui/core'
+
+const Users = (props) => {
+    const classes = useStyles()
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [open, setOpen] = useState(false)
+
+    const handleClick = () => {
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+
+    const handleToggle = (e) => {
+        axios.post(`${url}/users/togglestatus`, { userid: e }, { withCredentials: true })
+            .then(result => {
+                props.toggleUser(e)
+                setSnackbar({
+                    type: 'success',
+                    msg: result.data.message
+                })
+            })
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: err.response.data.error
+                })
+            })
+            .finally(() => {
+                handleClick()
+            })
+    }
+
+    return (
+        <>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
+            <Grid container justifyContent="center">
+                <Grid item xs={12} md={10}>
+                    <Paper className={classes.paper}>
+                        <Table className={classes.table}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>MemberID</TableCell>
+                                    <TableCell>Member Type</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {props.users.map((user) => (
+                                    <TableRow key={user._id}>
+                                        <TableCell>{user.userid}</TableCell>
+                                        <TableCell>{user.memberType}</TableCell>
+                                        <TableCell>{user.status}</TableCell>
+                                        <TableCell>
+                                            <Button
+                                                variant="contained"
+                                                onClick={() => handleToggle(user._id)}
+                                                color={user.status === 'active' ? 'secondary' : 'primary'}
+                                            >
+                                                {user.status === 'active' ? 'Suspend' : 'Reactivate'}
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Paper>
+                </Grid>
+            </Grid>
+        </>
+    )
+}
+
+const useStyles = makeStyles(() => ({
+    table: {
+        minWidth: 650,
+        overflowX: 'auto'
+    },
+    hidden: {
+        display: 'none'
+    },
+    paper: {
+        overflowX: 'auto'
+    }
+}))
+
+Users.propTypes = {
+    users: PropTypes.array.isRequired,
+    toggleUser: PropTypes.func.isRequired
+}
+
+export default Users

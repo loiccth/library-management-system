@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Divider, Grid, Hidden, makeStyles } from '@material-ui/core'
+import { Container, Divider, Grid, Hidden, makeStyles } from '@material-ui/core'
 import ProfileDetails from './ProfileDetails'
 import ChangePassword from './ChangePassword'
 
@@ -9,7 +9,7 @@ const Profile = (props) => {
 
     return (
         <>
-            <div className={classes.wrapper}>
+            <Container className={classes.wrapper}>
                 <Grid container spacing={3} justifyContent="center">
                     <Grid item xs={10} sm={5} md={4}>
                         <ProfileDetails user={props.user} />
@@ -21,7 +21,7 @@ const Profile = (props) => {
                         <ChangePassword handlePasswordChange={props.handlePasswordChange} parent='profile' />
                     </Grid>
                 </Grid>
-            </div>
+            </Container>
         </>
     )
 }
@@ -31,8 +31,6 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        maxWidth: '1280px',
-        margin: 'auto',
         minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
         [theme.breakpoints.up("sm")]: {
             minHeight: `calc(100vh - 64px)`

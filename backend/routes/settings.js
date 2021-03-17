@@ -332,4 +332,32 @@ router.put('/users', jwt({ secret, credentialsRequired: true, getToken: (req) =>
     }
 })
 
+router.get('/info', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    const openingHours = await Setting.findOne({ 'setting': 'OPENING_HOURS' }).select('options')
+    const closingHours = await Setting.findOne({ 'setting': 'CLOSING_HOURS' }).select('options')
+    const bookSettings = await Setting.findOne({ 'setting': 'BOOK' }).select('options')
+    bookSettings.options.time_onhold.value /= (60 * 60)
+    const userSettings = await Setting.findOne({ 'setting': 'USER' }).select('options')
+    userSettings.options.temp_password.value /= (60 * 60)
+
+    const hours = []
+
+    const baseTime = new Date()
+    baseTime.setHours(0, 0, 0, 0)
+
+    for (let i = 0; i < openingHours.options.length; i++) {
+        hours.push({
+            day: openingHours.options[i].day,
+            open: new Date(baseTime.getTime() + (openingHours.options[i].time * 1000)),
+            close: new Date(baseTime.getTime() + (closingHours.options[i].time * 1000))
+        })
+    }
+
+    res.json({
+        hours,
+        book: bookSettings.options,
+        user: userSettings.options
+    })
+})
+
 module.exports = router

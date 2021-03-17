@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const jwt = require('express-jwt')
+const mongoose = require('mongoose')
 const axios = require('axios')
 const generator = require('generate-password')
 const multer = require('multer')
@@ -15,6 +16,7 @@ const UDM = require('../models/udm/udm.base')
 const Student = require('../models/udm/student.model')
 const Staff = require('../models/udm/staff.model')
 const Payment = require('../models/payment.model')
+const escapeRegExp = require('../function/escapeRegExp')
 const secret = process.env.JWT_SECRET
 
 // Login for users
@@ -65,7 +67,8 @@ router.post('/register_csv', jwt({ secret, credentialsRequired: true, getToken: 
 
 router.post('/togglestatus', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
-    else if (req.body.userid === undefined) return res.json({ 'error': 'Missing user id' })
+    else if (!req.body.userid) return res.json({ 'error': 'Missing user id' })
+    else if (!mongoose.Types.ObjectId.isValid(req.body.userid)) return res.json({ 'error': 'Invalid user id' })
     else {
         Admin.findById(req.user._id)
             .then(admin => {
@@ -198,6 +201,20 @@ router.post('/notify', jwt({ secret, credentialsRequired: true, getToken: (req) 
                 librarian.notify(req.body.books, req.body.type, res)
             })
             .catch(err => console.log(err))
+    }
+})
+
+router.post('/search', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    else if (!req.body.userid) return res.json({ 'error': 'Empty search query' })
+    else {
+        const regex = new RegExp(escapeRegExp(req.body.userid), 'gi')
+        User.find({ userid: regex }).select(['_id', 'userid', 'status'])
+            .then(users => {
+                if (users.length > 0)
+                    res.json(users)
+                else res.status(404).json({ error: 'No users found.' })
+            })
     }
 })
 
