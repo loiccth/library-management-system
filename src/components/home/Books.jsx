@@ -36,6 +36,11 @@ const Books = (props) => {
             hide: true
         },
         {
+            field: 'no',
+            headerName: 'No',
+            width: 70
+        },
+        {
             field: 'thumbnail',
             headerName: 'Thumbnail',
             sortable: false,
@@ -122,6 +127,7 @@ const Books = (props) => {
     ]
 
     const rows = []
+    let count = 1
 
     props.books.forEach(book => {
         let temp = ''
@@ -134,6 +140,7 @@ const Books = (props) => {
 
         rows.push({
             id: book._id,
+            no: count,
             thumbnail: book.thumbnail ? book.thumbnail : null,
             title: book.title,
             authors: temp,
@@ -150,6 +157,7 @@ const Books = (props) => {
                 recentlyAdded: (new Date() - new Date(book.createdAt)) / (1000 * 60 * 60 * 24) <= 3
             }
         })
+        count++
     })
 
     return (
