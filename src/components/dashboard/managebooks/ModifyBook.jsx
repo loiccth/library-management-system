@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -36,6 +37,7 @@ const ModifyBook = (props) => {
             category: ''
         }
     })
+    const { t } = useTranslation()
 
     useEffect(() => {
         Object.entries(props.book).map(([key, value]) => (
@@ -88,7 +90,7 @@ const ModifyBook = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Update Book
+                                            {t('updateBook')}
                                         </Button>
                                     </Box>
                                 </Grid>
@@ -99,9 +101,9 @@ const ModifyBook = (props) => {
                                         margin="normal"
                                         id="title"
                                         name="title"
-                                        label="Title"
+                                        label={t('title')}
                                         error={!!errors.title}
-                                        inputRef={register({ required: "Empty title field." })}
+                                        inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.title ? errors.title.message : " "}
                                     />
                                     <TextField
@@ -127,10 +129,10 @@ const ModifyBook = (props) => {
                                         margin="normal"
                                         id="author"
                                         name="author"
-                                        label="Author(s)"
+                                        label={t('authors')}
                                         error={!!errors.author}
-                                        inputRef={register({ required: "Empty author field." })}
-                                        helperText={!!errors.author ? errors.author.message : "Seperate using comma (,)"}
+                                        inputRef={register({ required: t('requiredField') })}
+                                        helperText={!!errors.author ? errors.author.message : t('authorHelper')}
                                     />
                                     <Controller
                                         as={
@@ -140,7 +142,7 @@ const ModifyBook = (props) => {
                                                 margin="normal"
                                                 required
                                                 error={!!errors.category}
-                                                label="Category"
+                                                label={t('category')}
                                                 select
                                                 helperText={!!errors.category ? errors.category.message : " "}
                                             >
@@ -151,7 +153,7 @@ const ModifyBook = (props) => {
                                         }
                                         name="category"
                                         control={control}
-                                        rules={{ required: "Category is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <TextField
                                         fullWidth
@@ -159,9 +161,9 @@ const ModifyBook = (props) => {
                                         margin="normal"
                                         id="publisher"
                                         name="publisher"
-                                        label="Publisher"
+                                        label={t('publisher')}
                                         error={!!errors.publisher}
-                                        inputRef={register({ required: "Empty publisher field." })}
+                                        inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.publisher ? errors.publisher.message : " "}
                                     />
                                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
@@ -169,7 +171,7 @@ const ModifyBook = (props) => {
                                             render={({ onChange, value }) => (
                                                 <DatePicker
                                                     mask={maskMap['fr']}
-                                                    label="Published Date *"
+                                                    label={t('publishedDate')}
                                                     value={value}
                                                     onChange={onChange}
                                                     disableFuture
@@ -179,7 +181,9 @@ const ModifyBook = (props) => {
                                                             variant="standard"
                                                             name="publishedDate"
                                                             fullWidth
-                                                            helperText={params.errors ? "Invalid date" : params.helperText}
+                                                            required
+                                                            error={params.error || !!errors.publishedDate}
+                                                            helperText={params.error ? "Invalid date" : !!errors.publishedDate ? errors.publishedDate.message : params.helperText}
                                                         />
                                                     )}
                                                 />
@@ -187,6 +191,7 @@ const ModifyBook = (props) => {
                                             name="publishedDate"
                                             control={control}
                                             defaultValue={{}}
+                                            rules={{ required: t('requiredField') }}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
@@ -197,10 +202,10 @@ const ModifyBook = (props) => {
                                         margin="normal"
                                         id="noOfPages"
                                         name="noOfPages"
-                                        label="Number of pages"
-                                        inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
+                                        label={t('pages')}
+                                        inputRef={register({ required: t('requiredField'), validate: value => !isNaN(value) })}
                                         error={!!errors.noOfPages}
-                                        helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
+                                        helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? t('valueNotNumber') : errors.noOfPages.message : " "}
                                     />
                                     <Controller
                                         as={
@@ -209,7 +214,7 @@ const ModifyBook = (props) => {
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                label="Campus"
+                                                label={t('campus')}
                                                 select
                                             >
                                                 <MenuItem value="rhill">Rose-Hill Campus</MenuItem>
@@ -218,7 +223,7 @@ const ModifyBook = (props) => {
                                         }
                                         name="campus"
                                         control={control}
-                                        rules={{ required: "Campus is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <Controller
                                         as={
@@ -228,7 +233,7 @@ const ModifyBook = (props) => {
                                                 margin="normal"
                                                 required
                                                 error={!!errors.location}
-                                                label="Location"
+                                                label={t('location')}
                                                 select
                                                 helperText={!!errors.location ? errors.location.message : " "}
                                             >
@@ -245,7 +250,7 @@ const ModifyBook = (props) => {
                                         }
                                         name="location"
                                         control={control}
-                                        rules={{ required: "Location is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <TextField
                                         fullWidth
@@ -253,11 +258,11 @@ const ModifyBook = (props) => {
                                         margin="normal"
                                         id="description"
                                         name="description"
-                                        label="Description"
+                                        label={t('description')}
                                         multiline
                                         rows={5}
                                         error={!!errors.description}
-                                        inputRef={register({ required: "Empty description field." })}
+                                        inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.description ? errors.description.message : " "}
                                     />
                                 </Grid>
@@ -267,7 +272,7 @@ const ModifyBook = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Update Book
+                                            {t('updateBook')}
                                         </Button>
                                     </Box>
                                 </Grid>

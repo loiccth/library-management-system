@@ -1,5 +1,6 @@
 import { React, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { Trans, useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../settings/api'
 import {
@@ -21,6 +22,7 @@ const Info = (props) => {
     const classes = useStyles()
     const [info, setInfo] = useState()
     const [loading, setLoading] = useState(true)
+    const { t } = useTranslation()
 
     useEffect(() => {
         axios.get(`${url}/settings/info`)
@@ -32,7 +34,7 @@ const Info = (props) => {
 
     return (
         <>
-            <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
+            <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLocale={props.handleLocale} handleLogout={props.handleLogout} />
             {loading ? null :
                 <>
                     <Box className={classes.wrapper}>
@@ -40,37 +42,56 @@ const Info = (props) => {
                             <Container>
                                 <Grid container justifyContent="center" spacing={3}>
                                     <Grid item xs={10} sm={10} md={8} lg={8} xl={7}>
-                                        <Typography variant="h6">Vision</Typography>
+                                        <Typography variant="h6">{t('vision')}</Typography>
                                         <Typography variant="body1">
-                                            UDMLibrary will be the most sophisticated eLibrary for
-                                            any university in Mauritius.
+                                            {t('visionMsg')}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={10} sm={10} md={8} lg={8} xl={7}>
-                                        <Typography variant="h6">Mission</Typography>
+                                        <Typography variant="h6">{t('mission')}</Typography>
                                         <Typography variant="body1">
-                                            To enhance the quality of life of any staff and students at UDM and give them a stress-free experience.
+                                            {t('missionMsg')}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={10} sm={7} md={5} lg={5} xl={6}>
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell align="center">Information</TableCell>
+                                                    <TableCell align="center">{t('information')}</TableCell>
 
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                <TableRow><TableCell>Temporary password will be valid for <span className={classes.bold}>{info.user.temp_password.value}</span> hrs</TableCell></TableRow>
-                                                <TableRow><TableCell>Maximum number of reservation is <span className={classes.bold}>{info.book.number_of_reservations.value}</span></TableCell></TableRow>
-                                                <TableRow><TableCell>Books will be on hold for <span className={classes.bold}>{info.book.time_onhold.value}</span> hrs before it goes to the next person</TableCell></TableRow>
-                                                <TableRow><TableCell>Student can borrow <span className={classes.bold}>{info.user.student_borrow.value}</span> books at the same time</TableCell></TableRow>
-                                                <TableRow><TableCell>Academic staff can borrow <span className={classes.bold}>{info.user.academic_borrow.value}</span> books at the same time</TableCell></TableRow>
-                                                <TableRow><TableCell>Non-academic staff can borrow <span className={classes.bold}>{info.user.non_academic_borrow.value}</span> books per month</TableCell></TableRow>
-                                                <TableRow><TableCell>Maximum number of renewals is <span className={classes.bold}>{info.book.renewals_allowed.value}</span></TableCell></TableRow>
-                                                <TableRow><TableCell>High demand books will be issued <span className={classes.bold}>30</span> minutes before library is closed</TableCell></TableRow>
-                                                <TableRow><TableCell>High demand books should be returned within <span className={classes.bold}>30</span> minutes after library is opened</TableCell></TableRow>
-                                                <TableRow><TableCell>Fine per day is Rs  <span className={classes.bold}>{info.book.fine_per_day.value}</span></TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="tempPassword"> <strong>{{ time: info.user.temp_password.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="maxReserve"> <strong>{{ num: info.book.number_of_reservations.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="holdTime"> <strong>{{ time: info.book.time_onhold.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="studentBorrow"> <strong>{{ num: info.user.student_borrow.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="academicBorrow"> <strong>{{ num: info.user.academic_borrow.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="nonAcademicBorrow"> <strong>{{ num: info.user.non_academic_borrow.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="maxRenewal"> <strong>{{ num: info.book.renewals_allowed.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="highDemandIssue"> <strong>{{ time: 30 }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="highDemandReturn"> <strong>{{ time: 30 }}</strong> </Trans>
+                                                </TableCell></TableRow>
+                                                <TableRow><TableCell>
+                                                    <Trans i18nKey="finePerDay"> <strong>{{ amount: info.book.fine_per_day.value }}</strong> </Trans>
+                                                </TableCell></TableRow>
                                             </TableBody>
                                         </Table>
                                     </Grid>
@@ -78,17 +99,17 @@ const Info = (props) => {
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell align="center">Day</TableCell>
-                                                    <TableCell align="center">Opening hours</TableCell>
-                                                    <TableCell align="center">Closing hours</TableCell>
+                                                    <TableCell align="center">{t('day')}</TableCell>
+                                                    <TableCell align="center">{t('openingHrs')}</TableCell>
+                                                    <TableCell align="center">{t('closingHrs')}</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {info.hours.map((day, index) => (
                                                     <TableRow key={index}>
-                                                        <TableCell align="center">{day.day}</TableCell>
-                                                        <TableCell align="center">{new Date(day.open).getHours() === 0 ? <span className={classes.close}>Closed</span> : new Date(day.open).toLocaleTimeString()}</TableCell>
-                                                        <TableCell align="center">{new Date(day.close).getHours() === 0 ? <span className={classes.close}>Closed</span> : new Date(day.close).toLocaleTimeString()}</TableCell>
+                                                        <TableCell align="center">{t(day.day)}</TableCell>
+                                                        <TableCell align="center">{new Date(day.open).getHours() === 0 ? <span className={classes.close}>{t('closed')}</span> : new Date(day.open).toLocaleTimeString()}</TableCell>
+                                                        <TableCell align="center">{new Date(day.close).getHours() === 0 ? <span className={classes.close}>{t('closed')}</span> : new Date(day.close).toLocaleTimeString()}</TableCell>
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
@@ -122,9 +143,6 @@ const useStyles = makeStyles(theme => ({
     },
     close: {
         color: 'red'
-    },
-    bold: {
-        fontWeight: 700
     }
 }))
 
@@ -132,6 +150,7 @@ Info.propTypes = {
     user: PropTypes.object.isRequired,
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
+    handleLocale: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired
 }
 

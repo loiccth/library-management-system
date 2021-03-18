@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import {
     Box,
     Container,
@@ -19,12 +20,13 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
 const Reservations = (props) => {
     const classes = useStyles()
+    const { t } = useTranslation()
 
     return (
         <>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Book Reservations</Typography>
+                    <Typography variant="h6">{t('bookReservations')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 3 }}>
@@ -35,15 +37,15 @@ const Reservations = (props) => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>MemberID</TableCell>
-                                        <TableCell>Book Details</TableCell>
-                                        <TableCell>Reservation Details</TableCell>
+                                        <TableCell>{t('bookDetails')}</TableCell>
+                                        <TableCell>{t('reservations')}</TableCell>
                                         <TableCell>Flags</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {props.reservations.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">No records found.</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
                                     {props.reservations.map(row => (
@@ -52,16 +54,16 @@ const Reservations = (props) => {
                                                 {row.userid}
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Title: {row.title}</Typography>
+                                                <Typography variant="caption" display="block">{t('title')}: {row.title}</Typography>
                                                 <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Reserve: {new Date(row.reserveDate).toLocaleString()}</Typography>
-                                                <Typography variant="caption" display="block">Expire: {new Date(row.expireDate).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('reserve')}: {new Date(row.reserveDate).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('expire')}: {new Date(row.expireDate).toLocaleString()}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 {row.isHighDemand &&
-                                                    <Tooltip title="High Demand" arrow>
+                                                    <Tooltip title={t('highDemand')} arrow>
                                                         <PriorityHighIcon />
                                                     </Tooltip>
                                                 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -17,6 +18,7 @@ const RegisterMember = () => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, reset } = useForm()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -72,10 +74,10 @@ const RegisterMember = () => {
                                         error={!!errors.email}
                                         helperText={!!errors.email ? errors.email.message : " "}
                                         inputRef={register({
-                                            required: "Email is required.",
+                                            required: t('fieldRequired'),
                                             pattern: {
                                                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                                message: "Invalid email address."
+                                                message: t('invalidEmail')
                                             }
                                         })}
                                     />
@@ -86,7 +88,7 @@ const RegisterMember = () => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Register
+                                            {t('register')}
                                         </Button>
                                     </Box>
                                 </Grid>

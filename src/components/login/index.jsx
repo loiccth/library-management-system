@@ -16,7 +16,7 @@ const LoginPage = (props) => {
 
     return (
         <React.Fragment>
-            <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
+            <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLocale={props.handleLocale} handleLogout={props.handleLogout} />
             <div className={classes.container}>
                 <Grid container spacing={0}>
                     <Grid item xs={12} md={6}>
@@ -52,6 +52,7 @@ LoginPage.propTypes = {
     user: PropTypes.object.isRequired,
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
+    handleLocale: PropTypes.func.isRequired,
     handleLogin: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired
 }

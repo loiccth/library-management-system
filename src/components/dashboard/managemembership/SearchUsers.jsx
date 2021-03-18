@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -23,6 +24,7 @@ const SearchUsers = () => {
     const [users, setUsers] = useState([])
     const [showForm, setShowForm] = useState(false)
     const { register, handleSubmit, errors } = useForm()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -61,20 +63,20 @@ const SearchUsers = () => {
             </Snackbar>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Search users to suspend/reactivate</Typography>
+                    <Typography variant="h6">{t('searchUser')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 3 }}>
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     <Container maxWidth="sm" className={classes.container}>
                         <TextField
-                            placeholder="Search by MemberID"
+                            placeholder={t('searchMemberID')}
                             autoComplete="off"
                             style={{ width: '85%' }}
                             name="userid"
                             variant="standard"
                             error={!!errors.userid}
-                            inputRef={register({ required: 'MemberID is required.' })}
+                            inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.userid ? errors.userid.message : " "}
                         />
                         <IconButton type="submit" className={classes.iconButton} aria-label="search">

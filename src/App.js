@@ -6,7 +6,8 @@ import { deviceDetect, deviceType } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import url from './settings/api'
 import { ThemeProvider, createMuiTheme, Snackbar, Alert } from '@material-ui/core'
-import CssBaseline from "@material-ui/core/CssBaseline"
+import * as locales from '@material-ui/core/locale'
+import CssBaseline from '@material-ui/core/CssBaseline'
 import Home from './components/home/Home'
 import Info from './components/info'
 import Book from './components/home/Book'
@@ -23,11 +24,12 @@ import ForcePasswordChange from './components/others/ForcePasswordChange'
 
 import NotFound from './components/NotFound'
 
-import './App.css';
+import './App.css'
 
 function App() {
     const [user, setUser] = useState(Cookies.get('user') === undefined ? { isLoggedIn: false } : JSON.parse(Cookies.get('user')))
     const [darkMode, setDarkMode] = useState(Cookies.get('darkMode') === undefined ? false : Cookies.get('darkMode') === 'true')
+    const [locale, setLocale] = useState('enUS')
     const [snackbar, setSnackbar] = useState()
     const [open, setOpen] = useState(false)
     const location = useLocation()
@@ -36,11 +38,15 @@ function App() {
         palette: {
             mode: darkMode ? 'dark' : 'light'
         }
-    })
+    }, locales[locale])
 
     const handleToggleTheme = () => {
         Cookies.set('darkMode', !darkMode)
         setDarkMode(!darkMode)
+    }
+
+    const handleLocale = (lang) => {
+        setLocale(lang)
     }
 
     const handleClick = () => {
@@ -152,14 +158,14 @@ function App() {
                     </Alert>
                 </Snackbar>
                 {user.temporaryPassword && user.isLoggedIn ?
-                    <ForcePasswordChange user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} handlePasswordChange={handlePasswordChange} />
+                    <ForcePasswordChange user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handlePasswordChange={handlePasswordChange} />
                     :
                     <Routes>
-                        <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
-                        <Route path='/info' element={<Info user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
-                        <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} handleLogin={handleLogin} />} />
-                        <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />} />
-                        <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLogout={handleLogout} />}>
+                        <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
+                        <Route path='/info' element={<Info user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
+                        <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handleLogin={handleLogin} />} />
+                        <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
+                        <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />}>
                             <Route path='/' element={<MainDashboard user={user} />} />
                             <Route path='/managebooks' element={<ManageBooks user={user} />} />
                             <Route path='/managememberships' element={<ManageMembership user={user} />} />
@@ -174,7 +180,6 @@ function App() {
             </div >
         </ThemeProvider>
     )
-    // }
 }
 
 export default App;

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import ReCAPTCHA from 'react-google-recaptcha'
 import url from '../../settings/api'
@@ -21,6 +22,7 @@ const Reset = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const recaptchaRef = useRef()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -67,7 +69,7 @@ const Reset = (props) => {
             <Container component="div" maxWidth="sm" className={classes.container}>
                 <Paper className={classes.paper}>
                     <Typography component="h1" variant="h5">
-                        Request new password
+                        {t('requestPassword')}
                     </Typography>
                     <form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
                         <TextField
@@ -98,7 +100,7 @@ const Reset = (props) => {
                                 type="submit"
                                 variant="contained"
                                 fullWidth
-                            >Reset password</Button>
+                            >{t('resetPassword')}</Button>
                         </div>
                     </form>
                 </Paper>

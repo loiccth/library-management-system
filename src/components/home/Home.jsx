@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import queryString from 'query-string'
 import url from '../../settings/api'
@@ -36,6 +37,7 @@ const Home = (props) => {
         shouldUnregister: false
     })
     const { search } = useLocation()
+    const { t } = useTranslation()
 
     const searchQuery = queryString.parse(search)
     useEffect(() => {
@@ -79,12 +81,12 @@ const Home = (props) => {
         <>
             {loading ? null :
                 <React.Fragment>
-                    <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
+                    <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLocale={props.handleLocale} handleLogout={props.handleLogout} />
                     <Box className={classes.wrapper}>
                         <form className={classes.form} onSubmit={handleSubmit(handleSearch)}>
                             <Container maxWidth="sm" className={classes.container}>
                                 <TextField
-                                    placeholder="Search books"
+                                    placeholder={t('bookSearch')}
                                     style={{ width: '85%' }}
                                     name="search"
                                     variant="standard"
@@ -101,10 +103,10 @@ const Home = (props) => {
                                                 fullWidth
                                                 variant="standard"
                                                 margin="normal"
-                                                label="Category"
+                                                label={t('category')}
                                                 select
                                             >
-                                                <MenuItem value="All">All</MenuItem>
+                                                <MenuItem value="All">{t('all')}</MenuItem>
                                                 {categories.map((category, index) => (
                                                     <MenuItem key={index} value={category}>{category}</MenuItem>
                                                 ))}
@@ -118,12 +120,12 @@ const Home = (props) => {
                                             <RadioGroup row name="searchType">
                                                 <FormControlLabel
                                                     control={<Radio color="primary" />}
-                                                    label="Title"
+                                                    label={t('title')}
                                                     value="title"
                                                 />
                                                 <FormControlLabel
                                                     control={<Radio color="primary" />}
-                                                    label="Author"
+                                                    label={t('author')}
                                                     value="author"
                                                 />
                                                 <FormControlLabel
@@ -181,6 +183,7 @@ Home.propTypes = {
     user: PropTypes.object.isRequired,
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
+    handleLocale: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired
 }
 

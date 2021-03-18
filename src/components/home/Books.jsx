@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import queryString from 'query-string'
 import { Box, makeStyles, Tooltip, Typography } from '@material-ui/core'
 import { DataGrid } from '@material-ui/data-grid'
@@ -15,6 +16,7 @@ const Books = (props) => {
     const classes = useStyles()
     const [page, setPage] = useState(searchQuery.page ? parseInt(searchQuery.page) : 0)
     const [numPerPage, setNumPerPage] = useState(searchQuery.rowsperpage ? parseInt(searchQuery.rowsperpage) : 10)
+    const { t } = useTranslation()
 
     useEffect(() => {
         setPage(searchQuery.page ? parseInt(searchQuery.page) : 0)
@@ -42,7 +44,7 @@ const Books = (props) => {
         },
         {
             field: 'thumbnail',
-            headerName: 'Thumbnail',
+            headerName: t('thumbnail'),
             sortable: false,
             width: 120,
             renderCell: (param) => (
@@ -51,7 +53,7 @@ const Books = (props) => {
         },
         {
             field: 'title',
-            headerName: 'Title',
+            headerName: t('title'),
             flex: 1,
             renderCell: (param) => (
                 <Typography variant="body2" display="block">{param.value}</Typography>
@@ -59,7 +61,7 @@ const Books = (props) => {
         },
         {
             field: 'authors',
-            headerName: 'Authors',
+            headerName: t('authors'),
             width: 200,
             renderCell: (param) => (
                 <Typography variant="body2" display="block">{param.value}</Typography>
@@ -67,24 +69,24 @@ const Books = (props) => {
         },
         {
             field: 'category',
-            headerName: 'Category',
+            headerName: t('category'),
             width: 180,
             renderCell: (param) => (
                 <Typography variant="body2" display="block">{param.value}</Typography>
             )
         },
-        { field: 'year', headerName: 'Year', type: 'date', width: 110 },
+        { field: 'year', headerName: t('year'), type: 'date', width: 110 },
         {
             field: 'information',
-            headerName: 'Information',
+            headerName: t('information'),
             sortable: false,
             width: 260,
             renderCell: (param) => (
                 <div>
                     <Typography variant="caption" display="block">ISBN: {param.value.isbn}</Typography>
-                    <Typography variant="caption" display="block">Shelf Location: {param.value.location}</Typography>
-                    <Typography variant="caption" display="block">Available at: {param.value.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
-                    <Typography variant="caption" display="block">Number of holdings: {param.value.copies}</Typography>
+                    <Typography variant="caption" display="block">{t('shelfLocation')}: {param.value.location}</Typography>
+                    <Typography variant="caption" display="block">{t('availableAt')}: {param.value.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
+                    <Typography variant="caption" display="block">{t('holdings')}: {param.value.copies}</Typography>
                 </div>
             )
         },
@@ -108,14 +110,14 @@ const Books = (props) => {
                 }
                 else if (param.value.highDemand && !param.value.recentlyAdded) {
                     return (
-                        <Tooltip title="High Demand" arrow>
+                        <Tooltip title={t('highDemand')} arrow>
                             <PriorityHighIcon className={classes.highpriority} />
                         </Tooltip>
                     )
                 }
                 else if (!param.value.highDemand && param.value.recentlyAdded) {
                     return (
-                        <Tooltip title="Recently Added" arrow>
+                        <Tooltip title={t('recentlyAdded')} arrow>
                             <FiberNewIcon />
                         </Tooltip>
                     )

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -39,6 +40,7 @@ const AddBookNoAPI = (props) => {
             publishedDate: new Date()
         }
     })
+    const { t } = useTranslation()
 
     useEffect(() => {
         setValue('location', '')
@@ -94,7 +96,7 @@ const AddBookNoAPI = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Add Book
+                                            {t('addBook')}
                                         </Button>
                                     </Box>
                                 </Grid>
@@ -114,8 +116,8 @@ const AddBookNoAPI = (props) => {
                                         error={!!errors.title}
                                         id="title"
                                         name="title"
-                                        label="Title"
-                                        inputRef={register({ required: "Empty title field" })}
+                                        label={t('title')}
+                                        inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.title ? errors.title.message : " "}
                                     />
                                     <TextField
@@ -128,9 +130,9 @@ const AddBookNoAPI = (props) => {
                                         name="isbn"
                                         label="ISBN"
                                         inputRef={register({
-                                            required: "Empty ISBN field.",
+                                            required: t('requiredField'),
                                             validate: value =>
-                                                value.length === 10 || value.length === 13 || "Invalid ISBN length"
+                                                value.length === 10 || value.length === 13 || t('isbnLength')
                                         })}
                                         helperText={!!errors.isbn ? errors.isbn.message : " "}
                                     />
@@ -142,9 +144,9 @@ const AddBookNoAPI = (props) => {
                                         error={!!errors.authors}
                                         id="authors"
                                         name="authors"
-                                        label="Author(s)"
-                                        inputRef={register({ required: "Empty author field" })}
-                                        helperText={!!errors.authors ? errors.authors.message : "Seperate using comma (,)"}
+                                        label={t('authors')}
+                                        inputRef={register({ required: t('requiredField') })}
+                                        helperText={!!errors.authors ? errors.authors.message : t('authorHelper')}
                                     />
                                     <Controller
                                         as={
@@ -154,7 +156,7 @@ const AddBookNoAPI = (props) => {
                                                 margin="normal"
                                                 required
                                                 error={!!errors.category}
-                                                label="Category"
+                                                label={t('category')}
                                                 select
                                                 helperText={!!errors.category ? errors.category.message : " "}
                                             >
@@ -165,7 +167,7 @@ const AddBookNoAPI = (props) => {
                                         }
                                         name="category"
                                         control={control}
-                                        rules={{ required: "Category is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <TextField
                                         fullWidth
@@ -175,8 +177,8 @@ const AddBookNoAPI = (props) => {
                                         error={!!errors.publisher}
                                         id="publisher"
                                         name="publisher"
-                                        label="Publisher"
-                                        inputRef={register({ required: "Empty publisher field" })}
+                                        label={t('publisher')}
+                                        inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.publisher ? errors.publisher.message : " "}
                                     />
                                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
@@ -184,7 +186,7 @@ const AddBookNoAPI = (props) => {
                                             render={({ onChange, value }) => (
                                                 <DatePicker
                                                     mask={maskMap['fr']}
-                                                    label="Published Date *"
+                                                    label={t('publishedDate')}
                                                     value={value}
                                                     onChange={onChange}
                                                     disableFuture
@@ -194,13 +196,16 @@ const AddBookNoAPI = (props) => {
                                                             variant="standard"
                                                             name="publishedDate"
                                                             fullWidth
-                                                            helperText={params.errors ? "Invalid date" : params.helperText}
+                                                            required
+                                                            error={params.error || !!errors.publishedDate}
+                                                            helperText={params.error ? t('invalidDate') : !!errors.publishedDate ? errors.publishedDate.message : params.helperText}
                                                         />
                                                     )}
                                                 />
                                             )}
                                             name="publishedDate"
                                             control={control}
+                                            rules={{ required: t('requiredField') }}
                                         />
                                     </LocalizationProvider>
                                 </Grid>
@@ -213,9 +218,9 @@ const AddBookNoAPI = (props) => {
                                         error={!!errors.noOfPages}
                                         id="noOfPages"
                                         name="noOfPages"
-                                        label="Number of pages"
-                                        inputRef={register({ required: "Empty page number field.", validate: value => !isNaN(value) })}
-                                        helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? "Value is not a number" : errors.noOfPages.message : " "}
+                                        label={t('pages')}
+                                        inputRef={register({ required: t('requiredField'), validate: value => !isNaN(value) })}
+                                        helperText={!!errors.noOfPages ? errors.noOfPages.message === "" ? t('valueNotNumber') : errors.noOfPages.message : " "}
                                     />
                                     <Controller
                                         as={
@@ -224,7 +229,7 @@ const AddBookNoAPI = (props) => {
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                label="Copies"
+                                                label={t('copies')}
                                                 select
                                                 helperText=" "
                                             >
@@ -237,6 +242,7 @@ const AddBookNoAPI = (props) => {
                                         }
                                         name="noOfCopies"
                                         control={control}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <Controller
                                         as={
@@ -245,7 +251,7 @@ const AddBookNoAPI = (props) => {
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                label="Campus"
+                                                label={t('campus')}
                                                 select
                                                 helperText=" "
                                             >
@@ -255,6 +261,7 @@ const AddBookNoAPI = (props) => {
                                         }
                                         name="campus"
                                         control={control}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <Controller
                                         as={
@@ -264,7 +271,7 @@ const AddBookNoAPI = (props) => {
                                                 margin="normal"
                                                 required
                                                 error={!!errors.location}
-                                                label="Location"
+                                                label={t('location')}
                                                 select
                                                 helperText={!!errors.location ? errors.location.message : " "}
                                             >
@@ -281,7 +288,7 @@ const AddBookNoAPI = (props) => {
                                         }
                                         name="location"
                                         control={control}
-                                        rules={{ required: "Location is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <TextField
                                         fullWidth
@@ -291,10 +298,10 @@ const AddBookNoAPI = (props) => {
                                         error={!!errors.description}
                                         id="description"
                                         name="description"
-                                        label="Description"
+                                        label={t('description')}
                                         multiline
                                         minRows={5}
-                                        inputRef={register({ required: "Empty description field" })}
+                                        inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.description ? errors.description.message : " "}
                                     />
                                 </Grid>
@@ -304,7 +311,7 @@ const AddBookNoAPI = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Add Book
+                                            {t('addBook')}
                                         </Button>
                                     </Box>
                                 </Grid>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -22,6 +23,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
     const [campus, setCampus] = useState('')
     const [remove, setRemove] = useState('')
     const { register, handleSubmit, errors, reset } = useForm()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true)
@@ -110,7 +112,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
             <Box className={classes.boxAlign}>
                 <Grid container justifyContent="space-evenly">
                     <Grid item xs={12}>
-                        <Typography variant="h6">Locations</Typography>
+                        <Typography variant="h6">{t('locations')}</Typography>
                     </Grid>
 
                     <Grid item xs={8}>
@@ -118,7 +120,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                             variant="standard"
                             margin="normal"
                             name="campus"
-                            label="Select campus"
+                            label={t('selectCampus')}
                             value={campus}
                             select
                             fullWidth
@@ -138,11 +140,11 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                                 margin="normal"
                                 name='location'
                                 id="location"
-                                label="Add location"
+                                label={t('addLocation')}
                                 fullWidth
                                 required
                                 error={!!errors.location}
-                                inputRef={register({ required: "Field is required." })}
+                                inputRef={register({ required: t('fieldRequired') })}
                                 helperText={!!errors.location ? errors.location.message : ""}
                             />
                             <Box sx={{ my: 3 }}>
@@ -150,7 +152,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                                     type="submit"
                                     variant="contained"
                                 >
-                                    Add
+                                    {t('add')}
                                 </Button>
                             </Box>
                         </form>
@@ -161,7 +163,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                                 variant="standard"
                                 margin="normal"
                                 name='location'
-                                label="Remove location"
+                                label={t('removeLocation')}
                                 fullWidth
                                 select
                                 value={remove}
@@ -178,7 +180,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                                     <MenuItem key={index} value={category}>{category}</MenuItem>
                                 ))}
                                 {campus === '' &&
-                                    <MenuItem value="">Select a campus first</MenuItem>
+                                    <MenuItem value="">{t('selectCampus')}</MenuItem>
                                 }
                             </TextField>
                             <Box sx={{ my: 3 }}>
@@ -186,7 +188,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                                     type="submit"
                                     variant="contained"
                                 >
-                                    Remove
+                                    {t('remove')}
                                 </Button>
                             </Box>
                         </form>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -31,6 +32,7 @@ const SearchBook = (props) => {
             searchType: 'isbn'
         }
     })
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -86,20 +88,20 @@ const SearchBook = (props) => {
             </Snackbar>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Search a book to modify/delete</Typography>
+                    <Typography variant="h6">{t('searchBook')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 3 }}>
                 <form onSubmit={handleSubmit(onSubmit)} noValidate>
                     <Container maxWidth="sm" className={classes.container}>
                         <TextField
-                            placeholder="Search by ISBN"
+                            placeholder={t('searchISBN')}
                             autoComplete="off"
                             style={{ width: '85%' }}
                             name="search"
                             variant="standard"
                             error={!!errors.search}
-                            inputRef={register({ required: 'ISBN is required.' })}
+                            inputRef={register({ required: t('fieldRequired') })}
                             helperText={!!errors.search ? errors.search.message : " "}
                         />
                         <TextField

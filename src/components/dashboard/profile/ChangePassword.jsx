@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -30,6 +31,7 @@ const ChangePassword = (props) => {
         newpassword: false,
         confirmpassword: false
     })
+    const { t } = useTranslation()
 
     // TODO: Add form validation to check new pwd = old pwd
 
@@ -100,13 +102,13 @@ const ChangePassword = (props) => {
             </Snackbar>
             <form onSubmit={handleSubmit(onSubmit)} noValidate className={classes.form}>
                 <FormControl fullWidth>
-                    <InputLabel htmlFor="oldpassword">Old Password</InputLabel>
+                    <InputLabel htmlFor="oldpassword">{t('oldPassword')}</InputLabel>
                     <Input
                         id="oldpassword"
                         name="oldpassword"
                         fullWidth
                         type={showPasswords.oldpassword ? "text" : "password"}
-                        inputRef={register({ required: 'Field is required.' })}
+                        inputRef={register({ required: t('fieldRequired') })}
                         error={!!errors.oldpassword}
                         endAdornment={
                             <InputAdornment position="end">
@@ -124,17 +126,17 @@ const ChangePassword = (props) => {
                     <FormHelperText error>{!!errors.oldpassword ? errors.oldpassword.message : " "}</FormHelperText>
                 </FormControl>
                 <FormControl fullWidth>
-                    <InputLabel htmlFor="newpassword">New Password</InputLabel>
+                    <InputLabel htmlFor="newpassword">{t('newPassword')}</InputLabel>
                     <Input
                         id="newpassword"
                         name="newpassword"
                         fullWidth
                         type={showPasswords.newpassword ? "text" : "password"}
                         inputRef={register({
-                            required: 'Field is required.',
+                            required: t('fieldRequired'),
                             minLength: {
                                 value: 8,
-                                message: "Password must have at least 8 characters"
+                                message: t('Password must have at least 8 characters')
                             }
                         })}
                         error={!!errors.newpassword}
@@ -154,16 +156,16 @@ const ChangePassword = (props) => {
                     <FormHelperText error>{!!errors.newpassword ? errors.newpassword.message : " "}</FormHelperText>
                 </FormControl>
                 <FormControl fullWidth>
-                    <InputLabel htmlFor="confirmpassword">Confirm Password</InputLabel>
+                    <InputLabel htmlFor="confirmpassword">{t('confirmPassword')}</InputLabel>
                     <Input
                         id="confirmpassword"
                         name="confirmpassword"
                         fullWidth
                         type={showPasswords.confirmpassword ? "text" : "password"}
                         inputRef={register({
-                            required: 'Field is required.',
+                            required: t('fieldRequired'),
                             validate: value =>
-                                value === watch('newpassword') || "The passwords do not match"
+                                value === watch('newpassword') || t('passwordMatch')
                         })}
                         error={!!errors.confirmpassword}
                         endAdornment={
@@ -182,7 +184,7 @@ const ChangePassword = (props) => {
                     <FormHelperText error>{!!errors.confirmpassword ? errors.confirmpassword.message : " "}</FormHelperText>
                 </FormControl>
                 <Button variant="contained" type="submit">
-                    Update password
+                    {t('updatePassword')}
                 </Button>
             </form>
         </>

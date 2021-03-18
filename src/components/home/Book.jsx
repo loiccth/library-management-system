@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../settings/api'
 import {
@@ -37,6 +38,7 @@ const Book = (props) => {
     const [open, setOpen] = useState(false)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [openSnack, setOpenSnack] = useState(false)
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpenSnack(true)
@@ -109,7 +111,7 @@ const Book = (props) => {
     else {
         return (
             <React.Fragment>
-                <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLogout={props.handleLogout} />
+                <Navbar user={props.user} darkMode={props.darkMode} handleToggleTheme={props.handleToggleTheme} handleLocale={props.handleLocale} handleLogout={props.handleLogout} />
                 <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleClose}>
                     <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
                         {snackbar.msg}
@@ -121,23 +123,23 @@ const Book = (props) => {
                             <Container component={Paper}>
                                 <Grid container spacing={3} className={classes.container}>
                                     <Grid item xs={12} sm={4}>
-                                        <img className={classes.thumbnail} src={book.thumbnail} alt="thumbnail" />
+                                        <img className={classes.thumbnail} src={book.thumbnail} alt={t('thumbnail')} />
                                         <Grid container spacing={3} className={classes.container}>
                                             <Grid item xs={4}>
-                                                <Typography variant="body2" align="center">Loan: {book.noOfBooksOnLoan}</Typography>
+                                                <Typography variant="body2" align="center">{t('loan')}: {book.noOfBooksOnLoan}</Typography>
                                             </Grid>
                                             <Grid item xs={4}>
-                                                <Typography variant="body2" align="center">Reservations: {book.reservation.length}</Typography>
+                                                <Typography variant="body2" align="center">{t('reservation')}: {book.reservation.length}</Typography>
                                             </Grid>
                                             <Grid item xs={4}>
-                                                <Typography variant="body2" align="center">On hold: {book.noOfBooksOnHold}</Typography>
+                                                <Typography variant="body2" align="center">{t('hold')}: {book.noOfBooksOnHold}</Typography>
                                             </Grid>
                                             <Grid item xs={12} style={{ textAlign: 'center' }}>
                                                 {props.user.isLoggedIn ?
                                                     <React.Fragment>
-                                                        {transaction === null && <Button variant="outlined" onClick={handleToggle}>Reserve</Button>}
-                                                        {transaction === 'Reserve' && <Button variant="outlined" onClick={handleToggle}>Cancel Reservation</Button>}
-                                                        {transaction === 'Borrow' && <Button variant="outlined" disabled>Return Book</Button>}
+                                                        {transaction === null && <Button variant="outlined" onClick={handleToggle}>{t('reserve')}</Button>}
+                                                        {transaction === 'Reserve' && <Button variant="outlined" onClick={handleToggle}>{t('cancelReservation')}</Button>}
+                                                        {transaction === 'Borrow' && <Button variant="outlined" disabled>{t('returnBook')}</Button>}
                                                         <Dialog
                                                             open={open}
                                                             onClose={handleToggle}
@@ -146,21 +148,21 @@ const Book = (props) => {
                                                         >
                                                             <DialogContent>
                                                                 <DialogContentText id="alert-dialog-description">
-                                                                    {transaction === null ? 'Are you sure you want to reserve this book?' : 'Are you sure you want to cancel this reservation?'}
+                                                                    {transaction === null ? t('reserveBookMsg') : t('cancelReserveMsg')}
                                                                 </DialogContentText>
                                                             </DialogContent>
                                                             <DialogActions>
                                                                 <Button onClick={handleToggle} color="secondary">
-                                                                    Cancel
-                                                            </Button>
+                                                                    {t('cancel')}
+                                                                </Button>
                                                                 <Button onClick={handleConfirm} autoFocus>
-                                                                    Confirm
-                                                            </Button>
+                                                                    {t('confirm')}
+                                                                </Button>
                                                             </DialogActions>
                                                         </Dialog>
                                                     </React.Fragment>
                                                     :
-                                                    <Button variant="outlined" disabled>Reserve</Button>
+                                                    <Button variant="outlined" disabled>{t('reserve')}</Button>
                                                 }
                                             </Grid>
                                         </Grid>
@@ -169,11 +171,11 @@ const Book = (props) => {
                                         <Table>
                                             <TableBody>
                                                 <TableRow>
-                                                    <TableCell>Title</TableCell>
+                                                    <TableCell>{t('title')}</TableCell>
                                                     <TableCell><Typography variant="body2">{book.title}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Description</TableCell>
+                                                    <TableCell>{t('description')}</TableCell>
                                                     <TableCell><Typography variant="body2">{book.description}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
@@ -181,49 +183,49 @@ const Book = (props) => {
                                                     <TableCell><Typography variant="body2">{book.isbn}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Author(s)</TableCell>
+                                                    <TableCell>{t('authors')}</TableCell>
                                                     <TableCell><Typography variant="body2">
                                                         {book.author.map((author, index) => (
                                                             <span key={author}>{(index ? ', ' : '') + author}</span>
                                                         ))}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Category</TableCell>
+                                                    <TableCell>{t('category')}</TableCell>
                                                     <TableCell><Typography variant="body2">{book.category}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Number of pages</TableCell>
+                                                    <TableCell>{t('pages')}</TableCell>
                                                     <TableCell><Typography variant="body2">{book.noOfPages}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Publisher</TableCell>
+                                                    <TableCell>{t('publisher')}</TableCell>
                                                     <TableCell><Typography variant="body2">{book.publisher}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Published Date</TableCell>
+                                                    <TableCell>{t('publishedDate')}</TableCell>
                                                     <TableCell><Typography variant="body2">{new Date(book.publishedDate).toLocaleDateString()}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Location</TableCell>
+                                                    <TableCell>{t('location')}</TableCell>
                                                     <TableCell>
                                                         <Typography variant="body2" display="block">{book.location}, {book.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
                                                     </TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>Number of holdings</TableCell>
+                                                    <TableCell>{t('holdings')}</TableCell>
                                                     <TableCell><Typography variant="body2" display="block">{book.copies.length}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
                                                     <TableCell style={{ border: 'none' }}>Flags</TableCell>
                                                     <TableCell style={{ border: 'none' }}>
-                                                        <Tooltip title="Recently Added" arrow>
-                                                            <FiberNewIcon />
-                                                        </Tooltip>
                                                         {book.isHighDemand ?
-                                                            <Tooltip title="High Demand" arrow>
+                                                            <Tooltip title={t('highDemand')} arrow>
                                                                 <PriorityHighIcon className={classes.highpriority} />
                                                             </Tooltip>
                                                             : null}
+                                                        <Tooltip title={t('recentlyAdded')} arrow>
+                                                            <FiberNewIcon />
+                                                        </Tooltip>
                                                     </TableCell>
                                                 </TableRow>
                                             </TableBody>
@@ -273,6 +275,7 @@ Book.propTypes = {
     user: PropTypes.object.isRequired,
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
+    handleLocale: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired
 }
 

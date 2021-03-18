@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -42,6 +43,7 @@ const DueBooks = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const [date, setDate] = useState([new Date(), new Date()])
+    const { t } = useTranslation()
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -91,7 +93,7 @@ const DueBooks = (props) => {
             </Snackbar>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Due Books</Typography>
+                    <Typography variant="h6">{t('dueBooks')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 1 }}>
@@ -100,8 +102,8 @@ const DueBooks = (props) => {
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
                             <DateRangePicker
                                 mask={maskMap['fr']}
-                                startText="From"
-                                endText="To"
+                                startText={t('from')}
+                                endText={t('to')}
                                 value={date}
                                 minDate={new Date()}
                                 onChange={handleDateUpdate}
@@ -124,7 +126,7 @@ const DueBooks = (props) => {
                                     variant="contained"
                                     onClick={handleOnClick}
                                 >
-                                    Send Reminder
+                                    {t('reminder')}
                                 </Button>
                             </Grid>
                         </Grid>
@@ -142,15 +144,15 @@ const DueBooks = (props) => {
                                             <Checkbox checked={check} color="primary" onChange={handleCheckAll} />
                                         </TableCell>
                                         <TableCell>MemberID</TableCell>
-                                        <TableCell>Book Details</TableCell>
-                                        <TableCell>Borrow Details</TableCell>
+                                        <TableCell>{t('bookDetails')}</TableCell>
+                                        <TableCell>{t('borrowDetails')}</TableCell>
                                         <TableCell>Flags</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {props.dueBooks.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">No records found.</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
                                     {props.dueBooks.map(row => (
@@ -162,23 +164,23 @@ const DueBooks = (props) => {
                                                 {row.userid}
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Title: {row.title}</Typography>
+                                                <Typography variant="caption" display="block">{t('title')}: {row.title}</Typography>
                                                 <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Borrow: {row.isHighDemand ? new Date(row.borrowDate).toLocaleString() : new Date(row.borrowDate).toLocaleDateString()}</Typography>
-                                                <Typography variant="caption" display="block">Due: {row.isHighDemand ? new Date(row.dueDate).toLocaleString() : new Date(row.dueDate).toLocaleDateString()}</Typography>
-                                                <Typography variant="caption" display="block">Renews: {row.renews}</Typography>
+                                                <Typography variant="caption" display="block">{t('borrow')}: {row.isHighDemand ? new Date(row.borrowDate).toLocaleString() : new Date(row.borrowDate).toLocaleDateString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('due')}: {row.isHighDemand ? new Date(row.dueDate).toLocaleString() : new Date(row.dueDate).toLocaleDateString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('renews')}: {row.renews}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 {/* TODO: get amount from db */}
                                                 {row.renews === 3 &&
-                                                    <Tooltip title="Max Renews" arrow>
+                                                    <Tooltip title={t('maxRenews')} arrow>
                                                         <AutorenewIcon />
                                                     </Tooltip>
                                                 }
                                                 {row.isHighDemand &&
-                                                    <Tooltip title="High Demand" arrow>
+                                                    <Tooltip title={t('highDemand')} arrow>
                                                         <PriorityHighIcon />
                                                     </Tooltip>
                                                 }

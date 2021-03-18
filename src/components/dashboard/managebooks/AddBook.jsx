@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -28,6 +29,7 @@ const AddBook = (props) => {
             publishedDate: new Date()
         }
     })
+    const { t } = useTranslation()
 
     useEffect(() => {
         setValue('location', '')
@@ -94,9 +96,9 @@ const AddBook = (props) => {
                                         name="isbn"
                                         label="ISBN"
                                         inputRef={register({
-                                            required: "Empty ISBN field.",
+                                            required: t('requiredField'),
                                             validate: value =>
-                                                value.length === 10 || value.length === 13 || "Invalid ISBN length"
+                                                value.length === 10 || value.length === 13 || t('isbnLength')
                                         })}
                                         helperText={!!errors.isbn ? errors.isbn.message : " "}
                                     />
@@ -107,7 +109,7 @@ const AddBook = (props) => {
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                label="Copies"
+                                                label={t('copies')}
                                                 select
                                                 helperText=" "
                                             >
@@ -120,6 +122,7 @@ const AddBook = (props) => {
                                         }
                                         name="noOfCopies"
                                         control={control}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <Controller
                                         as={
@@ -129,7 +132,7 @@ const AddBook = (props) => {
                                                 margin="normal"
                                                 required
                                                 error={!!errors.category}
-                                                label="Category"
+                                                label={t('category')}
                                                 select
                                                 helperText={!!errors.category ? errors.category.message : " "}
                                             >
@@ -140,7 +143,7 @@ const AddBook = (props) => {
                                         }
                                         name="category"
                                         control={control}
-                                        rules={{ required: "Category is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                 </Grid>
                                 <Grid item xs={10} md={5}>
@@ -151,7 +154,7 @@ const AddBook = (props) => {
                                                 variant="standard"
                                                 margin="normal"
                                                 required
-                                                label="Campus"
+                                                label={t('campus')}
                                                 select
                                                 helperText=" "
                                             >
@@ -161,6 +164,7 @@ const AddBook = (props) => {
                                         }
                                         name="campus"
                                         control={control}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     <Controller
                                         as={
@@ -170,7 +174,7 @@ const AddBook = (props) => {
                                                 margin="normal"
                                                 required
                                                 error={!!errors.location}
-                                                label="Location"
+                                                label={t('location')}
                                                 select
                                                 helperText={!!errors.location ? errors.location.message : " "}
                                             >
@@ -187,7 +191,7 @@ const AddBook = (props) => {
                                         }
                                         name="location"
                                         control={control}
-                                        rules={{ required: "Location is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                 </Grid>
                                 <Grid item xs={10} md={10}>
@@ -196,7 +200,7 @@ const AddBook = (props) => {
                                             type="submit"
                                             variant="contained"
                                         >
-                                            Add Book
+                                            {t('addBook')}
                                         </Button>
                                     </Box>
                                 </Grid>

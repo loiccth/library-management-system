@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -19,6 +20,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, setValue } = useForm()
+    const { t } = useTranslation()
 
     useEffect(() => {
         Object.entries(bookSettings).map(([key, value]) => (
@@ -76,23 +78,23 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
                 <Box className={classes.boxAlign}>
                     <Grid container justifyContent="space-evenly">
                         <Grid item xs={12}>
-                            <Typography variant="h6">Book Settings</Typography>
+                            <Typography variant="h6">{t('bookSettings')}</Typography>
                         </Grid>
                         {bookSettings.map((setting, index) => (
                             <React.Fragment key={setting.name}>
                                 <Grid item xs={5}>
                                     <TextField
-                                        label={setting.name}
+                                        label={t(setting.id)}
                                         name={`settings[${index}].value`}
                                         variant="standard"
                                         margin="normal"
                                         required
                                         fullWidth
                                         error={errors.settings === undefined ? false : errors.settings[index] === undefined ? false : true}
-                                        inputRef={register({ required: "Field is required.", validate: value => !isNaN(value) })}
-                                        helperText={errors.settings === undefined ? setting.name === "Time onhold" ? "Time in minutes" : "" :
-                                            errors.settings[index] === undefined ? setting.name === "Time onhold" ? "Time in minutes" : "" :
-                                                errors.settings[index].value.message === "" ? "Value is not a number" :
+                                        inputRef={register({ required: t('requiredField'), validate: value => !isNaN(value) })}
+                                        helperText={errors.settings === undefined ? setting.name === "Time onhold" ? t('timeMinutes') : "" :
+                                            errors.settings[index] === undefined ? setting.name === "Time onhold" ? t('timeMinutes') : "" :
+                                                errors.settings[index].value.message === "" ? t('valueNotNumber') :
                                                     errors.settings[index].value.message}
                                     />
                                 </Grid>
@@ -110,8 +112,8 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
                             type="submit"
                             variant="contained"
                         >
-                            Update
-                    </Button>
+                            {t('update')}
+                        </Button>
                     </Box>
                 </Box>
             </form>

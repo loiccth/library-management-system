@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -32,6 +33,7 @@ const ManageBooks = ({ user }) => {
         }
     })
     const [categories, setCategories] = useState([])
+    const { t } = useTranslation()
 
     useEffect(() => {
         axios.get(`${url}/settings/locations`, { withCredentials: true })
@@ -63,16 +65,16 @@ const ManageBooks = ({ user }) => {
             <Box sx={{ my: 5 }}>
                 <Container>
                     <Toolbar>
-                        <Typography variant="h6">Add Book(s)</Typography>
+                        <Typography variant="h6">{t('addBooks')}</Typography>
                     </Toolbar>
                     <FormControlLabel
                         control={<Switch name="csv" checked={options.csv} onChange={handleChange} />}
-                        label="Manual input"
+                        label={t('manualInput')}
                     />
                     {options.csv &&
                         <FormControlLabel
                             control={<Switch name="api" checked={options.api} onChange={handleChange} />}
-                            label="Auto fill book details"
+                            label={t('autoFill')}
                         />
                     }
                 </Container>

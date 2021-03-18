@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -20,6 +21,7 @@ const Users = (props) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -63,8 +65,8 @@ const Users = (props) => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell>MemberID</TableCell>
-                                    <TableCell>Member Type</TableCell>
-                                    <TableCell>Status</TableCell>
+                                    <TableCell>{t('memberType')}</TableCell>
+                                    <TableCell>{t('status')}</TableCell>
                                     <TableCell></TableCell>
                                 </TableRow>
                             </TableHead>
@@ -80,7 +82,7 @@ const Users = (props) => {
                                                 onClick={() => handleToggle(user._id)}
                                                 color={user.status === 'active' ? 'secondary' : 'primary'}
                                             >
-                                                {user.status === 'active' ? 'Suspend' : 'Reactivate'}
+                                                {user.status === 'active' ? t('suspend') : t('reactivate')}
                                             </Button>
                                         </TableCell>
                                     </TableRow>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link, Outlet, Navigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
+import i18n from '../../translations/i18n'
 import axios from 'axios'
 import url from '../../settings/api'
 import {
@@ -23,6 +25,7 @@ import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import HomeIcon from '@material-ui/icons/Home'
 import MenuIcon from '@material-ui/icons/Menu'
 import InfoIcon from '@material-ui/icons/Info'
+import TranslateIcon from '@material-ui/icons/Translate'
 import logo from '../../img/logo.png'
 import whitelogo from '../../img/logo_white.png'
 
@@ -33,6 +36,7 @@ const Dashboard = (props) => {
     const classes = useStyles()
     const theme = useTheme()
     const [mobileOpen, setMobileOpen] = useState(false)
+    const { t } = useTranslation()
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen)
@@ -47,45 +51,66 @@ const Dashboard = (props) => {
         setAnchorEl(null)
     }
 
-    const open = Boolean(anchorEl)
+    const [anchorE2, setAnchorE2] = useState(null)
+    const handleLanguage = (event) => {
+        setAnchorE2(event.currentTarget)
+    }
+
+    const handleCloseLanguage = () => {
+        setAnchorE2(null)
+    }
+
+    const handleMenuItemClick = (lang) => {
+        let temp = ''
+        if (lang === 'en')
+            temp = 'enUS'
+        else if (lang === 'fr')
+            temp = 'frFR'
+        else if (lang === 'zh')
+            temp = 'zhCN'
+
+        setAnchorE2(null)
+        i18n.changeLanguage(lang)
+        props.handleLocale(temp)
+    }
 
     const [sidebar] = useState([
         {
-            sidebarMenu: 'Dashboard',
+            sidebarMenu: 'dashboard',
             link: '/dashboard'
         },
         {
-            sidebarMenu: 'Manage Books',
+            sidebarMenu: 'manageBooks',
             link: '/dashboard/managebooks',
             permission: 'Librarian'
         },
         {
-            sidebarMenu: 'Settings',
+            sidebarMenu: 'settings',
             link: '/dashboard/settings',
             permission: 'Librarian'
         },
         {
-            sidebarMenu: 'Manage Memberships',
+            sidebarMenu: 'manageMemberships',
             link: '/dashboard/managememberships',
             permission: 'Admin'
         },
         {
-            sidebarMenu: 'Reports',
+            sidebarMenu: 'reports',
             link: '/dashboard/reports',
             permission: 'Librarian'
         },
         {
-            sidebarMenu: 'Reports',
+            sidebarMenu: 'reports',
             link: '/dashboard/reports',
             permission: 'Admin'
         },
         {
-            sidebarMenu: 'My Books',
+            sidebarMenu: 'myBooks',
             link: '/dashboard/mybooks',
             permission: 'staff'
         },
         {
-            sidebarMenu: 'Profile',
+            sidebarMenu: 'profile',
             link: '/dashboard/profile'
         }
     ])
@@ -108,13 +133,13 @@ const Dashboard = (props) => {
                         if (item.permission === props.user.memberType || item.permission === undefined)
                             return (
                                 <ListItem button key={item.sidebarMenu} component={Link} to={item.link}>
-                                    <ListItemText primary={item.sidebarMenu} />
+                                    <ListItemText primary={t(item.sidebarMenu)} />
                                 </ListItem>
                             )
                         else if (item.permission === 'staff' && (props.user.memberType === 'Librarian' || props.user.memberType === 'Admin'))
                             return (
                                 <ListItem button key={item.sidebarMenu} component={Link} to={item.link}>
-                                    <ListItemText primary={item.sidebarMenu} />
+                                    <ListItemText primary={t(item.sidebarMenu)} />
                                 </ListItem>
                             )
                         else return null
@@ -162,6 +187,46 @@ const Dashboard = (props) => {
                             </IconButton>
                         }
                         <IconButton
+                            aria-label="change language"
+                            aria-controls="menu-language"
+                            aria-haspopup="true"
+                            onClick={handleLanguage}
+                            color="inherit"
+                        >
+                            <TranslateIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-language"
+                            anchorEl={anchorE2}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={Boolean(anchorE2)}
+                            onClose={handleCloseLanguage}
+                        >
+                            <MenuItem
+                                onClick={(() => handleMenuItemClick('en'))}
+                            >
+                                English
+                            </MenuItem>
+                            <MenuItem
+                                onClick={(() => handleMenuItemClick('fr'))}
+                            >
+                                Français
+                            </MenuItem>
+                            <MenuItem
+                                onClick={(() => handleMenuItemClick('zh'))}
+                            >
+                                中文
+                            </MenuItem>
+                        </Menu>
+                        <IconButton
                             aria-haspopup="false"
                             color="inherit"
                             component={Link}
@@ -177,7 +242,8 @@ const Dashboard = (props) => {
                         >
                             <HomeIcon />
                         </IconButton>
-                        <IconButton aria-label="account of current user"
+                        <IconButton
+                            aria-label="account of current user"
                             aria-controls="menu-appbar"
                             aria-haspopup="true"
                             onClick={handleMenu}
@@ -197,11 +263,11 @@ const Dashboard = (props) => {
                                 vertical: 'top',
                                 horizontal: 'right',
                             }}
-                            open={open}
+                            open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <MenuItem component={Link} to="/dashboard" color="inherit">Dashboard</MenuItem>
-                            <MenuItem color="inherit" onClick={handleLogout}>Logout</MenuItem>
+                            <MenuItem component={Link} to="/dashboard" color="inherit">{t('dashboard')}</MenuItem>
+                            <MenuItem color="inherit" onClick={handleLogout}>{t('logout')}</MenuItem>
                         </Menu>
                     </Toolbar>
                 </AppBar>
@@ -284,6 +350,7 @@ Dashboard.propTypes = {
     user: PropTypes.object.isRequired,
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
+    handleLocale: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired
 }
 

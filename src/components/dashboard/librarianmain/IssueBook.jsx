@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -29,6 +30,7 @@ const IssueBook = () => {
             campus: ''
         }
     })
+    const { t } = useTranslation()
 
     const onSubmit = (data) => {
         axios.post(`${url}/books/issue`, data, { withCredentials: true })
@@ -64,10 +66,10 @@ const IssueBook = () => {
     return (
         <>
             <Button variant="contained" fullWidth onClick={handleClickOpen}>
-                Issue Book
+                {t('issueBook')}
             </Button>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
-                <DialogTitle id="form-dialog-title">Issue book</DialogTitle>
+                <DialogTitle id="form-dialog-title">{t('issueBook')}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>
                         <Grid container spacing={2}>
@@ -81,7 +83,7 @@ const IssueBook = () => {
                                     label="MemberID"
                                     fullWidth
                                     variant="standard"
-                                    inputRef={register({ required: "MemberID is required." })}
+                                    inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.userid}
                                     helperText={!!errors.userid ? errors.userid.message : ""}
                                 />
@@ -95,14 +97,14 @@ const IssueBook = () => {
                                     label="ISBN"
                                     fullWidth
                                     variant="standard"
-                                    inputRef={register({ required: "ISBN is required." })}
+                                    inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.isbn}
                                     helperText={!!errors.isbn ? errors.isbn.message : ""}
                                 />
                             </Grid>
                             <Grid item xs={12}>
                                 <FormControl component="fieldset" error={!!errors.campus} >
-                                    <FormLabel component="legend">Campus</FormLabel>
+                                    <FormLabel component="legend">{t('campus')}</FormLabel>
                                     <Controller
                                         as={
                                             <RadioGroup row name="campus">
@@ -120,14 +122,14 @@ const IssueBook = () => {
                                         }
                                         name="campus"
                                         control={control}
-                                        rules={{ required: "Campus is required." }}
+                                        rules={{ required: t('requiredField') }}
                                     />
                                     {!!errors.campus && <FormHelperText>{errors.campus.message}</FormHelperText>}
                                 </FormControl>
                             </Grid>
                         </Grid>
                         <Box sx={{ mt: 3 }}>
-                            <Button type="submit" variant="contained">Issue Book</Button>
+                            <Button type="submit" variant="contained">{t('issueBook')}</Button>
                         </Box>
                     </form>
 
@@ -138,8 +140,8 @@ const IssueBook = () => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" color="primary" onClick={handleReset}>Reset</Button>
-                    <Button variant="contained" color="secondary" onClick={handleClose}>Close</Button>
+                    <Button variant="contained" color="primary" onClick={handleReset}>{t('reset')}</Button>
+                    <Button variant="contained" color="secondary" onClick={handleClose}>{t('close')}</Button>
                 </DialogActions>
             </Dialog>
         </>

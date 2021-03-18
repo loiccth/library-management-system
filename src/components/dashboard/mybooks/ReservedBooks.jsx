@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import {
     Button,
     Box,
@@ -26,6 +27,7 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 const ReservedBooks = (props) => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
+    const { t } = useTranslation()
 
     const handleToggle = () => {
         setOpen(!open)
@@ -40,7 +42,7 @@ const ReservedBooks = (props) => {
         <>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Reservations</Typography>
+                    <Typography variant="h6">{t('reservation')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 3 }}>
@@ -50,9 +52,9 @@ const ReservedBooks = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Reservation Details</TableCell>
-                                        <TableCell>Book Details</TableCell>
-                                        <TableCell>Availability</TableCell>
+                                        <TableCell>{t('reservations')}</TableCell>
+                                        <TableCell>{t('bookDetails')}</TableCell>
+                                        <TableCell>{t('availability')}</TableCell>
                                         <TableCell>Flags</TableCell>
                                         <TableCell></TableCell>
                                     </TableRow>
@@ -60,37 +62,37 @@ const ReservedBooks = (props) => {
                                 <TableBody>
                                     {props.reserved.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">No records found.</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
                                     {props.reserved.map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Reserved Date: {new Date(row.createdAt).toLocaleString()}</Typography>
-                                                <Typography variant="caption" display="block">Expire Date: {row.expireAt ? new Date(row.expireAt).toLocaleString() : 'TBD'}</Typography>
+                                                <Typography variant="caption" display="block">{t('reservedDate')}: {new Date(row.createdAt).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('expireDate')}: {row.expireAt ? new Date(row.expireAt).toLocaleString() : 'TBD'}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Title: {row.bookid.title}</Typography>
+                                                <Typography variant="caption" display="block">{t('title')}: {row.bookid.title}</Typography>
                                                 <Typography variant="caption" display="block">ISBN: {row.bookid.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Total: {row.bookid.copies.length}</Typography>
-                                                <Typography variant="caption" display="block">On loan: {row.bookid.noOfBooksOnLoan}</Typography>
-                                                <Typography variant="caption" display="block">On hold: {row.bookid.noOfBooksOnHold}</Typography>
-                                                <Typography variant="caption" display="block">Reservation: {row.bookid.reservation.length}</Typography>
+                                                <Typography variant="caption" display="block">{t('total')}: {row.bookid.copies.length}</Typography>
+                                                <Typography variant="caption" display="block">{t('onloan')}: {row.bookid.noOfBooksOnLoan}</Typography>
+                                                <Typography variant="caption" display="block">{t('hold')}: {row.bookid.noOfBooksOnHold}</Typography>
+                                                <Typography variant="caption" display="block">{t('reservation')}: {row.bookid.reservation.length}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Tooltip title="Recently Added" arrow>
+                                                <Tooltip title={t('recentlyAdded')} arrow>
                                                     <FiberNewIcon />
                                                 </Tooltip>
                                                 {row.bookid.isHighDemand &&
-                                                    <Tooltip title="High Demand" arrow>
+                                                    <Tooltip title={t('highDemand')} arrow>
                                                         <PriorityHighIcon className={classes.highpriority} />
                                                     </Tooltip>
                                                 }
                                             </TableCell>
                                             <TableCell>
-                                                <Button variant="contained" onClick={handleToggle} >Cancel</Button>
+                                                <Button variant="contained" onClick={handleToggle} >{t('cancel')}</Button>
                                                 <Dialog
                                                     open={open}
                                                     onClose={handleToggle}
@@ -99,16 +101,16 @@ const ReservedBooks = (props) => {
                                                 >
                                                     <DialogContent>
                                                         <DialogContentText id="alert-dialog-description">
-                                                            {`Are you sure you want to cancel reservation for ${row.bookid.title}?`}
+                                                            {t('cancelMsg')` ${row.bookid.title}?`}
                                                         </DialogContentText>
                                                     </DialogContent>
                                                     <DialogActions>
                                                         <Button onClick={handleToggle} variant="contained" color="secondary">
-                                                            Cancel
-                                                            </Button>
+                                                            {t('cancel')}
+                                                        </Button>
                                                         <Button onClick={() => handleCancel(row.bookid._id)} variant="contained" autoFocus>
-                                                            Confirm
-                                                            </Button>
+                                                            {t('confirm')}
+                                                        </Button>
                                                     </DialogActions>
                                                 </Dialog>
                                             </TableCell>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { DropzoneArea } from 'material-ui-dropzone'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -21,6 +22,7 @@ const AddBookCSV = () => {
         fail: []
     })
     const { handleSubmit, errors, reset, control } = useForm()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true)
@@ -56,13 +58,13 @@ const AddBookCSV = () => {
                                     as={<DropzoneArea
                                         acceptedFiles={[".csv, text/csv, application/vnd.ms-excel, application/csv, text/x-csv, application/x-csv, text/comma-separated-values, text/x-comma-separated-values"]}
                                         filesLimit={1}
-                                        dropzoneText="Drag and drop a CSV file here or browse"
+                                        dropzoneText={t('dropzoneText')}
                                         showPreviews={true}
                                         showPreviewsInDropzone={false}
                                         useChipsForPreview
                                         previewGridProps={{ container: { spacing: 1, direction: 'row' } }}
                                         previewChipProps={{ classes: { root: classes.previewChip } }}
-                                        previewText="Selected CSV file"
+                                        previewText={t('dropzonePreview')}
                                         maxFileSize={10485760}
                                     />}
                                     name="csv"
@@ -70,12 +72,12 @@ const AddBookCSV = () => {
                                     rules={{ validate: value => value.length > 0 }}
                                     defaultValue={[]}
                                 />
-                                <FormHelperText error children={!!errors.csv ? "CSV file required." : " "} />
+                                <FormHelperText error children={!!errors.csv ? t('csvValidation') : " "} />
                                 <Button
                                     type="submit"
                                     variant="contained"
                                     fullWidth
-                                >Add Books</Button>
+                                >{t('addBooks')}</Button>
                             </form>
                         </Paper>
                     </Grid>

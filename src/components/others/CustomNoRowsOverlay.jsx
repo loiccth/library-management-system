@@ -1,9 +1,11 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { makeStyles } from '@material-ui/core'
 import { GridOverlay } from '@material-ui/data-grid'
 
 const CustomNoRowsOverlay = () => {
     const classes = useStyles()
+    const { t } = useTranslation()
 
     return (
         <GridOverlay className={classes.root}>
@@ -46,7 +48,7 @@ const CustomNoRowsOverlay = () => {
                     </g>
                 </g>
             </svg>
-            <div className={classes.label}>No records found</div>
+            <div className={classes.label}>{t('noRecords')}</div>
         </GridOverlay>
     )
 }

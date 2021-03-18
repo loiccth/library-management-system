@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import {
     Box,
     Divider,
@@ -17,6 +18,7 @@ import SearchUsers from './SearchUsers'
 const ManageMenbership = (props) => {
     const navigate = useNavigate()
     const [csv, setCsv] = useState(true)
+    const { t } = useTranslation()
 
     const handleChange = () => {
         setCsv(!csv)
@@ -31,7 +33,7 @@ const ManageMenbership = (props) => {
             <Box sx={{ my: 5 }}>
                 <Container>
                     <Toolbar>
-                        <Typography variant="h6">User registration</Typography>
+                        <Typography variant="h6">{t('userRegistration')}</Typography>
                     </Toolbar>
                     <FormControlLabel
                         control={<Switch name="csv" checked={!csv} onChange={handleChange} />}

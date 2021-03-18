@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -21,6 +22,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
     const [open, setOpen] = useState(false)
     const [category, setCategory] = useState('')
     const { register, handleSubmit, errors, reset } = useForm()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true)
@@ -94,7 +96,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
             <Box className={classes.boxAlign}>
                 <Grid container justifyContent="space-evenly">
                     <Grid item xs={12}>
-                        <Typography variant="h6">Categories</Typography>
+                        <Typography variant="h6">{t('categories')}</Typography>
                     </Grid>
 
                     <Grid item xs={5}>
@@ -104,11 +106,11 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
                                 margin="normal"
                                 name='category'
                                 id="category"
-                                label="Add category"
+                                label={t('addCategory')}
                                 fullWidth
                                 required
                                 error={!!errors.category}
-                                inputRef={register({ required: "Field is required." })}
+                                inputRef={register({ required: t('requiredField') })}
                                 helperText={!!errors.category ? errors.category.message : ""}
                             />
                             <Box sx={{ my: 3 }}>
@@ -116,7 +118,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
                                     type="submit"
                                     variant="contained"
                                 >
-                                    Add
+                                    {t('add')}
                                 </Button>
                             </Box>
                         </form>
@@ -127,7 +129,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
                                 variant="standard"
                                 margin="normal"
                                 name='category'
-                                label="Remove category"
+                                label={t('removeCategory')}
                                 fullWidth
                                 select
                                 value={category}
@@ -146,7 +148,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
                                     type="submit"
                                     variant="contained"
                                 >
-                                    Remove
+                                    {t('remove')}
                                 </Button>
                             </Box>
                         </form>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../settings/api'
 import {
@@ -20,6 +21,7 @@ const Login = (props) => {
     const { register, handleSubmit, errors, reset } = useForm()
     const [snackbar, setSnackbar] = useState()
     const [open, setOpen] = useState(false)
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -54,7 +56,7 @@ const Login = (props) => {
             <Container component="div" maxWidth="sm">
                 <Paper className={classes.paper}>
                     <Typography component="h1" variant="h5">
-                        Log in
+                        {t('login')}
                     </Typography>
                     <form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
                         <TextField
@@ -79,20 +81,20 @@ const Login = (props) => {
                             error={!!errors.password}
                             id="password"
                             name="password"
-                            label="Password"
+                            label={t('password')}
                             inputRef={register({ required: "Empty Password field." })}
                             helperText={!!errors.password ? errors.password.message : " "}
                         />
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}
-                            label="Remember Me!"
+                            label={t('rememberMe')}
                         />
                         <Button
                             className={classes.button}
                             type="submit"
                             variant="contained"
                             fullWidth
-                        >Log in</Button>
+                        >{t('login')}</Button>
                     </form>
                 </Paper>
             </Container>

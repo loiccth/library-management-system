@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useForm, Controller } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -21,6 +22,7 @@ const LibraryHours = ({ hours }) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, control, setValue, getValues, trigger } = useForm()
+    const { t } = useTranslation()
 
     useEffect(() => {
         Object.entries(hours).map(([key, value]) => (
@@ -69,10 +71,10 @@ const LibraryHours = ({ hours }) => {
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <Grid container justifyContent="space-evenly">
                             <Grid item xs={5}>
-                                <Typography variant="h6">Opening Hours</Typography>
+                                <Typography variant="h6">{t('openingHrs')}</Typography>
                             </Grid>
                             <Grid item xs={5}>
-                                <Typography variant="h6">Closing Hours</Typography>
+                                <Typography variant="h6">{t('closingHrs')}</Typography>
                             </Grid>
                             {hours.opening.map((openHrs, index) => (
                                 <React.Fragment key={openHrs.day}>
@@ -80,7 +82,7 @@ const LibraryHours = ({ hours }) => {
                                         <Controller
                                             render={({ onChange, value }) => (
                                                 <TimePicker
-                                                    label={openHrs.day}
+                                                    label={t(openHrs.day)}
                                                     value={value}
                                                     ampm={false}
                                                     onChange={onChange}
@@ -92,7 +94,7 @@ const LibraryHours = ({ hours }) => {
                                                             margin="normal"
                                                             variant="standard"
                                                             error={errors.opening === undefined ? false : errors.opening[index] === undefined ? false : true}
-                                                            helperText={errors.opening === undefined ? "" : !!errors.opening[index] ? "Invalid time range" : ""}
+                                                            helperText={errors.opening === undefined ? "" : !!errors.opening[index] ? t('invalidTimeRange') : ""}
                                                         />
                                                     )}
                                                 />
@@ -121,7 +123,7 @@ const LibraryHours = ({ hours }) => {
                                         <Controller
                                             render={({ onChange, value }) => (
                                                 <TimePicker
-                                                    label={hours.closing[index].day}
+                                                    label={t(hours.closing[index].day)}
                                                     value={value}
                                                     ampm={false}
                                                     onChange={onChange}
@@ -133,7 +135,7 @@ const LibraryHours = ({ hours }) => {
                                                             margin="normal"
                                                             variant="standard"
                                                             error={errors.closing === undefined ? false : errors.closing[index] === undefined ? false : true}
-                                                            helperText={errors.closing === undefined ? "" : !!errors.closing[index] ? "Invalid time range" : ""}
+                                                            helperText={errors.closing === undefined ? "" : !!errors.closing[index] ? t('invalidTimeRange') : ""}
                                                         />
                                                     )}
                                                 />
@@ -167,8 +169,8 @@ const LibraryHours = ({ hours }) => {
                             type="submit"
                             variant="contained"
                         >
-                            Update
-                    </Button>
+                            {t('update')}
+                        </Button>
                     </Box>
                 </Box>
             </form>

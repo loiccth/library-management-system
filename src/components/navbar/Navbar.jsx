@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
+import i18n from '../../translations/i18n'
 import axios from 'axios'
 import url from '../../settings/api'
 import {
@@ -17,21 +19,45 @@ import Brightness3Icon from '@material-ui/icons/Brightness3'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import HomeIcon from '@material-ui/icons/Home'
 import InfoIcon from '@material-ui/icons/Info'
+import TranslateIcon from '@material-ui/icons/Translate'
 import logo from '../../img/logo.png'
 import whitelogo from '../../img/logo_white.png'
 
 const Navbar = (props) => {
     const classes = useStyles()
     const [anchorEl, setAnchorEl] = useState(null)
+    const [anchorE2, setAnchorE2] = useState(null)
+    const { t } = useTranslation()
+
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget)
+    }
+
+    const handleLanguage = (event) => {
+        setAnchorE2(event.currentTarget)
     }
 
     const handleClose = () => {
         setAnchorEl(null)
     }
 
-    const open = Boolean(anchorEl)
+    const handleCloseLanguage = () => {
+        setAnchorE2(null)
+    }
+
+    const handleMenuItemClick = (lang) => {
+        let temp = ''
+        if (lang === 'en')
+            temp = 'enUS'
+        else if (lang === 'fr')
+            temp = 'frFR'
+        else if (lang === 'zh')
+            temp = 'zhCN'
+
+        setAnchorE2(null)
+        i18n.changeLanguage(lang)
+        props.handleLocale(temp)
+    }
 
     const handleLogout = () => {
         axios.get(`${url}/users/logout`, { withCredentials: true })
@@ -67,6 +93,46 @@ const Navbar = (props) => {
                         </IconButton>
                     }
                     <IconButton
+                        aria-label="change language"
+                        aria-controls="menu-language"
+                        aria-haspopup="true"
+                        onClick={handleLanguage}
+                        color="inherit"
+                    >
+                        <TranslateIcon />
+                    </IconButton>
+                    <Menu
+                        id="menu-language"
+                        anchorEl={anchorE2}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        open={Boolean(anchorE2)}
+                        onClose={handleCloseLanguage}
+                    >
+                        <MenuItem
+                            onClick={(() => handleMenuItemClick('en'))}
+                        >
+                            English
+                            </MenuItem>
+                        <MenuItem
+                            onClick={(() => handleMenuItemClick('fr'))}
+                        >
+                            Français
+                        </MenuItem>
+                        <MenuItem
+                            onClick={(() => handleMenuItemClick('zh'))}
+                        >
+                            中文
+                        </MenuItem>
+                    </Menu>
+                    <IconButton
                         aria-haspopup="false"
                         color="inherit"
                         component={Link}
@@ -84,7 +150,8 @@ const Navbar = (props) => {
                     </IconButton>
                     {props.user.isLoggedIn ?
                         <div>
-                            <IconButton aria-label="account of current user"
+                            <IconButton
+                                aria-label="account of current user"
                                 aria-controls="menu-appbar"
                                 aria-haspopup="true"
                                 onClick={handleMenu}
@@ -104,14 +171,14 @@ const Navbar = (props) => {
                                     vertical: 'top',
                                     horizontal: 'right',
                                 }}
-                                open={open}
+                                open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
-                                <MenuItem component={Link} to="/dashboard" color="inherit">Dashboard</MenuItem>
-                                <MenuItem color="inherit" onClick={handleLogout}>Logout</MenuItem>
+                                <MenuItem component={Link} to="/dashboard" color="inherit">{t('dashboard')}</MenuItem>
+                                <MenuItem color="inherit" onClick={handleLogout}>{t('logout')}</MenuItem>
                             </Menu>
                         </div> :
-                        <Button component={Link} to="/login" color="inherit">Login</Button>
+                        <Button component={Link} to="/login" color="inherit">{t('login')}</Button>
                     }
                 </Toolbar>
             </AppBar>
@@ -130,6 +197,7 @@ Navbar.propTypes = {
     user: PropTypes.object.isRequired,
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
+    handleLocale: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired,
 }
 

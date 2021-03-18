@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
@@ -25,6 +26,7 @@ const Copies = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, getValues, trigger, reset } = useForm()
+    const { t } = useTranslation()
 
     const handleClick = () => {
         setOpen(true);
@@ -86,10 +88,10 @@ const Copies = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Check</TableCell>
-                                        <TableCell>Copy ID</TableCell>
-                                        <TableCell>Availability</TableCell>
-                                        <TableCell>Reason</TableCell>
+                                        <TableCell>{t('check')}</TableCell>
+                                        <TableCell>{t('copyid')}</TableCell>
+                                        <TableCell>{t('availability')}</TableCell>
+                                        <TableCell>{t('reason')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -125,7 +127,7 @@ const Copies = (props) => {
                                                     id="reason"
                                                     name={`copies[${index}].reason`}
                                                     error={errors.copies === undefined ? false : errors.copies[index] === undefined ? false : true}
-                                                    helperText={errors.copies === undefined ? " " : errors.copies[index] === undefined ? " " : "Field cannot be empty."}
+                                                    helperText={errors.copies === undefined ? " " : errors.copies[index] === undefined ? " " : t('fieldRequired')}
                                                     inputRef={register({
                                                         validate: value => {
                                                             if (getValues(`copies[${index}].checked`) && value === "") {
@@ -145,7 +147,7 @@ const Copies = (props) => {
                                 type="submit"
                                 variant="contained"
                                 fullWidth
-                            >Remove copies</Button>
+                            >{t('removeCopies')}</Button>
                         </form>
                     </Paper>
                 </Grid>
