@@ -7,6 +7,7 @@ require('dotenv').config()
 
 const app = express()
 
+// Change when push to prod
 // app.use(morgan('combined'))
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(cookieParser())

@@ -10,7 +10,9 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
     if (!sessionid || !device || !userAgent || !events) return res.status(400).json({ 'error': 'Missing params' })
 
     else {
+        // Change when push to prod
         let ip = req.connection.remoteAddress
+
         // let ip = req.headers['x-forwarded-for']
         // ip = ip.split(', ')
         // ip = ip[0]
@@ -26,6 +28,7 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
                     session.save().then(() => res.sendStatus(200))
                 }
                 else {
+                    // Change when push to prod
                     ip = ip === '127.0.0.1' || ip === '::1' ? '102.114.39.1' : ip
                     const geolocationDetails = await axios.post(`http://api.ipstack.com/${ip}?access_key=${process.env.IPSTACK_API}`)
 

@@ -85,6 +85,7 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
                     httpOnly: false,
                     sameSite: 'Lax',
                     // domain: 'udmlibrary.com'
+                    // Change when push to prod
                 })
 
                 res.json({
@@ -143,6 +144,7 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
                             httpOnly: false,
                             sameSite: 'Lax',
                             // domain: 'udmlibrary.com'
+                            // Change when push to prod
                         })
 
                         res.sendStatus(200)

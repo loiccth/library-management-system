@@ -20,6 +20,15 @@ import {
 } from '@material-ui/core'
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
+import frLocale from 'date-fns/locale/fr'
+
+const localeMap = {
+    fr: frLocale,
+}
+
+const maskMap = {
+    fr: '__/__/____',
+}
 
 const BooksReport = (props) => {
     const csvlink = useRef()
@@ -45,8 +54,9 @@ const BooksReport = (props) => {
             <Box sx={{ mt: 1 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={11} md={10}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
                             <DateRangePicker
+                                mask={maskMap['fr']}
                                 startText="From"
                                 endText="To"
                                 value={date}
