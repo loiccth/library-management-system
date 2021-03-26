@@ -35,10 +35,18 @@ const IssueBook = () => {
     const onSubmit = (data) => {
         axios.post(`${url}/books/issue`, data, { withCredentials: true })
             .then(result => {
-                setMessage(`Book titled ${result.data.title} issued to ${data.userid} and is due on ${new Date(result.data.dueDate).toLocaleString()}`)
+                setMessage(t(result.data.message,
+                    {
+                        title: result.data.title,
+                        userid: data.userid,
+                        date: new Date(result.data.dueDate).toLocaleString()
+                    }))
             })
             .catch(err => {
-                setMessage(err.response.data.error)
+                if (err.response.data.error === 'msgBorrowLibrarianLimit' || err.response.data.error === 'msgBorrowMemberLimit')
+                    setMessage(t(err.response.data.error, { limit: err.response.data.limit }))
+                else
+                    setMessage(t(err.response.data.error))
             })
             .finally(() => {
                 setCheck(true)

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import {
     Box,
@@ -13,7 +14,7 @@ import {
 import { makeStyles } from '@material-ui/core/styles'
 import GitHubIcon from '@material-ui/icons/GitHub'
 
-const Footer = () => {
+const Footer = (props) => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
@@ -52,16 +53,21 @@ const Footer = () => {
 
 const useStyles = makeStyles(theme => ({
     footer: {
-        backgroundColor: theme.palette.primary.main,
+        backgroundColor: theme.palette.custom.main,
         borderRadius: 0,
         textAlign: 'center'
     },
     btn: {
-        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.custom.contrastText,
+        backgroundColor: theme.palette.custom.main,
         '&:hover, &:active': {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: theme.palette.custom.main,
         }
     }
 }))
+
+Footer.propTypes = {
+    darkMode: PropTypes.bool.isRequired
+}
 
 export default Footer

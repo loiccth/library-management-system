@@ -61,14 +61,14 @@ const Navbar = (props) => {
 
     const handleLogout = () => {
         axios.get(`${url}/users/logout`, { withCredentials: true })
-            .then(() => {
-                props.handleLogout()
+            .then(result => {
+                props.handleLogout(result.data.message)
             })
     }
 
     return (
         <React.Fragment>
-            <AppBar position="fixed">
+            <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar>
                     <div className={classes.title}>
                         <Link to='/'>
@@ -187,7 +187,11 @@ const Navbar = (props) => {
     )
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
+    appBar: {
+        backgroundColor: theme.palette.custom.main,
+        color: theme.palette.custom.contrastText
+    },
     title: {
         flexGrow: 1
     }

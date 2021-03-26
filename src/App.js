@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useLocation, Routes, Route } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Cookies from 'js-cookie'
 import { deviceDetect, deviceType } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -21,6 +22,7 @@ import Reports from './components/dashboard/reports'
 import MyBooks from './components/dashboard/mybooks'
 import Profile from './components/dashboard/profile'
 import ForcePasswordChange from './components/others/ForcePasswordChange'
+import { getLocale } from './functions/getLocale'
 
 import NotFound from './components/NotFound'
 
@@ -29,13 +31,18 @@ import './App.css'
 function App() {
     const [user, setUser] = useState(Cookies.get('user') === undefined ? { isLoggedIn: false } : JSON.parse(Cookies.get('user')))
     const [darkMode, setDarkMode] = useState(Cookies.get('darkMode') === undefined ? false : Cookies.get('darkMode') === 'true')
-    const [locale, setLocale] = useState('enUS')
+    const [locale, setLocale] = useState(getLocale())
     const [snackbar, setSnackbar] = useState()
     const [open, setOpen] = useState(false)
     const location = useLocation()
+    const { t } = useTranslation()
 
     const theme = createMuiTheme({
         palette: {
+            custom: {
+                main: darkMode ? '#454545' : '#d7eef5',
+                contrastText: darkMode ? '#ffffff' : '#000000',
+            },
             mode: darkMode ? 'dark' : 'light'
         }
     }, locales[locale])
@@ -111,7 +118,7 @@ function App() {
     const handleLogin = (e) => {
         sessionStorage.removeItem('session_id')
         sessionStorage.setItem('session_id', uuidv4())
-        const { userid, email, memberType, phone, temporaryPassword } = e
+        const { message, userid, email, memberType, phone, temporaryPassword } = e
         setUser({
             isLoggedIn: true,
             userid,
@@ -120,30 +127,27 @@ function App() {
             phone,
             temporaryPassword
         })
-        setSnackbar('Successfully logged in.')
+        setSnackbar(t(message))
         handleClick()
     }
 
-    const handleLogout = () => {
-        sessionStorage.removeItem('session_id')
-        sessionStorage.setItem('session_id', uuidv4())
+    const handleLogout = (message) => {
         setUser({ isLoggedIn: false })
         Cookies.remove('user', { path: '', domain: '.udmlibrary.com' })
         sessionStorage.removeItem('session_id')
         sessionStorage.setItem('session_id', uuidv4())
-        setSnackbar('Successfully logged out.')
+        setSnackbar(t(message))
         handleClick()
     }
 
     const handlePasswordChange = (parent) => {
-        console.log(parent)
         setUser({
             ...user,
             temporaryPassword: false
         })
 
         if (parent === 'forcePasswordChange') {
-            setSnackbar('Password successfully updated.')
+            setSnackbar('msgPasswordChangeSuccess')
             handleClick()
         }
     }

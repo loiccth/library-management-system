@@ -38,13 +38,13 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
                 handleUpdateCategoriesSettings(result.data.categories)
                 setSnackbar({
                     type: 'success',
-                    msg: result.data.message
+                    msg: t(result.data.message)
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'error',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {
@@ -59,7 +59,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
         if (category === '') {
             setSnackbar({
                 type: 'error',
-                msg: 'No category selected.'
+                msg: t('msgCategorySettingsNotSelected')
             })
             handleClick()
         }
@@ -69,13 +69,13 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
                     handleUpdateCategoriesSettings(result.data.categories)
                     setSnackbar({
                         type: 'success',
-                        msg: result.data.message
+                        msg: t(result.data.message)
                     })
                 })
                 .catch(err => {
                     setSnackbar({
                         type: 'error',
-                        msg: err.response.data.error
+                        msg: t(err.response.data.error)
                     })
                 })
                 .finally(() => {

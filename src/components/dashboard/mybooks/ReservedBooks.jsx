@@ -101,7 +101,7 @@ const ReservedBooks = (props) => {
                                                 >
                                                     <DialogContent>
                                                         <DialogContentText id="alert-dialog-description">
-                                                            {t('cancelMsg')` ${row.bookid.title}?`}
+                                                            {t('cancelMsg') + ` ${row.bookid.title}?`}
                                                         </DialogContentText>
                                                     </DialogContent>
                                                     <DialogActions>

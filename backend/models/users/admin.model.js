@@ -19,7 +19,7 @@ const adminSchema = new Schema()
 adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, archive: false })
 
-    if (bookBorrowed !== null) return res.json({ 'message': 'Cannot borrow multiple copies of the same book.' })
+    if (bookBorrowed !== null) return res.status(400).json({ error: 'msgBorrowMultiple' })
     else {
         const date = new Date()
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
@@ -28,7 +28,10 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
         const userSettings = await Setting.findOne({ setting: 'USER' })
         const bookLimit = userSettings.options.non_academic_borrow.value
 
-        if (numOfBooksBorrowed >= bookLimit) return res.json({ 'message': `Cannot borrow more than ${bookLimit} books in a month.` })
+        if (numOfBooksBorrowed >= bookLimit) return res.status(400).json({
+            error: 'msgBorrowLibrarianLimit',
+            limit: bookLimit
+        })
         else {
 
             const numOfHighDemandBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active', isHighDemand: true })
@@ -45,7 +48,7 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                             tomorrow.setDate(tomorrow.getDate() + 2)
                             tomorrow.setHours(0, 0, 0, 0)
 
-                            if (libraryOpenTime === 0) return res.json({ 'message': 'Cannot issue high demand book, library is closed tomorrow.' })
+                            if (libraryOpenTime === 0) return res.status(400).json({ error: 'msgBorrowHighDemand' })
                             else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
                         }
 
@@ -78,6 +81,7 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                             })
                                             await newBorrow.save().then(() => {
                                                 return res.status(201).json({
+                                                    message: 'msgBorrowSuccess',
                                                     title: book.title,
                                                     dueDate: new Date(dueDate)
                                                 })
@@ -87,7 +91,7 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                     }
                                     break
                                 }
-                                else res.json({ 'message': 'There are other users infront of the queue.' })
+                                else res.status(400).json({ error: 'msgBorrowQueue' })
                             }
                         }
                         else {
@@ -113,6 +117,7 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                         })
                                         await newBorrow.save().then(() => {
                                             return res.status(201).json({
+                                                message: 'msgBorrowSuccess',
                                                 title: book.title,
                                                 dueDate: new Date(dueDate)
                                             })
@@ -121,12 +126,12 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                     }
                                 }
                             else
-                                res.json({ 'message': 'No books available to loan.' })
+                                res.status(400).json({ error: 'msgBorrowNotAvailable' })
                         }
                     })
             }
             else
-                res.json({ 'message': 'Cannot borrow more than one high demand book.' })
+                res.status(400).json({ error: 'msgBorrowMoreHighDemand' })
         }
     }
 }
@@ -162,10 +167,6 @@ adminSchema.methods.registerMember = function (email, res) {
 
                             newMember.save()
                                 .then(member => {
-                                    res.status(201).json({
-                                        member
-                                    })
-
                                     const mailRegister = {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
@@ -173,16 +174,20 @@ adminSchema.methods.registerMember = function (email, res) {
                                         text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
                                     }
                                     transporter.sendMail(mailRegister, (err, info) => {
-                                        if (err) return console.log(err.message)
-                                        console.log(info)
+                                        if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                                        else
+                                            res.status(201).json({
+                                                message: 'msgUserRegistrationSuccess',
+                                                member
+                                            })
                                     })
                                 })
                                 .catch(err => console.log(err))
                         }
-                        else return res.status(400).json({ 'error': 'Account already exist' })
+                        else return res.status(400).json({ error: 'msgUserRegistrationExist' })
                     })
             }
-            else return res.status(400).json({ 'error': 'Email not found' })
+            else return res.status(404).json({ error: 'msgUserRegistration404' })
         })
 }
 
@@ -261,12 +266,12 @@ adminSchema.methods.registerCSV = function (file, res) {
 adminSchema.methods.toggleStatus = function (userid, res) {
     User.findById(userid)
         .then(user => {
-            if (!user) res.status(404).json({ error: 'User not found' })
+            if (!user) res.status(404).json({ error: 'msgToggleUser404' })
             else {
                 user.status = user.status === 'active' ? 'suspended' : 'active'
                 user.save()
                     .then(user => res.json({
-                        message: `${user.userid} ${user.status}.`,
+                        message: user.status === 'active' ? 'msgToggleUserSuccessActivate' : 'msgToggleUserSuccessSuspend',
                         _id: user._id,
                         status: user.status,
                         memberType: user.memberType,

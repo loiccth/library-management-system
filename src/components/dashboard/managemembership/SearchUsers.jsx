@@ -41,7 +41,7 @@ const SearchUsers = () => {
                 setShowForm(true)
             })
             .catch(err => {
-                setSnackbar(err.response.data.error)
+                setSnackbar(t(err.response.data.error))
                 handleClick()
             })
     }

@@ -103,7 +103,7 @@ const BorrowedBooks = (props) => {
                                                 >
                                                     <DialogContent>
                                                         <DialogContentText id="alert-dialog-description">
-                                                            {t('renewMsg')` ${row.bookid.title}?`}
+                                                            {t('renewMsg') + ` ${row.bookid.title}?`}
                                                         </DialogContentText>
                                                     </DialogContent>
                                                     <DialogActions>

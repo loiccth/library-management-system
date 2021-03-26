@@ -61,7 +61,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
         else {
             setSnackbar({
                 type: 'warning',
-                msg: 'Settings did not change.'
+                msg: t('msgBookSettingsNotChange')
             })
             handleClick()
         }

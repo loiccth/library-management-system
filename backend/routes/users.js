@@ -21,9 +21,9 @@ const secret = process.env.JWT_SECRET
 
 // Login for users
 router.post('/login', (req, res) => {
-    if (req.body.userid === "" || req.body.password === "") {
+    if (!req.body.userid || !req.body.password) {
         return res.status(400).json({
-            'error': 'Missing MemberID/Password.'
+            error: 'msgLoginMissingParams'
         })
     }
 
@@ -31,7 +31,7 @@ router.post('/login', (req, res) => {
         .then(user => {
             if (user === null) {
                 return res.status(401).json({
-                    'error': 'Invalid MemberID or password.'
+                    error: 'msgLoginInvalidCred'
                 })
             }
             else {
@@ -67,8 +67,8 @@ router.post('/register_csv', jwt({ secret, credentialsRequired: true, getToken: 
 
 router.post('/togglestatus', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
-    else if (!req.body.userid) return res.json({ 'error': 'Missing user id' })
-    else if (!mongoose.Types.ObjectId.isValid(req.body.userid)) return res.json({ 'error': 'Invalid user id' })
+    else if (!req.body.userid) return res.status(400).json({ error: 'msgMissingParams' })
+    else if (!mongoose.Types.ObjectId.isValid(req.body.userid)) return res.status(404).json({ error: 'msgToggleUser404' })
     else {
         Admin.findById(req.user._id)
             .then(admin => {
@@ -91,7 +91,10 @@ router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req)
 router.get('/logout', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     User.findOne({ _id: req.user._id })
         .then(user => {
-            user.logout(res)
+            if (user)
+                user.logout(res)
+            else
+                res.sendStatus(404)
         })
 })
 
@@ -129,11 +132,9 @@ router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) 
 // Update password
 router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (!req.body.confirmpassword || !req.body.newpassword || !req.body.oldpassword)
-        return res.status(400).json({
-            'error': 'Missing password param'
-        })
-    else if (req.body.newpassword !== req.body.confirmpassword) return res.status(400).json({ 'error': 'New password does not match with confirm password' })
-    else if (req.body.newpassword === req.body.oldpassword || req.body.confirmpassword === req.body.oldpassword) return res.status(400).json({ 'error': 'New password should not match old password' })
+        return res.status(400).json({ error: 'msgMissingParams' })
+    else if (req.body.newpassword !== req.body.confirmpassword) return res.status(400).json({ error: 'msgPasswordChangeNewPassNotMatch' })
+    else if (req.body.newpassword === req.body.oldpassword || req.body.confirmpassword === req.body.oldpassword) return res.status(400).json({ error: 'msgPasswordChangeOldNew' })
     User.findOne({ _id: req.user._id })
         .then(user => user.changePassword(req.body.oldpassword, req.body.newpassword, res))
         .catch(err => console.log(err))
@@ -141,18 +142,14 @@ router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { 
 
 // Forgot my password
 router.patch('/reset', (req, res) => {
-    if (req.body.userid === undefined)
-        return res.status(400).json({
-            'error': 'Missing userid param'
-        })
-
+    if (!req.body.userid) return res.status(400).json({ error: 'msgMissingParams' })
     axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SITEKEY}&response=${req.body.reCaptcha}`)
         .then(result => {
             if (result.data.success) {
                 User.findOne({ userid: req.body.userid })
                     .then(user => {
                         if (user === null)
-                            res.status(404).json({ 'error': 'MemberID not found.' })
+                            res.status(404).json({ error: 'msgResetPwdUser404' })
                         else {
                             user.resetPassword(res)
                         }
@@ -160,7 +157,7 @@ router.patch('/reset', (req, res) => {
                     .catch(err => console.log(err))
             }
             else {
-                res.status(400).json({ 'error': 'ReCaptcha validation failed.' })
+                res.status(400).json({ error: 'msgResetPwdReCaptchaFail' })
             }
         })
 })
@@ -184,8 +181,8 @@ router.post('/payfine/:fineid', jwt({ secret, credentialsRequired: true, getToke
         .then(payment => {
             payment.paid = true
 
-            transaction.save().then(() => {
-                res.sendStatus(200)
+            payment.save().then(() => {
+                res.json({ message: 'msgPaymentSuccess' })
             })
         })
         .catch(err => console.log(err))
@@ -193,8 +190,7 @@ router.post('/payfine/:fineid', jwt({ secret, credentialsRequired: true, getToke
 
 router.post('/notify', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (req.body.books === undefined) return res.status(400).json({ 'error': 'Missing list of books.' })
-    else if (req.body.type === undefined) return res.status(400).json({ 'error': 'Missing notification type.' })
+    else if (!req.body.books || !req.body.type) return res.status(400).json({ error: 'msgMissingParams' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
@@ -206,14 +202,14 @@ router.post('/notify', jwt({ secret, credentialsRequired: true, getToken: (req) 
 
 router.post('/search', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
-    else if (!req.body.userid) return res.json({ 'error': 'Empty search query' })
+    else if (!req.body.userid) return res.json({ error: 'msgUserSearchEmpty' })
     else {
         const regex = new RegExp(escapeRegExp(req.body.userid), 'gi')
         User.find({ userid: regex }).select(['_id', 'userid', 'status'])
             .then(users => {
                 if (users.length > 0)
                     res.json(users)
-                else res.status(404).json({ error: 'No users found.' })
+                else res.status(404).json({ error: 'msgUserSearch404' })
             })
     }
 })

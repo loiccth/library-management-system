@@ -34,13 +34,13 @@ const RegisterMember = () => {
             .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: `User registered - ${result.data.member.userid}`
+                    msg: t(result.data.message, { userid: result.data.member.userid }),
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {
@@ -74,7 +74,7 @@ const RegisterMember = () => {
                                         error={!!errors.email}
                                         helperText={!!errors.email ? errors.email.message : " "}
                                         inputRef={register({
-                                            required: t('fieldRequired'),
+                                            required: t('requiredField'),
                                             pattern: {
                                                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                                                 message: t('invalidEmail')

@@ -18,7 +18,10 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
         const userSettings = await Setting.findOne({ setting: 'USER' })
         const bookLimit = userSettings.options.academic_borrow.value
 
-        if (numOfBooksBorrowed >= bookLimit) return res.json({ 'message': `Cannot borrow more than ${bookLimit} books at the same time.` })
+        if (numOfBooksBorrowed >= bookLimit) return res.status(400).json({
+            error: 'msgBorrowMemberLimit',
+            limit: bookLimit
+        })
         else {
 
             const numOfHighDemandBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active', isHighDemand: true })
@@ -35,7 +38,7 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                             tomorrow.setDate(tomorrow.getDate() + 2)
                             tomorrow.setHours(0, 0, 0, 0)
 
-                            if (libraryOpenTime === 0) return res.json({ 'message': 'Cannot issue high demand book, library is closed tomorrow.' })
+                            if (libraryOpenTime === 0) return res.status(400).json({ error: 'msgBorrowHighDemand' })
                             else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
                         }
 
@@ -68,6 +71,7 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                             })
                                             await newBorrow.save().then(() => {
                                                 return res.status(201).json({
+                                                    message: 'msgBorrowSuccess',
                                                     title: book.title,
                                                     dueDate: new Date(dueDate)
                                                 })
@@ -77,7 +81,7 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                     }
                                     break
                                 }
-                                else res.json({ 'message': 'There are other users infront of the queue.' })
+                                else res.status(400).json({ error: 'msgBorrowQueue' })
                             }
                         }
                         else {
@@ -103,6 +107,7 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                         })
                                         await newBorrow.save().then(() => {
                                             return res.status(201).json({
+                                                message: 'msgBorrowSuccess',
                                                 title: book.title,
                                                 dueDate: new Date(dueDate)
                                             })
@@ -111,12 +116,12 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                     }
                                 }
                             else
-                                res.json({ 'message': 'No books available to loan.' })
+                                res.status(400).json({ error: 'msgBorrowNotAvailable' })
                         }
                     })
             }
             else
-                res.json({ 'message': 'Cannot borrow more than one high demand book.' })
+                res.status(400).json({ error: 'msgBorrowMoreHighDemand' })
         }
     }
 }

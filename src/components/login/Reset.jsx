@@ -38,16 +38,16 @@ const Reset = (props) => {
 
     const onSubmit = (data) => {
         axios.patch(`${url}/users/reset`, data)
-            .then(() => {
+            .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: 'New temporary password sent.'
+                    msg: t(result.data.message)
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {
@@ -81,14 +81,14 @@ const Reset = (props) => {
                             id="userid"
                             name="userid"
                             label="MemberID"
-                            inputRef={register({ required: 'Empty MemberID field.' })}
+                            inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.userid ? errors.userid.message : " "}
                         />
                         <div className={classes.recaptcha}>
                             <Controller
                                 control={control}
                                 name="reCaptcha"
-                                rules={{ required: "ReCaptcha required." }}
+                                rules={{ required: t('requiredReCaptcha') }}
                                 defaultValue={""}
                             />
                             <ReCAPTCHA sitekey="" theme={props.darkMode ? "dark" : "light"} ref={recaptchaRef} onChange={handleReCaptcha} />

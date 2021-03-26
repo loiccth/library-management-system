@@ -37,7 +37,7 @@ const ChangePassword = (props) => {
 
     const onSubmit = (data) => {
         axios.patch(`${url}/users`, data, { withCredentials: true })
-            .then(() => {
+            .then(result => {
                 props.handlePasswordChange(props.parent)
 
                 if (props.parent === 'forcePasswordChange')
@@ -45,13 +45,13 @@ const ChangePassword = (props) => {
                 else
                     setSnackbar({
                         type: 'success',
-                        msg: 'Password successfully updated.'
+                        msg: t(result.data.message)
                     })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'error',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {
@@ -108,7 +108,7 @@ const ChangePassword = (props) => {
                         name="oldpassword"
                         fullWidth
                         type={showPasswords.oldpassword ? "text" : "password"}
-                        inputRef={register({ required: t('fieldRequired') })}
+                        inputRef={register({ required: t('requiredField') })}
                         error={!!errors.oldpassword}
                         endAdornment={
                             <InputAdornment position="end">
@@ -133,7 +133,7 @@ const ChangePassword = (props) => {
                         fullWidth
                         type={showPasswords.newpassword ? "text" : "password"}
                         inputRef={register({
-                            required: t('fieldRequired'),
+                            required: t('requiredField'),
                             minLength: {
                                 value: 8,
                                 message: t('Password must have at least 8 characters')
@@ -163,7 +163,7 @@ const ChangePassword = (props) => {
                         fullWidth
                         type={showPasswords.confirmpassword ? "text" : "password"}
                         inputRef={register({
-                            required: t('fieldRequired'),
+                            required: t('requiredField'),
                             validate: value =>
                                 value === watch('newpassword') || t('passwordMatch')
                         })}

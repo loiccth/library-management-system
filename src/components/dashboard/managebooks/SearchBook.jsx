@@ -64,7 +64,7 @@ const SearchBook = (props) => {
                     setShowForm(true)
                 }
                 else {
-                    setSnackbar('Book not found.')
+                    setSnackbar(t('msgSearchBook404'))
                     handleClick()
                 }
             })
@@ -101,7 +101,7 @@ const SearchBook = (props) => {
                             name="search"
                             variant="standard"
                             error={!!errors.search}
-                            inputRef={register({ required: t('fieldRequired') })}
+                            inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.search ? errors.search.message : " "}
                         />
                         <TextField

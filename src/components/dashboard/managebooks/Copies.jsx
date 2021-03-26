@@ -47,7 +47,7 @@ const Copies = (props) => {
         if (!isChecked) {
             setSnackbar({
                 type: 'warning',
-                msg: "No book copies checked."
+                msg: t('msgCopiesNoCheck')
             })
             handleClick()
         }
@@ -56,14 +56,14 @@ const Copies = (props) => {
                 .then(result => {
                     setSnackbar({
                         type: 'success',
-                        msg: `Success! ${result.data.noOfBooksRemoved} copies deleted`
+                        msg: t(result.data.message, { amount: result.data.amount })
                     })
                     props.deleteCopies(data)
                 })
                 .catch(err => {
                     setSnackbar({
                         type: 'warning',
-                        msg: err.response.data.error
+                        msg: t(err.response.data.error)
                     })
                 })
                 .finally(() => {
@@ -127,7 +127,7 @@ const Copies = (props) => {
                                                     id="reason"
                                                     name={`copies[${index}].reason`}
                                                     error={errors.copies === undefined ? false : errors.copies[index] === undefined ? false : true}
-                                                    helperText={errors.copies === undefined ? " " : errors.copies[index] === undefined ? " " : t('fieldRequired')}
+                                                    helperText={errors.copies === undefined ? " " : errors.copies[index] === undefined ? " " : t('requiredField')}
                                                     inputRef={register({
                                                         validate: value => {
                                                             if (getValues(`copies[${index}].checked`) && value === "") {

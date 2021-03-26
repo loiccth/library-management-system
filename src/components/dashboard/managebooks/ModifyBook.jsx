@@ -55,16 +55,16 @@ const ModifyBook = (props) => {
 
     const onSubmit = (data) => {
         axios.put(`${url}/books/edit`, data, { withCredentials: true })
-            .then(() => {
+            .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: 'Success! Book updated.'
+                    msg: t(result.data.message)
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {

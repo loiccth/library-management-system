@@ -63,13 +63,13 @@ const DueBooks = (props) => {
             .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: `Success! ${result.data.length} notification(s) sent.`
+                    msg: t(result.data.message, { amount: result.data.users.length })
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {

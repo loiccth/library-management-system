@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import { Alert, Box, Divider, Snackbar } from '@material-ui/core'
@@ -11,6 +12,7 @@ const MyBooks = () => {
     const [loading, setLoading] = useState(true)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [openSnack, setOpenSnack] = useState(false)
+    const { t } = useTranslation()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,23 +39,29 @@ const MyBooks = () => {
         axios.post(`${url}/books/renew/${id}`, {}, { withCredentials: true })
             .then(result => {
                 setBorrowed(borrowed.map(book => {
-                    if (book._id === result.data._id) {
-                        book.renews = result.data.renews
-                        book.dueDate = result.data.dueDate
-                        book.renewedOn = result.data.renewedOn
+                    if (book._id === result.data.borrow._id) {
+                        book.renews = result.data.borrow.renews
+                        book.dueDate = result.data.borrow.dueDate
+                        book.renewedOn = result.data.borrow.renewedOn
                     }
                     return book
                 }))
                 setSnackbar({
                     type: 'success',
-                    msg: 'Book successfully renewed.'
+                    msg: t(result.data.message)
                 })
             })
             .catch(err => {
-                setSnackbar({
-                    type: 'warning',
-                    msg: err.response.data.error
-                })
+                if (err.response.data.error === 'msgRenewOverdue')
+                    setSnackbar({
+                        type: 'warning',
+                        msg: t(err.response.data.error, { days: err.response.data.days })
+                    })
+                else
+                    setSnackbar({
+                        type: 'warning',
+                        msg: err.response.data.error
+                    })
             })
             .finally(() => {
                 handleClick()
@@ -62,20 +70,12 @@ const MyBooks = () => {
 
     const handleCancel = (id) => {
         axios.patch(`${url}/books/cancel_reservation/${id}`, {}, { withCredentials: true })
-            .then(() => {
+            .then(result => {
                 setReserved(reserved.filter((reserve) => reserve.bookid._id !== id))
                 setSnackbar({
                     type: 'success',
-                    msg: 'Book reservation cancelled.'
+                    msg: t(result.data.message)
                 })
-            })
-            .catch(() => {
-                setSnackbar({
-                    type: 'warning',
-                    msg: 'Unexpected error.'
-                })
-            })
-            .finally(() => {
                 handleClick()
             })
     }

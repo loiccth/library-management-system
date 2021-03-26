@@ -50,13 +50,13 @@ const AddBook = (props) => {
             .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: `Book added - ${result.data.title}`
+                    msg: t(result.data.message, { title: result.data.title })
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {

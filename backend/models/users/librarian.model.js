@@ -18,7 +18,7 @@ const librarianSchema = new Schema()
 librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, status: 'active' })
 
-    if (bookBorrowed !== null) return res.json({ 'message': 'Cannot borrow multiple copies of the same book.' })
+    if (bookBorrowed !== null) return res.status(400).json({ error: 'msgBorrowMultiple' })
     else {
         const date = new Date()
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
@@ -27,7 +27,10 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
         const userSettings = await Setting.findOne({ setting: 'USER' })
         const bookLimit = userSettings.options.non_academic_borrow.value
 
-        if (numOfBooksBorrowed >= bookLimit) return res.json({ 'message': `Cannot borrow more than ${bookLimit} books in a month.` })
+        if (numOfBooksBorrowed >= bookLimit) return res.status(400).json({
+            error: 'msgBorrowLibrarianLimit',
+            limit: bookLimit
+        })
         else {
 
             const numOfHighDemandBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active', isHighDemand: true })
@@ -44,7 +47,7 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                             tomorrow.setDate(tomorrow.getDate() + 2)
                             tomorrow.setHours(0, 0, 0, 0)
 
-                            if (libraryOpenTime === 0) return res.json({ 'message': 'Cannot issue high demand book, library is closed tomorrow.' })
+                            if (libraryOpenTime === 0) return res.status(400).json({ error: 'msgBorrowHighDemand' })
                             else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
                         }
 
@@ -77,6 +80,7 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                             })
                                             await newBorrow.save().then(() => {
                                                 return res.status(201).json({
+                                                    message: 'msgBorrowSuccess',
                                                     title: book.title,
                                                     dueDate: new Date(dueDate)
                                                 })
@@ -86,7 +90,7 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                     }
                                     break
                                 }
-                                else res.json({ 'message': 'There are other users infront of the queue.' })
+                                else res.status(400).json({ error: 'msgBorrowQueue' })
                             }
                         }
                         else {
@@ -112,6 +116,7 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                         })
                                         await newBorrow.save().then(() => {
                                             return res.status(201).json({
+                                                message: 'msgBorrowSuccess',
                                                 title: book.title,
                                                 dueDate: new Date(dueDate)
                                             })
@@ -120,12 +125,12 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                     }
                                 }
                             else
-                                res.json({ 'message': 'No books available to loan.' })
+                                res.status(400).json({ error: 'msgBorrowNotAvailable' })
                         }
                     })
             }
             else
-                res.json({ 'message': 'Cannot borrow more than one high demand book.' })
+                res.status(400).json({ error: 'msgBorrowMoreHighDemand' })
         }
     }
 }
@@ -148,21 +153,21 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
     noOfCopies = noOfCopies.trim()
 
     if (isbn.length !== 10 && isbn.length !== 13)
-        return res.status(404).json({ 'error': 'Invalid ISBN length.' })
+        return res.status(400).json({ error: 'msgInvalidISBNLength' })
     else if (campus !== 'pam' && campus !== 'rhill')
-        return res.status(404).json({ 'error': 'Invalid campus.' })
+        return res.status(400).json({ error: 'msgInvalidCampus' })
     else if (!pamLocation.includes(location) && !rhillLocation.includes(location))
-        return res.status(404).json({ 'error': 'Invalid location.' })
+        return res.status(400).json({ error: 'msgInvalidLocation' })
     else if (!categories.includes(category))
-        return res.status(404).json({ 'error': 'Invalid category.' })
+        return res.status(400).json({ error: 'msgInvalidCategory' })
     else if (noOfCopies < 1)
-        return res.status(404).json({ 'error': 'Number of copies must be greater than 0' })
+        return res.status(400).json({ error: 'msgInvalidCopies' })
 
     let googleBookAPI
 
     if (APIValidation) {
         googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
-        if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ 'error': 'Book not found.' })
+        if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ error: 'msgGoogleAPI404' })
     }
     Book.findOne({ isbn })
         .then(result => {
@@ -191,15 +196,21 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                 for (let i = 0; i < noOfCopies; i++)
                     newBook.copies.push({})
                 newBook.save()
-                    .then(() => res.status(201).json({ 'title': APIValidation ? title : book.title }))
-                    .catch(err => res.json({ 'error': err.message }))
+                    .then(() => res.status(201).json({
+                        message: 'msgBookAddSuccess',
+                        title: APIValidation ? title : book.title
+                    }))
+                    .catch(err => console.log(err))
             }
             else {
                 for (let i = 0; i < noOfCopies; i++)
                     result.copies.push({})
                 result.save()
-                    .then(() => res.status(201).json({ 'title': result.title }))
-                    .catch(err => res.json({ 'error': err._message }))
+                    .then(() => res.status(201).json({
+                        message: 'msgBookAddSuccess',
+                        title: result.title
+                    }))
+                    .catch(err => console.log(err))
             }
         })
         .catch(err => console.log(err))
@@ -318,11 +329,11 @@ librarianSchema.methods.editBook = async function (bookDetails, res) {
                 })
 
                 if (campus !== 'pam' && campus !== 'rhill')
-                    return res.status(404).json({ 'error': 'Invalid campus.' })
+                    return res.status(404).json({ error: 'msgInvalidCampus' })
                 else if (!pamLocation.includes(location) && !rhillLocation.includes(location))
-                    return res.status(404).json({ 'error': 'Invalid location.' })
+                    return res.status(404).json({ error: 'msgInvalidLocation' })
                 else if (!categories.includes(category))
-                    return res.status(404).json({ 'error': 'Invalid category.' })
+                    return res.status(404).json({ error: 'msgInvalidCategory' })
 
                 book.title = title
                 book.publisher = publisher
@@ -334,7 +345,7 @@ librarianSchema.methods.editBook = async function (bookDetails, res) {
                 book.author = author
                 book.category = category
 
-                book.save().then(() => res.sendStatus(200))
+                book.save().then(() => res.json({ message: 'msgEditBookSuccess' }))
             }
         })
         .catch(err => console.log(err))
@@ -358,8 +369,8 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
     const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
     const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
 
-    if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.status(400).json({ 'error': 'Library is closed.' })
-    else if (new Date() <= openTime || new Date() >= closeTime) return res.status(400).json({ 'error': 'Library is closed.' })
+    if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.status(400).json({ error: 'msgLibraryClosed' })
+    else if (new Date() <= openTime || new Date() >= closeTime) return res.status(400).json({ error: 'msgLibraryClosed' })
     else {
         User.findOne({ userid })
             .then(user => {
@@ -445,19 +456,19 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                     .catch(err => console.log(err))
                                             }
                                             else
-                                                res.status(400).json({ error: 'Cannot return book, wrong campus.' })
+                                                res.status(400).json({ error: 'msgReturnWrongCampus' })
                                         }
                                         else
-                                            res.status(404).json({ 'error': 'Record not found.' })
+                                            res.status(404).json({ error: 'msgReturn404' })
                                     })
                             }
                             else
-                                res.status(404).json({ 'error': 'Book not found.' })
+                                res.status(404).json({ error: 'msgReturnBook404' })
                         })
                         .catch(err => console.log(err))
                 }
                 else
-                    res.status(404).json({ 'error': 'MemberID not found.' })
+                    res.status(404).json({ error: 'msgReturnMember404' })
             })
     }
 
@@ -513,27 +524,27 @@ librarianSchema.methods.issueBook = async function (isbn, userid, campus, res) {
     const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
     const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
 
-    if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.status(400).json({ 'error': 'Library is closed.' })
-    else if (new Date() <= openTime || new Date() >= closeTime) return res.status(400).json({ 'error': 'Library is closed.' })
+    if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.status(400).json({ error: 'msgLibraryClosed' })
+    else if (new Date() <= openTime || new Date() >= closeTime) return res.status(400).json({ error: 'msgLibraryClosed' })
     else {
         User.findOne({ userid })
             .then(user => {
                 if (!user)
-                    res.status(404).json({ 'error': 'MemberID not found.' })
+                    res.status(404).json({ error: 'msgIssueMember404' })
                 else
                     if (book) {
                         if (book.campus === campus) {
                             if (book.isHighDemand) {
                                 today.setSeconds(libraryCloseTime - 1800)
-                                if (today > new Date()) return res.status(400).json({ 'error': 'Too early to issue high demand book.' })
+                                if (today > new Date()) return res.status(400).json({ error: 'msgIssueHighDemand' })
                             }
                             user.borrow(book._id, libraryOpenTime, res)
                         }
                         else
-                            res.status(400).json({ error: 'Cannot issue book, wrong campus.' })
+                            res.status(400).json({ error: 'msgIssueWrongCampus' })
                     }
                     else
-                        res.status(404).json({ 'error': 'Book not found.' })
+                        res.status(404).json({ error: 'msgIssueBook404' })
             })
             .catch(err => console.log(err))
 
@@ -564,7 +575,10 @@ librarianSchema.methods.removeBook = function (bookCopies, res) {
 
             book.save()
                 .then(() => {
-                    res.json({ 'noOfBooksRemoved': count })
+                    res.json({
+                        message: 'msgCopiesRemove',
+                        amount: count
+                    })
                 })
                 .catch(err => console.log(err))
         })
@@ -579,7 +593,7 @@ librarianSchema.methods.notify = async function (books, type, res) {
                 from: 'no-reply@udmlibrary.com',
                 to: books[i].email,
                 subject: type === 'overdue' ? 'NOTIFY: Book overdue' : 'NOTIFY: Book due',
-                text: `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is overdue since ${books[i].dueDate}`
+                text: `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}`
             }
             try {
                 await transporter.sendMail(mailRegister)
@@ -590,8 +604,11 @@ librarianSchema.methods.notify = async function (books, type, res) {
             }
         }
     }
-    if (emailSent.length === 0) res.status(400).json({ 'error': 'Zero notification sent, no user(s) selected.' })
-    else res.json({ 'listOfEmailSent': emailSent })
+    if (emailSent.length === 0) res.status(400).json({ error: 'msgNotifyNoUsers' })
+    else res.json({
+        message: 'msgNotifySuccess',
+        users: emailSent
+    })
 }
 
 librarianSchema.methods.getBooksReport = function (from, to, res) {

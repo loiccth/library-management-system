@@ -37,13 +37,13 @@ const Users = (props) => {
                 props.toggleUser(e)
                 setSnackbar({
                     type: 'success',
-                    msg: result.data.message
+                    msg: t(result.data.message, { user: result.data.userid })
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {

@@ -7,7 +7,7 @@ const secret = process.env.JWT_SECRET
 
 router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     const { sessionid, device, userAgent, events } = req.body
-    if (!sessionid || !device || !userAgent || !events) return res.status(400).json({ 'error': 'Missing params' })
+    if (!sessionid || !device || !userAgent || !events) return res.status(400).json({ error: 'msgMissingParams' })
 
     else {
         // Change when push to prod

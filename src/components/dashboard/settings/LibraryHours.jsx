@@ -45,13 +45,13 @@ const LibraryHours = ({ hours }) => {
             .then(result => {
                 setSnackbar({
                     type: 'success',
-                    msg: result.data.message
+                    msg: t(result.data.message)
                 })
             })
             .catch(err => {
                 setSnackbar({
                     type: 'warning',
-                    msg: err.response.data.error
+                    msg: t(err.response.data.error)
                 })
             })
             .finally(() => {

@@ -33,7 +33,7 @@ router.post('/add_locations', jwt({ secret, credentialsRequired: true, getToken:
                         setting.save()
                             .then((newSettings) => {
                                 res.json({
-                                    message: 'Category successfully added.',
+                                    message: 'msgLocationSettingsAdd',
                                     campus: 'pam',
                                     location: newSettings.options
                                 })
@@ -41,7 +41,7 @@ router.post('/add_locations', jwt({ secret, credentialsRequired: true, getToken:
                     }
                     else
                         res.status(400).json({
-                            error: 'Cannot add duplicate location.'
+                            error: 'msgLocationSettingsDuplicate'
                         })
                 })
         }
@@ -56,7 +56,7 @@ router.post('/add_locations', jwt({ secret, credentialsRequired: true, getToken:
                         setting.save()
                             .then((newSettings) => {
                                 res.json({
-                                    message: 'Category successfully added.',
+                                    message: 'msgLocationSettingsAdd',
                                     campus: 'rhill',
                                     location: newSettings.options
                                 })
@@ -64,7 +64,7 @@ router.post('/add_locations', jwt({ secret, credentialsRequired: true, getToken:
                     }
                     else
                         res.status(400).json({
-                            error: 'Cannot add duplicate location.'
+                            error: 'msgLocationSettingsDuplicate'
                         })
                 })
         }
@@ -86,7 +86,7 @@ router.post('/remove_locations', jwt({ secret, credentialsRequired: true, getTok
                         setting.save()
                             .then((newSettings) => {
                                 res.json({
-                                    message: 'Category successfully added.',
+                                    message: 'msgLocationSettingsRemove',
                                     campus: 'pam',
                                     location: newSettings.options
                                 })
@@ -94,7 +94,7 @@ router.post('/remove_locations', jwt({ secret, credentialsRequired: true, getTok
                     }
                     else
                         res.status(404).json({
-                            error: 'Location not found.'
+                            error: 'msgLocationSettings404'
                         })
                 })
         }
@@ -109,7 +109,7 @@ router.post('/remove_locations', jwt({ secret, credentialsRequired: true, getTok
                         setting.save()
                             .then((newSettings) => {
                                 res.json({
-                                    message: 'Category successfully added.',
+                                    message: 'msgLocationSettingsRemove',
                                     campus: 'rhill',
                                     location: newSettings.options
                                 })
@@ -117,7 +117,7 @@ router.post('/remove_locations', jwt({ secret, credentialsRequired: true, getTok
                     }
                     else
                         res.status(404).json({
-                            error: 'Location not found.'
+                            error: 'msgLocationSettings404'
                         })
                 })
         }
@@ -144,14 +144,14 @@ router.post('/add_categories', jwt({ secret, credentialsRequired: true, getToken
                     setting.save()
                         .then((newSettings) => {
                             res.json({
-                                message: 'Category successfully added.',
+                                message: 'msgCategorySettingsAdd',
                                 categories: newSettings.options
                             })
                         })
                 }
                 else
                     res.status(400).json({
-                        error: 'Cannot add duplicate category.'
+                        error: 'msgCategorySettingsDuplicate'
                     })
             })
     }
@@ -171,14 +171,14 @@ router.post('/remove_categories', jwt({ secret, credentialsRequired: true, getTo
                     setting.save()
                         .then((newSettings) => {
                             res.json({
-                                message: 'Category successfully removed.',
+                                message: 'msgCategorySettingsRemove',
                                 categories: newSettings.options
                             })
                         })
                 }
                 else
                     res.status(404).json({
-                        error: 'Category not found.'
+                        error: 'msgCategorySettings404'
                     })
             })
     }
@@ -241,9 +241,9 @@ router.put('/hours', jwt({ secret, credentialsRequired: true, getToken: (req) =>
                 hours.save()
             })
         if (updated)
-            res.json({ 'message': 'Opening and closing hours updated.' })
+            res.json({ message: 'msgHoursSettingsUpdated' })
         else
-            res.status(400).json({ 'error': 'Opening/closing hours did not change.' })
+            res.status(400).json({ error: 'msgHoursSettingsNotUpdated' })
     }
 })
 
@@ -285,7 +285,7 @@ router.put('/books', jwt({ secret, credentialsRequired: true, getToken: (req) =>
                 settings.markModified('options')
                 settings.save()
             })
-        res.json({ 'message': 'Book settings updated.' })
+        res.json({ message: 'msgBookSettingsUpdated' })
     }
 })
 
@@ -328,7 +328,7 @@ router.put('/users', jwt({ secret, credentialsRequired: true, getToken: (req) =>
                 settings.markModified('options')
                 settings.save()
             })
-        res.json({ 'message': 'User settings updated.' })
+        res.json({ message: 'msgUserSettingsUpdated' })
     }
 })
 

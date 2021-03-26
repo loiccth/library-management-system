@@ -118,7 +118,7 @@ const Info = (props) => {
                                 </Grid>
                             </Container>
                         </Box>
-                        <Footer />
+                        <Footer darkMode={props.darkMode} />
                     </Box>
                 </>
             }

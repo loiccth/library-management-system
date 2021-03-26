@@ -37,7 +37,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
         if (campus === '') {
             setSnackbar({
                 type: 'error',
-                msg: 'No campus selected.'
+                msg: t('msgLocationSettingsCampus')
             })
             handleClick()
         }
@@ -50,13 +50,13 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                     })
                     setSnackbar({
                         type: 'success',
-                        msg: result.data.message
+                        msg: t(result.data.message)
                     })
                 })
                 .catch(err => {
                     setSnackbar({
                         type: 'error',
-                        msg: err.response.data.error
+                        msg: t(err.response.data.error)
                     })
                 })
                 .finally(() => {
@@ -72,7 +72,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
         if (campus === '') {
             setSnackbar({
                 type: 'error',
-                msg: 'No category selected.'
+                msg: t('msgLocationSettingsCampus')
             })
             handleClick()
         }
@@ -85,13 +85,13 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                     })
                     setSnackbar({
                         type: 'success',
-                        msg: result.data.message
+                        msg: t(result.data.message)
                     })
                 })
                 .catch(err => {
                     setSnackbar({
                         type: 'error',
-                        msg: err.response.data.error
+                        msg: t(err.response.data.error)
                     })
                 })
                 .finally(() => {
@@ -144,7 +144,7 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
                                 fullWidth
                                 required
                                 error={!!errors.location}
-                                inputRef={register({ required: t('fieldRequired') })}
+                                inputRef={register({ required: t('requiredField') })}
                                 helperText={!!errors.location ? errors.location.message : ""}
                             />
                             <Box sx={{ my: 3 }}>

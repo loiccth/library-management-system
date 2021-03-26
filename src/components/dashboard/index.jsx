@@ -117,8 +117,8 @@ const Dashboard = (props) => {
 
     const handleLogout = () => {
         axios.get(`${url}/users/logout`, { withCredentials: true })
-            .then(() => {
-                props.handleLogout()
+            .then(result => {
+                props.handleLogout(result.data.message)
             })
     }
 
@@ -318,6 +318,8 @@ const useStyles = makeStyles(theme => ({
         }
     },
     appBar: {
+        backgroundColor: theme.palette.custom.main,
+        color: theme.palette.custom.contrastText,
         [theme.breakpoints.up("lg")]: {
             width: `calc(100% - ${drawerWidth}px)`,
             marginLeft: drawerWidth

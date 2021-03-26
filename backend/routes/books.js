@@ -25,13 +25,13 @@ router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (r
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else if (APIValidation) {
         if (!location || !campus || !isbn || !noOfCopies || !category) return res.status(400).json({
-            'error': 'Missing params.'
+            error: 'msgMissingParams'
         })
     }
     else if (!APIValidation) {
         if (!title || !authors || !isbn || !publisher || !publishedDate || !category ||
             !description || !noOfPages || !location || !campus || !noOfCopies) return res.status(400).json({
-                'error': 'Missing params.'
+                error: 'msgMissingParams'
             })
     }
     Librarian.findOne({ _id: req.user._id })
@@ -53,7 +53,7 @@ router.post('/add', jwt({ secret, credentialsRequired: true, getToken: (req) => 
 
 router.put('/edit', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (req.body.isbn === undefined || req.body.isbn === null) return res.status(400).json({ 'error': 'Missing params' })
+    else if (!req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
     else {
         Librarian.findOne({ _id: req.user._id })
             .then(librarian => {
@@ -89,7 +89,7 @@ router.post('/renew/:borrowid', jwt({ secret, credentialsRequired: true, getToke
 // Return a borrowed book
 router.post('/return_book', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (!req.body.userid || !req.body.isbn || !req.body.campus) return res.sendStatus(400)
+    else if (!req.body.userid || !req.body.isbn || !req.body.campus) return res.status(400).json({ error: 'msgMissingParams' })
     else {
         Librarian.findOne({ _id: req.user._id })
             .then(librarian => {
@@ -117,7 +117,7 @@ router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req)
 // Issue book
 router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType != 'Librarian') return res.sendStatus(403)
-    else if (!req.body.isbn || !req.body.userid || !req.body.campus) return res.sendStatus(400)
+    else if (!req.body.isbn || !req.body.userid || !req.body.campus) return res.status(400).json({ error: 'msgMissingParams' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
@@ -203,8 +203,7 @@ router.get('/reservation', jwt({ secret, credentialsRequired: true, getToken: (r
 // Remove book
 router.post('/remove', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (req.body.copies === undefined || req.body.copies === null) return res.status(400).json({ 'error': 'Missing copies params' })
-    else if (req.body.isbn === undefined || req.body.isbn === null) return res.status(400).json({ 'error': 'Missing isbn params' })
+    else if (req.body.copies || req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {

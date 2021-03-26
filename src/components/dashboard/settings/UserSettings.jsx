@@ -51,7 +51,7 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
                 .then(result => {
                     setSnackbar({
                         type: 'success',
-                        msg: result.data.message
+                        msg: t(result.data.message)
                     })
                     handleUpdateUserSettings(data.settings)
                     handleClick()
@@ -59,7 +59,7 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
         else {
             setSnackbar({
                 type: 'warning',
-                msg: 'Settings did not change.'
+                msg: t('msgUserSettingsNotChange')
             })
             handleClick()
         }

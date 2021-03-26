@@ -38,14 +38,14 @@ const ReturnBook = () => {
         axios.post(`${url}/books/return_book`, data, { withCredentials: true })
             .then(result => {
                 if (result.data.noOfDaysOverdue <= 0)
-                    setMessage('Book record successfully updated. No overdue fees.')
+                    setMessage(t('msgReturnBookNoOverdue'))
                 else {
-                    setMessage(`Book record successfully updated. Book overdue for ${result.data.noOfDaysOverdue} day(s). Fine per day: Rs ${result.data.finePerDay}. Total fine: Rs ${result.data.noOfDaysOverdue * result.data.finePerDay}`)
+                    setMessage(t('msgReturnBookOverdue', { days: result.data.noOfDaysOverdue, fine: result.data.finePerDay, total: result.data.noOfDaysOverdue * result.data.finePerDay }))
                     setPaymentID(result.data.paymentID)
                 }
             })
             .catch(err => {
-                setMessage(err.response.data.error)
+                setMessage(t(err.response.data.error))
             })
             .finally(() => {
                 reset()
@@ -54,9 +54,9 @@ const ReturnBook = () => {
 
     const handleFine = () => {
         setClick(true)
-        axios.post(`${url}/user/payfine/${paymentID}`)
-            .then(() => {
-                setPaymentMsg('Payment record updated successfully.')
+        axios.post(`${url}/users/payfine/${paymentID}`)
+            .then(result => {
+                setPaymentMsg(t(result.data.message))
             })
     }
 

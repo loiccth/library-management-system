@@ -144,7 +144,7 @@ const Home = (props) => {
                         <Box className={classes.books}>
                             {books && <Books books={books} />}
                         </Box>
-                        {books && <Footer />}
+                        {books && <Footer darkMode={props.darkMode} />}
                     </Box>
                 </React.Fragment>
             }

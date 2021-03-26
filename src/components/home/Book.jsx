@@ -61,15 +61,21 @@ const Book = (props) => {
                     setTransaction('Reserve')
                     setSnackbar({
                         type: 'success',
-                        msg: result.data.message
+                        msg: t(result.data.message)
                     })
                     getBook(id)
                 })
                 .catch(err => {
-                    setSnackbar({
-                        type: 'warning',
-                        msg: err.response.data.error
-                    })
+                    if (err.response.data.error === 'msgReserveMax')
+                        setSnackbar({
+                            type: 'warning',
+                            msg: t(err.response.data.error, { max: err.response.data.max })
+                        })
+                    else
+                        setSnackbar({
+                            type: 'warning',
+                            msg: t(err.response.data.error)
+                        })
                 })
                 .finally(() => {
                     handleClick()
@@ -78,11 +84,11 @@ const Book = (props) => {
 
         else if (transaction === 'Reserve') {
             axios.patch(`${url}/books/cancel_reservation/${id}`, {}, { withCredentials: true })
-                .then(() => {
+                .then(result => {
                     setTransaction(null)
                     setSnackbar({
                         type: 'success',
-                        msg: 'Book reservation cancelled.'
+                        msg: t(result.data.message)
                     })
                     getBook(id)
                     handleClick()
@@ -137,9 +143,9 @@ const Book = (props) => {
                                             <Grid item xs={12} style={{ textAlign: 'center' }}>
                                                 {props.user.isLoggedIn ?
                                                     <React.Fragment>
-                                                        {transaction === null && <Button variant="outlined" onClick={handleToggle}>{t('reserve')}</Button>}
-                                                        {transaction === 'Reserve' && <Button variant="outlined" onClick={handleToggle}>{t('cancelReservation')}</Button>}
-                                                        {transaction === 'Borrow' && <Button variant="outlined" disabled>{t('returnBook')}</Button>}
+                                                        {transaction === null && <Button variant="contained" onClick={handleToggle}>{t('reserve')}</Button>}
+                                                        {transaction === 'Reserve' && <Button variant="contained" onClick={handleToggle}>{t('cancelReservation')}</Button>}
+                                                        {transaction === 'Borrow' && <Button variant="contained" disabled>{t('returnBook')}</Button>}
                                                         <Dialog
                                                             open={open}
                                                             onClose={handleToggle}
@@ -235,7 +241,7 @@ const Book = (props) => {
                             </Container>
                         </Box>
                     </Box>
-                    <Footer />
+                    <Footer darkMode={props.darkMode} />
                 </Box>
             </React.Fragment>
         )

@@ -57,10 +57,10 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
 
                     const now = new Date()
                     const expireDate = new Date(new Date(this.updatedAt).getTime() + (temporaryTimer * 1000))
-                    if (now > expireDate) return res.status(401).json({ 'error': 'Temporary password expired.' })
+                    if (now > expireDate) return res.status(401).json({ error: 'msgLoginPasswordExp' })
                 }
                 else if (this.status === 'suspended') {
-                    return res.status(401).json({ 'error': 'Account suspended.' })
+                    return res.status(401).json({ error: 'msgLoginAccSuspended' })
                 }
                 const { _id, userid, memberType, temporaryPassword } = this
                 const token = jsonwebtoken.sign({
@@ -89,6 +89,7 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
                 })
 
                 res.json({
+                    message: 'msgLoginSuccess',
                     _id,
                     userid,
                     email,
@@ -99,7 +100,7 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
             }
             else {
                 res.status(401).json({
-                    'error': 'Invalid MemberID or Password.'
+                    error: 'msgLoginInvalidCred'
                 })
             }
         })
@@ -109,7 +110,7 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
 baseUserSchema.methods.logout = function (res) {
     res.clearCookie('jwttoken')
     res.clearCookie('user')
-    res.sendStatus(200)
+    res.json({ message: 'msgLogoutSuccess' })
 }
 
 baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res) {
@@ -147,12 +148,12 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
                             // Change when push to prod
                         })
 
-                        res.sendStatus(200)
+                        res.json({ message: 'msgPasswordChangeSuccess' })
                     })
                     .catch(err => console.log(err))
             }
             else {
-                res.status(400).json({ 'error': 'Old password does not match' })
+                res.status(400).json({ error: 'msgPasswordChangeNotMatch' })
             }
         })
 }
@@ -163,14 +164,10 @@ baseUserSchema.methods.resetPassword = async function (res) {
     this.temporaryPassword = true
     this.updatedAt = Date()
 
-    console.log(pwd)
-
     const email = await User.findById(this._id).populate('udmid', 'email')
 
     this.save()
         .then(() => {
-            res.sendStatus(200)
-
             const mailForgotPassword = {
                 from: 'no-reply@udmlibrary.com',
                 to: email.udmid.email,
@@ -178,8 +175,8 @@ baseUserSchema.methods.resetPassword = async function (res) {
                 text: 'Your new password is valid for 24 hours:  ' + pwd
             }
             transporter.sendMail(mailForgotPassword, (err, info) => {
-                if (err) return console.log(err.message)
-                console.log(info)
+                if (err) return res.status(500).json({ error: 'msgResetPwdUnexpectedError' })
+                else res.json({ message: 'msgResetPwdSuccess' })
             })
         })
         .catch(err => console.log(err))
@@ -193,15 +190,19 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
 
     const transaction = await Transaction.findOne({ bookid, userid: this._id, status: "active" })
 
-    if (numOfReservations >= maxReservations) return res.status(400).json({ error: `Cannot reserve more than ${maxReservations} books.` })
+    if (numOfReservations >= maxReservations)
+        return res.status(400).json({
+            error: 'msgReserveMax',
+            max: maxReservations
+        })
     else if (transaction !== null) {
-        if (transaction.transactionType === 'Borrow') res.status(400).json({ error: 'You already have a copy borrowed.' })
-        else res.status(400).json({ error: 'Book already reserved.' })
+        if (transaction.transactionType === 'Borrow') res.status(400).json({ error: 'msgReserveDuplicate' })
+        else res.status(400).json({ error: 'msgReserveAlready' })
     }
     else if (transaction === null) {
         Book.findById(bookid)
             .then(async book => {
-                if (book === null) return res.status(404).json({ error: 'Book not found.' })
+                if (book === null) return res.status(404).json({ error: 'msgReserveBook404' })
                 let bookAvailable = book.noOfBooksOnLoan + book.noOfBooksOnHold < book.copies.length
                 if (bookAvailable) {
                     for (let i = 0; i < book.copies.length; i++) {
@@ -230,7 +231,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                 newReservation.save()
                     .then(reservation => {
                         res.json({
-                            message: 'Book reservation successful.',
+                            message: 'msgReserveSuccess',
                             reservation
                         })
                     })
@@ -285,11 +286,12 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
                             }
                         }
 
-                        book.save().then(() => res.sendStatus(200)).catch(err => console.log(err))
+                        book.save().then(() => res.json({ message: 'msgReserveCancelSuccess' }))
+                            .catch(err => console.log(err))
                     })
             }
             else
-                res.sendStatus(404)
+                res.status(404).json({ error: 'msgReserve404' })
         })
         .catch(err => console.log(err))
 }
@@ -303,17 +305,17 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
         const book = await Book.findById(borrow.bookid)
 
         if (book.reservation.length > book.noOfBooksOnHold)
-            return res.status(400).json({ 'error': 'Cannot renew book because there are reservations.' })
+            return res.status(400).json({ error: 'msgRenewReserved' })
         else {
-            if (borrow.isHighDemand === true) return res.status(400).json({ 'error': 'Cannot renew high demand book.' })
-            else if (borrow.renews >= renewalsAllowed) return res.status(400).json({ 'error': 'Reached max number of renewals.' })
+            if (borrow.isHighDemand === true) return res.status(400).json({ error: 'msgRenewHighDemand' })
+            else if (borrow.renews >= renewalsAllowed) return res.status(400).json({ error: 'msgRenewMax' })
             else {
                 const now = new Date(new Date().toDateString())
                 const borrowDate = new Date(borrow.dueDate.toDateString())
                 let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
-                if (numOfDays > 2) return res.status(400).json({ 'error': 'Can only renew within 2 days of due date.' })
+                if (numOfDays > 2) return res.status(400).json({ error: 'msgRenew2Days' })
                 // TODO: allow renew if overdue
-                else if (numOfDays < 0) return res.status(400).json({ 'error': `Book overdue by ${numOfDays * -1} day(s).` })
+                else if (numOfDays < 0) return res.status(400).json({ error: 'msgRenewOverdue', days: numOfDays * -1 })
                 else {
                     const newDueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
 
@@ -333,7 +335,12 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                             book.save().catch(err => console.log(err))
                         })
 
-                    borrow.save().then(borrow => res.json(borrow)).catch(err => console.log(err))
+                    borrow.save()
+                        .then(borrow => res.json({
+                            message: 'msgRenewSuccess',
+                            borrow
+                        }))
+                        .catch(err => console.log(err))
                 }
             }
         }
