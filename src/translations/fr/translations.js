@@ -168,6 +168,15 @@ export const TRANSLATIONS_FR = {
     dueBooks: 'Livres dus',
     from: 'De',
     to: 'À',
+    postedBy: 'Posté par',
+    date: 'Date',
+    addPost: 'Ajouter',
+    addPostTitle: 'Créer une nouvelle annonce',
+    body: 'Corps',
+    post: 'Poster',
+    delete: 'Effacer',
+    deleteMsg: 'Es-tu sur de vouloir supprimer cette annonce?',
+    editPostTitle: 'Modifier une annonce',
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',
@@ -254,5 +263,10 @@ export const TRANSLATIONS_FR = {
     msgBorrowNotAvailable: 'Aucun livre disponible au prêt.',
     msgBorrowMoreHighDemand: "Impossible d'emprunter plus d'un livre à forte demande.",
     msgBorrowSuccess: 'Livre intitulé {{title}} délivré à {{userid}} et dû le {{date}}',
-    msgBorrowMemberLimit: "Impossible d'emprunter plus de {{limit}} livres en même temps."
+    msgBorrowMemberLimit: "Impossible d'emprunter plus de {{limit}} livres en même temps.",
+    msgPosts404: 'Messages non trouvés',
+    msgPost404: 'Message introuvable',
+    msgPostAdd: 'Publication ajouté avec succès',
+    msgPostUpdate: 'Message mis à jour avec succès',
+    msgPostDelete: 'Message supprimé avec succès'
 }

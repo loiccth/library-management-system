@@ -73,6 +73,7 @@ const Navbar = (props) => {
                     <div className={classes.title}>
                         <Link to='/'>
                             <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
+                            <img src={props.darkMode ? logo : whitelogo} alt="udmlogo" style={{ display: 'none' }} />
                         </Link>
                     </div>
                     {props.darkMode ?

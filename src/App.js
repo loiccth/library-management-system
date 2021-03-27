@@ -21,6 +21,7 @@ import Settings from './components/dashboard/settings'
 import Reports from './components/dashboard/reports'
 import MyBooks from './components/dashboard/mybooks'
 import Profile from './components/dashboard/profile'
+import Blog from './components/blog'
 import ForcePasswordChange from './components/others/ForcePasswordChange'
 import { getLocale } from './functions/getLocale'
 
@@ -57,11 +58,11 @@ function App() {
     }
 
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
     useEffect(() => {
@@ -167,6 +168,7 @@ function App() {
                     <Routes>
                         <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
                         <Route path='/info' element={<Info user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
+                        <Route path='/blog' element={<Blog user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
                         <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handleLogin={handleLogin} />} />
                         <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
                         <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />}>

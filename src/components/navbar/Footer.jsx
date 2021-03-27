@@ -29,7 +29,7 @@ const Footer = (props) => {
 
     return (
         <Box sx={{ py: 2 }} component="footer" className={classes.footer}>
-            <Typography variant="body2">{t('develop')} Loïc SE 2.1 2020 - 2021</Typography>
+            <Typography variant="body2" style={{ marginBottom: '6px' }}>{t('develop')} Loïc SE 2.1 2020 - 2021</Typography>
             <Typography variant="body2"><GitHubIcon /></Typography>
             <Button className={classes.btn} variant="contained" disableRipple disableElevation onClick={handleOpen}>
                 {t('rules')}

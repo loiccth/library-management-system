@@ -18,12 +18,13 @@ app.use('/users', require('./routes/users'))
 app.use('/books', require('./routes/books'))
 app.use('/settings', require('./routes/settings'))
 app.use('/analytics', require('./routes/analytics'))
+app.use('/posts', require('./routes/posts'))
 
 app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
         res.status(401).json({
             'success': false,
-            'message': 'Invalid JWT Token'
+            'error': 'Invalid JWT Token'
         })
     }
 })

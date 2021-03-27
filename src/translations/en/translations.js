@@ -168,6 +168,15 @@ export const TRANSLATIONS_EN = {
     dueBooks: 'Due Books',
     from: 'From',
     to: 'To',
+    postedBy: 'Posted by',
+    date: 'Date',
+    addPost: 'Add Post',
+    addPostTitle: 'Create a new post',
+    body: 'Body',
+    post: 'Post',
+    delete: 'Delete',
+    deleteMsg: 'Are you sure you want to delete this post?',
+    editPostTitle: 'Edit a post',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',
@@ -254,5 +263,10 @@ export const TRANSLATIONS_EN = {
     msgBorrowNotAvailable: 'No books are available to loan.',
     msgBorrowMoreHighDemand: 'Cannot borrow more than one high demand book.',
     msgBorrowSuccess: 'Book titled {{title}} issued to {{userid}} and is due on {{date}}',
-    msgBorrowMemberLimit: 'Cannot borrow more than {{limit}} books at the same time.'
+    msgBorrowMemberLimit: 'Cannot borrow more than {{limit}} books at the same time.',
+    msgPosts404: 'Posts not found',
+    msgPost404: 'Post not found',
+    msgPostAdd: 'Post successfully added',
+    msgPostUpdate: 'Post successfully updated',
+    msgPostDelete: 'Post successfully deleted'
 }
