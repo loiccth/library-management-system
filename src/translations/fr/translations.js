@@ -201,6 +201,10 @@ export const TRANSLATIONS_FR = {
     publishDetails: 'Publier les détails',
     locationDetails: "Détails de l'emplacement",
     addedDate: "Date d'ajout",
+    duePayments: 'Paiements dus',
+    fineDetails: 'Détails paiement',
+    use: 'Utiliser',
+    markdown: 'pour mettre en forme le texte',
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',

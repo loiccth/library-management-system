@@ -12,22 +12,26 @@ import {
     makeStyles,
     MenuItem,
     Snackbar,
-    TextField
+    TextField,
+    ThemeProvider,
+    useTheme
 } from '@material-ui/core'
 import { LocalizationProvider, DatePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import { enGB, fr, zhCN } from 'date-fns/locale'
+import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 
 const localeMap = {
     enUS: enGB,
     frFR: fr,
-    zhCN: zhCN
+    zhCN: zhCN,
+    arEG: arSA
 }
 
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
-    zhCN: '__-__-__'
+    zhCN: '__-__-__',
+    arEG: '__/__/____'
 }
 
 const AddBookNoAPI = (props) => {
@@ -45,6 +49,7 @@ const AddBookNoAPI = (props) => {
         }
     })
     const { t } = useTranslation()
+    const theme = useTheme()
 
     useEffect(() => {
         setValue('location', '')
@@ -186,31 +191,43 @@ const AddBookNoAPI = (props) => {
                                         helperText={!!errors.publisher ? errors.publisher.message : " "}
                                     />
                                     <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
-                                        <Controller
-                                            render={({ onChange, value }) => (
-                                                <DatePicker
-                                                    mask={maskMap[props.locale]}
-                                                    label={t('publishedDate')}
-                                                    value={value}
-                                                    onChange={onChange}
-                                                    disableFuture
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                            {...params}
-                                                            variant="standard"
-                                                            name="publishedDate"
-                                                            fullWidth
-                                                            required
-                                                            error={params.error || !!errors.publishedDate}
-                                                            helperText={params.error ? t('invalidDate') : !!errors.publishedDate ? errors.publishedDate.message : params.helperText}
-                                                        />
-                                                    )}
-                                                />
-                                            )}
-                                            name="publishedDate"
-                                            control={control}
-                                            rules={{ required: t('requiredField') }}
-                                        />
+                                        <ThemeProvider theme={{ ...theme, direction: 'ltr' }}>
+                                            <Controller
+                                                render={({ onChange, value }) => (
+                                                    <DatePicker
+                                                        mask={maskMap[props.locale]}
+                                                        label={t('publishedDate')}
+                                                        value={value}
+                                                        onChange={onChange}
+                                                        disableFuture
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                                {...params}
+                                                                variant="standard"
+                                                                name="publishedDate"
+                                                                fullWidth
+                                                                required
+                                                                error={params.error || !!errors.publishedDate}
+                                                                helperText={params.error ? t('invalidDate') : !!errors.publishedDate ? errors.publishedDate.message : params.helperText}
+                                                                InputLabelProps={{
+                                                                    style: {
+                                                                        left: props.locale === 'arEG' ? 'auto' : 0
+                                                                    }
+                                                                }}
+                                                                FormHelperTextProps={{
+                                                                    style: {
+                                                                        textAlign: props.locale === 'arEG' ? 'right' : 'left'
+                                                                    }
+                                                                }}
+                                                            />
+                                                        )}
+                                                    />
+                                                )}
+                                                name="publishedDate"
+                                                control={control}
+                                                rules={{ required: t('requiredField') }}
+                                            />
+                                        </ThemeProvider>
                                     </LocalizationProvider>
                                 </Grid>
                                 <Grid item xs={10} md={5}>

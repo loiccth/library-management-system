@@ -7,14 +7,16 @@ import IssueBook from './IssueBook'
 import ReturnBook from './ReturnBook'
 import OverdueBooks from './OverdueBooks'
 import DueBooks from './DueBooks'
+import DuePayments from './DuePayments'
 import Reservations from './Reservations'
 
 const LibrarianMain = (props) => {
     const classes = useStyles()
     const [loading, setLoading] = useState(true)
-    const [overdueBooks, setOverdueBooks] = useState()
-    const [dueBooks, setDueBooks] = useState()
-    const [reservations, setReservations] = useState()
+    const [overdueBooks, setOverdueBooks] = useState([])
+    const [dueBooks, setDueBooks] = useState([])
+    const [duePayments, setDuePayments] = useState([])
+    const [reservations, setReservations] = useState([])
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,20 +58,33 @@ const LibrarianMain = (props) => {
             setReservations(
                 getReserve.data.map(reserve => {
                     return {
-                        checked: false,
                         _id: reserve._id,
                         userid: reserve.userid.userid,
-                        email: reserve.userid.udmid.email,
                         title: reserve.bookid.title,
                         isbn: reserve.bookid.isbn,
-                        dueDate: reserve.dueDate,
                         reserveDate: reserve.createdAt,
                         expireDate: reserve.expireAt,
-                        renews: reserve.renews,
                         isHighDemand: reserve.bookid.isHighDemand
                     }
                 })
             )
+            const getDuePayments = await axios.get(`${url}/users/fine`, { withCredentials: true })
+            setDuePayments(
+                getDuePayments.data.map(payment => {
+                    return {
+                        _id: payment._id,
+                        userid: payment.userid.userid,
+                        memberType: payment.userid.memberType,
+                        title: payment.bookid.title,
+                        isbn: payment.bookid.isbn,
+                        copyid: payment.copyid,
+                        days: payment.numOfDays,
+                        price: payment.pricePerDay,
+                        date: payment.createdAt
+                    }
+                })
+            )
+
             setLoading(false)
         }
         fetchData()
@@ -167,10 +182,10 @@ const LibrarianMain = (props) => {
                 <Box sx={{ my: 5 }}>
                     <Grid container justifyContent="space-evenly">
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <IssueBook />
+                            <IssueBook locale={props.locale} />
                         </Grid>
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <ReturnBook />
+                            <ReturnBook locale={props.locale} />
                         </Grid>
                     </Grid>
                     <Box sx={{ my: 3 }}>
@@ -181,6 +196,10 @@ const LibrarianMain = (props) => {
                         <Divider />
                     </Box>
                     <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} locale={props.locale} />
+                    <Box sx={{ my: 3 }}>
+                        <Divider />
+                    </Box>
+                    <DuePayments duePayments={duePayments} />
                     <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>

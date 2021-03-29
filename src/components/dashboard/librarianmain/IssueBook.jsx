@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
@@ -21,7 +22,7 @@ import {
     Typography,
 } from '@material-ui/core'
 
-const IssueBook = () => {
+const IssueBook = (props) => {
     const [open, setOpen] = useState(false)
     const [check, setCheck] = useState(false)
     const [message, setMessage] = useState()
@@ -94,6 +95,11 @@ const IssueBook = () => {
                                     inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.userid}
                                     helperText={!!errors.userid ? errors.userid.message : ""}
+                                    InputLabelProps={{
+                                        style: {
+                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                        }
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -108,6 +114,11 @@ const IssueBook = () => {
                                     inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.isbn}
                                     helperText={!!errors.isbn ? errors.isbn.message : ""}
+                                    InputLabelProps={{
+                                        style: {
+                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                        }
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -154,6 +165,10 @@ const IssueBook = () => {
             </Dialog>
         </>
     )
+}
+
+IssueBook.propTypes = {
+    locale: PropTypes.string.isRequired
 }
 
 export default IssueBook

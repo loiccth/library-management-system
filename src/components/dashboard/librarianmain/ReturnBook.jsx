@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
@@ -21,7 +22,7 @@ import {
     Typography,
 } from '@material-ui/core'
 
-const ReturnBook = () => {
+const ReturnBook = (props) => {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState()
     const [paymentID, setPaymentID] = useState()
@@ -108,6 +109,11 @@ const ReturnBook = () => {
                                     inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.userid}
                                     helperText={!!errors.userid ? errors.userid.message : ""}
+                                    InputLabelProps={{
+                                        style: {
+                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                        }
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -122,6 +128,11 @@ const ReturnBook = () => {
                                     inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.isbn}
                                     helperText={!!errors.isbn ? errors.isbn.message : ""}
+                                    InputLabelProps={{
+                                        style: {
+                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                        }
+                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -168,8 +179,8 @@ const ReturnBook = () => {
                                             <Typography variant="body1" align="center">
                                                 {t('paidFine')}
                                             </Typography>
-                                            <Button variant="outlined" onClick={handleFine}>Yes</Button>
-                                            <Button variant="outlined" onClick={handleClick}>No</Button>
+                                            <Button variant="contained" onClick={handleFine}>Yes</Button>
+                                            <Button variant="contained" onClick={handleClick}>No</Button>
                                         </>
                                     }
                                     {paymentMsg &&
@@ -189,6 +200,10 @@ const ReturnBook = () => {
             </Dialog>
         </>
     )
+}
+
+ReturnBook.propTypes = {
+    locale: PropTypes.string.isRequired
 }
 
 export default ReturnBook

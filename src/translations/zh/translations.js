@@ -201,6 +201,10 @@ export const TRANSLATIONS_ZH = {
     publishDetails: '发布详细信息',
     locationDetails: '位置详细信息',
     addedDate: '添加日期',
+    duePayments: '到期付款',
+    fineDetails: '精细细节',
+    use: '使用',
+    markdown: '格式化文本',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

@@ -19,25 +19,29 @@ import {
     TableHead,
     TableRow,
     TextField,
+    ThemeProvider,
     Toolbar,
     Tooltip,
     Typography,
+    useTheme
 } from '@material-ui/core'
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import { enGB, fr, zhCN } from 'date-fns/locale'
+import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
 const localeMap = {
     enUS: enGB,
     frFR: fr,
-    zhCN: zhCN
+    zhCN: zhCN,
+    arEG: arSA
 }
 
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
-    zhCN: '__-__-__'
+    zhCN: '__-__-__',
+    arEG: '__/__/____'
 }
 
 const DueBooks = (props) => {
@@ -47,6 +51,7 @@ const DueBooks = (props) => {
     const [open, setOpen] = useState(false)
     const [date, setDate] = useState([new Date(), new Date()])
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -103,24 +108,54 @@ const DueBooks = (props) => {
                 <Grid container justifyContent="center">
                     <Grid item xs={11} md={10}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
-                            <DateRangePicker
-                                mask={maskMap[props.locale]}
-                                startText={t('from')}
-                                endText={t('to')}
-                                value={date}
-                                minDate={new Date()}
-                                onChange={handleDateUpdate}
-                                renderInput={(startProps, endProps) => (
-                                    <Grid container className={classes.heading} spacing={1}>
-                                        <Grid item xs={12} sm={5} md={3} lg={2}>
-                                            <TextField {...startProps} variant="standard" fullWidth />
+                            <ThemeProvider theme={{ ...theme, direction: 'ltr' }}>
+                                <DateRangePicker
+                                    mask={maskMap[props.locale]}
+                                    startText={t('from')}
+                                    endText={t('to')}
+                                    value={date}
+                                    minDate={new Date()}
+                                    onChange={handleDateUpdate}
+                                    renderInput={(startProps, endProps) => (
+                                        <Grid container className={classes.heading} spacing={1}>
+                                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                                <TextField
+                                                    {...startProps}
+                                                    variant="standard"
+                                                    fullWidth
+                                                    InputLabelProps={{
+                                                        style: {
+                                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                                        }
+                                                    }}
+                                                    FormHelperTextProps={{
+                                                        style: {
+                                                            textAlign: props.locale === 'arEG' ? 'right' : 'left'
+                                                        }
+                                                    }}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                                <TextField
+                                                    {...endProps}
+                                                    variant="standard"
+                                                    fullWidth
+                                                    InputLabelProps={{
+                                                        style: {
+                                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                                        }
+                                                    }}
+                                                    FormHelperTextProps={{
+                                                        style: {
+                                                            textAlign: props.locale === 'arEG' ? 'right' : 'left'
+                                                        }
+                                                    }}
+                                                />
+                                            </Grid>
                                         </Grid>
-                                        <Grid item xs={12} sm={5} md={3} lg={2}>
-                                            <TextField {...endProps} variant="standard" fullWidth />
-                                        </Grid>
-                                    </Grid>
-                                )}
-                            />
+                                    )}
+                                />
+                            </ThemeProvider>
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
                             <Grid item xs={12} sm={5} md={3} lg={2}>

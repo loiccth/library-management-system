@@ -22,7 +22,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import EditPost from './EditPost'
 
-const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
+const Post = ({ post, user, handleDeletePost, handleEditPost, locale }) => {
     const classes = useStyles()
     const [window, setWindow] = useState(false)
     const [edit, setEdit] = useState(false)
@@ -68,7 +68,7 @@ const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
                                 {user.isLoggedIn && (user.memberType === 'Librarian' || user.memberType === 'Admin') &&
                                     <>
                                         <IconButton onClick={handleEditToggle}><EditIcon /></IconButton>
-                                        <EditPost post={post} edit={edit} handleEditToggle={handleEditToggle} handleEdit={handleEdit} />
+                                        <EditPost post={post} edit={edit} handleEditToggle={handleEditToggle} handleEdit={handleEdit} locale={locale} />
                                         <IconButton onClick={handleToggle}><DeleteIcon /></IconButton>
                                         <Dialog
                                             open={window}
@@ -94,7 +94,6 @@ const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        {/* <Typography variant="body1">{post.body}</Typography> */}
                         <Box sx={{ fontSize: '1rem', fontWeight: 400, lineHeight: 1.5 }}>
                             <div dangerouslySetInnerHTML={{ __html: sanitizer(marked(post.body)) }}></div>
                         </Box>
@@ -114,7 +113,9 @@ const useStyles = makeStyles(theme => ({
 Post.propTypes = {
     user: PropTypes.object.isRequired,
     post: PropTypes.object.isRequired,
-    handleDeletePost: PropTypes.func.isRequired
+    handleDeletePost: PropTypes.func.isRequired,
+    handleEditPost: PropTypes.func.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default Post

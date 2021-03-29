@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import { TRANSLATIONS_EN } from './en/translations'
 import { TRANSLATIONS_FR } from './fr/translations'
 import { TRANSLATIONS_ZH } from './zh/translations'
+import { TRANSLATIONS_AR } from './ar/translations'
 
 i18n
     .use(LanguageDetector)
@@ -20,6 +21,9 @@ i18n
             },
             zh: {
                 translation: TRANSLATIONS_ZH
+            },
+            ar: {
+                translation: TRANSLATIONS_AR
             }
         }
     })

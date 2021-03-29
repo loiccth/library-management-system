@@ -98,37 +98,6 @@ router.get('/logout', jwt({ secret, credentialsRequired: true, getToken: (req) =
         })
 })
 
-router.get('/', jwt({ secret, credentialsRequired: false, algorithms: ['HS256'] }), (req, res) => {
-    User.find()
-        .then(users => res.json({
-            'success': true,
-            users
-        }))
-        .catch(err => res.status(400).json({
-            'success': false,
-            'error': err.message
-        }))
-})
-
-router.get('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ 'userid': req.params.userid })
-        .then(user => {
-            if (user === null) {
-                res.json({
-                    'success': false,
-                    'error': 'User not found'
-                })
-            }
-            else {
-                res.json({
-                    'success': true,
-                    user
-                })
-            }
-        })
-        .catch(err => console.log(err))
-})
-
 // Update password
 router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (!req.body.confirmpassword || !req.body.newpassword || !req.body.oldpassword)
@@ -211,6 +180,20 @@ router.post('/search', jwt({ secret, credentialsRequired: true, getToken: (req) 
                     res.json(users)
                 else res.status(404).json({ error: 'msgUserSearch404' })
             })
+    }
+})
+
+router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Payment.find({ paid: false })
+            .populate('userid', ['userid'])
+            .populate('bookid', ['title', 'isbn'])
+            .sort({ createdAt: 1 })
+            .then(payments => {
+                res.json(payments)
+            })
+            .catch(err => console.log(err))
     }
 })
 

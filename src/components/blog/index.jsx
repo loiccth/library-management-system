@@ -165,13 +165,13 @@ const Blog = (props) => {
                                 <Grid container justifyContent="center">
                                     {props.user.isLoggedIn && (props.user.memberType === 'Librarian' || props.user.memberType === 'Admin') &&
                                         <Grid item xs={12} sm={10} md={7} lg={7} xl={8}>
-                                            <AddPost handleAddPost={handleAddPost} />
+                                            <AddPost handleAddPost={handleAddPost} locale={props.locale} />
                                         </Grid>
                                     }
                                     {postsSubset.map(post => (
                                         <Grid key={post._id} item xs={12} sm={10} md={7} lg={7} xl={8}>
                                             <Box sx={{ my: 1 }}>
-                                                <Post user={props.user} post={post} handleDeletePost={handleDeletePost} handleEditPost={handleEditPost} />
+                                                <Post user={props.user} post={post} handleDeletePost={handleDeletePost} handleEditPost={handleEditPost} locale={props.locale} />
                                             </Box>
                                         </Grid>
                                     ))}
@@ -214,7 +214,8 @@ Blog.propTypes = {
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
     handleLocale: PropTypes.func.isRequired,
-    handleLogout: PropTypes.func.isRequired
+    handleLogout: PropTypes.func.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default Blog

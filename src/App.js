@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import { useLocation, Routes, Route } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from './settings/api'
 import Cookies from 'js-cookie'
 import { deviceDetect, deviceType } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import url from './settings/api'
-import { ThemeProvider, createMuiTheme, Snackbar, Alert } from '@material-ui/core'
+import rtl from 'jss-rtl'
+import { create } from 'jss'
+import { getLocale } from './functions/getLocale'
+import {
+    Alert,
+    createMuiTheme,
+    CssBaseline,
+    jssPreset,
+    Snackbar,
+    StylesProvider,
+    ThemeProvider
+} from '@material-ui/core'
 import * as locales from '@material-ui/core/locale'
-import CssBaseline from '@material-ui/core/CssBaseline'
 import Home from './components/home/Home'
+import Blog from './components/blog'
 import Info from './components/info'
 import Book from './components/home/Book'
 import LoginPage from './components/login'
@@ -21,9 +32,7 @@ import Settings from './components/dashboard/settings'
 import Reports from './components/dashboard/reports'
 import MyBooks from './components/dashboard/mybooks'
 import Profile from './components/dashboard/profile'
-import Blog from './components/blog'
 import ForcePasswordChange from './components/others/ForcePasswordChange'
-import { getLocale } from './functions/getLocale'
 
 import NotFound from './components/NotFound'
 
@@ -37,6 +46,7 @@ function App() {
     const [open, setOpen] = useState(false)
     const location = useLocation()
     const { t } = useTranslation()
+    const jss = create({ plugins: [...jssPreset().plugins, rtl({ enabled: getLocale() === 'arEG' ? true : false })] })
 
     const theme = createMuiTheme({
         palette: {
@@ -45,7 +55,8 @@ function App() {
                 contrastText: darkMode ? '#ffffff' : '#000000',
             },
             mode: darkMode ? 'dark' : 'light'
-        }
+        },
+        direction: getLocale() === 'arEG' ? 'rtl' : 'ltr'
     }, locales[locale])
 
     const handleToggleTheme = () => {
@@ -155,35 +166,37 @@ function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <div className="App">
-                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                    <Alert elevation={6} severity="success" onClose={handleClose}>
-                        {snackbar}
-                    </Alert>
-                </Snackbar>
-                {user.temporaryPassword && user.isLoggedIn ?
-                    <ForcePasswordChange user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handlePasswordChange={handlePasswordChange} />
-                    :
-                    <Routes>
-                        <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
-                        <Route path='/info' element={<Info user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
-                        <Route path='/blog' element={<Blog user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
-                        <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handleLogin={handleLogin} />} />
-                        <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
-                        <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />}>
-                            <Route path='/' element={<MainDashboard user={user} locale={locale} />} />
-                            <Route path='/managebooks' element={<ManageBooks user={user} locale={locale} />} />
-                            <Route path='/managememberships' element={<ManageMembership user={user} />} />
-                            <Route path='/settings' element={<Settings user={user} />} />
-                            <Route path='/reports' element={<Reports user={user} locale={locale} />} />
-                            <Route path='/mybooks' element={<MyBooks />} />
-                            <Route path='/profile' element={<Profile user={user} handlePasswordChange={handlePasswordChange} />} />
-                        </Route>
-                        <Route path='/*' element={<NotFound darkMode={darkMode} />} />
-                    </Routes>
-                }
-            </div >
+            <StylesProvider jss={jss}>
+                <CssBaseline />
+                <div className="App" dir={getLocale() === 'arEG' ? 'rtl' : 'ltr'}>
+                    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                        <Alert elevation={6} severity="success" onClose={handleClose}>
+                            {snackbar}
+                        </Alert>
+                    </Snackbar>
+                    {user.temporaryPassword && user.isLoggedIn ?
+                        <ForcePasswordChange user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handlePasswordChange={handlePasswordChange} />
+                        :
+                        <Routes>
+                            <Route path='/' element={<Home user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} locale={locale} />} />
+                            <Route path='/info' element={<Info user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
+                            <Route path='/blog' element={<Blog user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} locale={locale} />} />
+                            <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handleLogin={handleLogin} />} />
+                            <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
+                            <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />}>
+                                <Route path='/' element={<MainDashboard user={user} locale={locale} />} />
+                                <Route path='/managebooks' element={<ManageBooks user={user} locale={locale} />} />
+                                <Route path='/managememberships' element={<ManageMembership user={user} />} />
+                                <Route path='/settings' element={<Settings user={user} />} />
+                                <Route path='/reports' element={<Reports user={user} locale={locale} />} />
+                                <Route path='/mybooks' element={<MyBooks />} />
+                                <Route path='/profile' element={<Profile user={user} handlePasswordChange={handlePasswordChange} />} />
+                            </Route>
+                            <Route path='/*' element={<NotFound darkMode={darkMode} />} />
+                        </Routes>
+                    }
+                </div >
+            </StylesProvider>
         </ThemeProvider>
     )
 }

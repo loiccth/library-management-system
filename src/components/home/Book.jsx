@@ -158,10 +158,10 @@ const Book = (props) => {
                                                                 </DialogContentText>
                                                             </DialogContent>
                                                             <DialogActions>
-                                                                <Button onClick={handleToggle} color="secondary">
+                                                                <Button variant="contained" onClick={handleToggle} color="secondary">
                                                                     {t('cancel')}
                                                                 </Button>
-                                                                <Button onClick={handleConfirm} autoFocus>
+                                                                <Button variant="contained" onClick={handleConfirm} autoFocus>
                                                                     {t('confirm')}
                                                                 </Button>
                                                             </DialogActions>

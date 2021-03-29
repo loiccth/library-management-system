@@ -60,7 +60,7 @@ const MyBooks = () => {
                 else
                     setSnackbar({
                         type: 'warning',
-                        msg: err.response.data.error
+                        msg: t(err.response.data.error)
                     })
             })
             .finally(() => {

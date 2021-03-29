@@ -105,6 +105,11 @@ const Home = (props) => {
                                                 margin="normal"
                                                 label={t('category')}
                                                 select
+                                                InputLabelProps={{
+                                                    style: {
+                                                        left: props.locale === 'arEG' ? 'auto' : 0
+                                                    }
+                                                }}
                                             >
                                                 <MenuItem value="All">{t('all')}</MenuItem>
                                                 {categories.map((category, index) => (
@@ -130,7 +135,7 @@ const Home = (props) => {
                                                 />
                                                 <FormControlLabel
                                                     control={<Radio color="primary" />}
-                                                    label="ISBN"
+                                                    label={t('isbn')}
                                                     value="isbn"
                                                 />
                                             </RadioGroup>
@@ -184,7 +189,8 @@ Home.propTypes = {
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
     handleLocale: PropTypes.func.isRequired,
-    handleLogout: PropTypes.func.isRequired
+    handleLogout: PropTypes.func.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default Home

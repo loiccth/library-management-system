@@ -83,7 +83,7 @@ const Books = (props) => {
             width: 260,
             renderCell: (param) => (
                 <div>
-                    <Typography variant="caption" display="block">ISBN: {param.value.isbn}</Typography>
+                    <Typography variant="caption" display="block">{t('isbn')}: {param.value.isbn}</Typography>
                     <Typography variant="caption" display="block">{t('shelfLocation')}: {param.value.location}</Typography>
                     <Typography variant="caption" display="block">{t('availableAt')}: {param.value.campus === 'pam' ? "Swami Dayanand Campus" : "Rose-Hill Campus"}</Typography>
                     <Typography variant="caption" display="block">{t('holdings')}: {param.value.copies}</Typography>

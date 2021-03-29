@@ -479,7 +479,7 @@ librarianSchema.methods.getOverdueBooks = function (res) {
 
     Borrow.find({ status: 'active', dueDate: { $lt: now } })
         .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
-        .populate('bookid', ['title', 'isbn'])
+        .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
         .catch(err => console.log(err))
 }
@@ -491,7 +491,7 @@ librarianSchema.methods.getDueBooks = function (from, to, res) {
 
     Borrow.find({ status: 'active', dueDate: { $gte: fromDate, $lt: toDate } })
         .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
-        .populate('bookid', ['title', 'isbn'])
+        .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
         .catch(err => console.log(err))
 }
@@ -500,7 +500,7 @@ librarianSchema.methods.getReservations = function (res) {
     const now = new Date(new Date().toDateString())
 
     Reserve.find({ status: 'active', expireAt: { $ne: null, $gt: now } })
-        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
+        .populate('userid', ['userid'])
         .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
         .catch(err => console.log(err))

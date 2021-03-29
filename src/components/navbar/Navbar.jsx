@@ -53,6 +53,8 @@ const Navbar = (props) => {
             temp = 'frFR'
         else if (lang === 'zh')
             temp = 'zhCN'
+        else if (lang === 'ar')
+            temp = 'arEG'
 
         setAnchorE2(null)
         i18n.changeLanguage(lang)
@@ -131,6 +133,11 @@ const Navbar = (props) => {
                             onClick={(() => handleMenuItemClick('zh'))}
                         >
                             中文
+                        </MenuItem>
+                        <MenuItem
+                            onClick={(() => handleMenuItemClick('ar'))}
+                        >
+                            عربي
                         </MenuItem>
                     </Menu>
                     <IconButton

@@ -91,7 +91,7 @@ const Reset = (props) => {
                                 rules={{ required: t('requiredReCaptcha') }}
                                 defaultValue={""}
                             />
-                            <ReCAPTCHA sitekey="" theme={props.darkMode ? "dark" : "light"} ref={recaptchaRef} onChange={handleReCaptcha} />
+                            <ReCAPTCHA sitekey="6LcKJ_4ZAAAAAOVAPr-9y6qCttIaIfff_qIxC26N" theme={props.darkMode ? "dark" : "light"} ref={recaptchaRef} onChange={handleReCaptcha} />
                             <FormHelperText error children={!!errors.reCaptcha ? errors.reCaptcha.message : " "} />
                         </div>
                         <div style={{ display: 'flex', flexGrow: 1 }}>

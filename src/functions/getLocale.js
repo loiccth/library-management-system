@@ -11,6 +11,8 @@ export const getLocale = () => {
             locale = 'frFR'
         else if (temp === 'zh')
             locale = 'zhCN'
+        else if (temp === 'ar')
+            locale = 'arEG'
     }
 
     return locale
