@@ -24,6 +24,12 @@ const localeMap = {
     zhCN: zhCN
 }
 
+const maskMap = {
+    enUS: '__/__/____',
+    frFR: '__/__/____',
+    zhCN: '__-__-__'
+}
+
 const AddBookNoAPI = (props) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
@@ -183,6 +189,7 @@ const AddBookNoAPI = (props) => {
                                         <Controller
                                             render={({ onChange, value }) => (
                                                 <DatePicker
+                                                    mask={maskMap[props.locale]}
                                                     label={t('publishedDate')}
                                                     value={value}
                                                     onChange={onChange}

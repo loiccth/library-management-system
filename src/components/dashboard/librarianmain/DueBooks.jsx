@@ -34,6 +34,12 @@ const localeMap = {
     zhCN: zhCN
 }
 
+const maskMap = {
+    enUS: '__/__/____',
+    frFR: '__/__/____',
+    zhCN: '__-__-__'
+}
+
 const DueBooks = (props) => {
     const classes = useStyles()
     const [check, setCheck] = useState(false)
@@ -98,6 +104,7 @@ const DueBooks = (props) => {
                     <Grid item xs={11} md={10}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
                             <DateRangePicker
+                                mask={maskMap[props.locale]}
                                 startText={t('from')}
                                 endText={t('to')}
                                 value={date}
