@@ -25,16 +25,13 @@ import {
 } from '@material-ui/core'
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import frLocale from 'date-fns/locale/fr'
-import AutorenewIcon from '@material-ui/icons/Autorenew'
+import { enGB, fr, zhCN } from 'date-fns/locale'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
 const localeMap = {
-    fr: frLocale,
-}
-
-const maskMap = {
-    fr: '__/__/____',
+    enUS: enGB,
+    frFR: fr,
+    zhCN: zhCN
 }
 
 const DueBooks = (props) => {
@@ -99,9 +96,8 @@ const DueBooks = (props) => {
             <Box sx={{ mt: 1 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={11} md={10}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
                             <DateRangePicker
-                                mask={maskMap['fr']}
                                 startText={t('from')}
                                 endText={t('to')}
                                 value={date}
@@ -173,15 +169,9 @@ const DueBooks = (props) => {
                                                 <Typography variant="caption" display="block">{t('renews')}: {row.renews}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                {/* TODO: get amount from db */}
-                                                {row.renews === 3 &&
-                                                    <Tooltip title={t('maxRenews')} arrow>
-                                                        <AutorenewIcon />
-                                                    </Tooltip>
-                                                }
                                                 {row.isHighDemand &&
                                                     <Tooltip title={t('highDemand')} arrow>
-                                                        <PriorityHighIcon />
+                                                        <PriorityHighIcon className={classes.highpriority} />
                                                     </Tooltip>
                                                 }
                                             </TableCell>
@@ -213,6 +203,9 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down("sm")]: {
             justifyContent: 'center'
         }
+    },
+    highpriority: {
+        color: 'red'
     }
 }))
 
@@ -222,6 +215,7 @@ DueBooks.propTypes = {
     handleCheckDue: PropTypes.func.isRequired,
     handleCheckAllDue: PropTypes.func.isRequired,
     handleUncheckAllDue: PropTypes.func.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default DueBooks

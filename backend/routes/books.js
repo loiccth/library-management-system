@@ -152,12 +152,12 @@ router.get('/overdue', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
-router.post('/booksreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.post('/transactionsreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
         Librarian.findOne({ _id: req.user._id })
             .then(librarian => {
-                librarian.getBooksReport(req.body.from, req.body.to, res)
+                librarian.getTransactionsReport(req.body.from, req.body.to, res)
             })
             .catch(err => console.log(err))
     }
@@ -174,6 +174,16 @@ router.post('/paymentssreport', jwt({ secret, credentialsRequired: true, getToke
     }
 })
 
+router.post('/booksreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Librarian.findOne({ _id: req.user._id })
+            .then(librarian => {
+                librarian.getBooksReport(req.body.from, req.body.to, res)
+            })
+            .catch(err => console.log(err))
+    }
+})
 
 // Get list of books due
 router.post('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {

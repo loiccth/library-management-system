@@ -4,7 +4,7 @@ import MyBooks from '../../dashboard/mybooks'
 import LibrarianMain from '../../dashboard/librarianmain'
 import AdminAnalytics from '../../dashboard/adminanalytics'
 
-const MainDashboard = ({ user }) => {
+const MainDashboard = ({ user, locale }) => {
 
     if (user.memberType === 'Member' || user.memberType === 'MemberA' || user.memberType === 'MemberNA') {
         return (
@@ -13,7 +13,7 @@ const MainDashboard = ({ user }) => {
     }
     else if (user.memberType === 'Librarian') {
         return (
-            <LibrarianMain />
+            <LibrarianMain locale={locale} />
         )
     }
     else if (user.memberType === 'Admin') {
@@ -24,7 +24,8 @@ const MainDashboard = ({ user }) => {
 }
 
 MainDashboard.propTypes = {
-    user: PropTypes.object.isRequired
+    user: PropTypes.object.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default MainDashboard

@@ -10,6 +10,7 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
+    Link,
     TextField
 } from '@material-ui/core'
 
@@ -33,7 +34,6 @@ const AddPost = (props) => {
                 props.handleAddPost(result.data)
             })
             .catch(err => {
-                console.log(err)
                 props.handleAddPost(err.response.data)
             })
             .finally(() => {
@@ -83,7 +83,7 @@ const AddPost = (props) => {
                                     multiline
                                     minRows={5}
                                     inputRef={register({ required: t('requiredField') })}
-                                    helperText={!!errors.body ? errors.body.message : " "}
+                                    helperText={!!errors.body ? errors.body.message : <>Use <Link href="https://www.markdownguide.org/cheat-sheet/" target="_blank">Markdown</Link> to format text</>}
                                 />
                             </form>
                         </DialogContent>

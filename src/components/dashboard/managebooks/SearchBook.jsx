@@ -117,7 +117,7 @@ const SearchBook = (props) => {
             </Box>
             {showForm &&
                 <>
-                    <ModifyBook book={book} locations={props.locations} categories={props.categories} />
+                    <ModifyBook book={book} locations={props.locations} categories={props.categories} locale={props.locale} />
                     <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>
@@ -142,7 +142,8 @@ const useStyles = makeStyles(() => ({
 
 SearchBook.propTypes = {
     locations: PropTypes.object.isRequired,
-    categories: PropTypes.array.isRequired
+    categories: PropTypes.array.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default SearchBook

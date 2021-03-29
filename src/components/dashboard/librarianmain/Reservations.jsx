@@ -64,7 +64,7 @@ const Reservations = (props) => {
                                             <TableCell>
                                                 {row.isHighDemand &&
                                                     <Tooltip title={t('highDemand')} arrow>
-                                                        <PriorityHighIcon />
+                                                        <PriorityHighIcon className={classes.highpriority} />
                                                     </Tooltip>
                                                 }
                                             </TableCell>
@@ -87,6 +87,9 @@ const useStyles = makeStyles(() => ({
     table: {
         minWidth: 650,
         overflowX: 'auto'
+    },
+    highpriority: {
+        color: 'red'
     }
 }))
 

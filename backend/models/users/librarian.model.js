@@ -485,11 +485,11 @@ librarianSchema.methods.getOverdueBooks = function (res) {
 }
 
 librarianSchema.methods.getDueBooks = function (from, to, res) {
-    const now = new Date(new Date(from).toDateString())
+    const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
 
-    Borrow.find({ status: 'active', dueDate: { $gte: now, $lt: toDate } })
+    Borrow.find({ status: 'active', dueDate: { $gte: fromDate, $lt: toDate } })
         .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
         .populate('bookid', ['title', 'isbn'])
         .then(books => res.json(books))
@@ -497,7 +497,9 @@ librarianSchema.methods.getDueBooks = function (from, to, res) {
 }
 
 librarianSchema.methods.getReservations = function (res) {
-    Reserve.find({ status: 'active', expireAt: { $ne: null } })
+    const now = new Date(new Date().toDateString())
+
+    Reserve.find({ status: 'active', expireAt: { $ne: null, $gt: now } })
         .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
         .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
@@ -611,14 +613,15 @@ librarianSchema.methods.notify = async function (books, type, res) {
     })
 }
 
-librarianSchema.methods.getBooksReport = function (from, to, res) {
-    const now = new Date(new Date(from).toDateString())
+librarianSchema.methods.getTransactionsReport = function (from, to, res) {
+    const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
 
-    Transaction.find({ createdAt: { $gte: now, $lt: toDate } })
+    Transaction.find({ createdAt: { $gte: fromDate, $lt: toDate } })
         .populate('userid', ['userid'])
         .populate('bookid', ['title', 'isbn'])
+        .sort({ createdAt: 1 })
         .then(transactions => {
             res.json(transactions)
         })
@@ -626,19 +629,32 @@ librarianSchema.methods.getBooksReport = function (from, to, res) {
 }
 
 librarianSchema.methods.getPaymentsReport = function (from, to, res) {
-    const now = new Date(new Date(from).toDateString())
+    const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
 
-    Payment.find({ createdAt: { $gte: now, $lt: toDate } })
+    Payment.find({ createdAt: { $gte: fromDate, $lt: toDate } })
         .populate('userid', ['userid'])
         .populate('bookid', ['title', 'isbn'])
+        .sort({ createdAt: 1 })
         .then(payments => {
             res.json(payments)
         })
         .catch(err => console.log(err))
 }
 
+librarianSchema.methods.getBooksReport = function (from, to, res) {
+    const fromDate = new Date(new Date(from).toDateString())
+    const toDate = new Date(new Date(to).toDateString())
+    toDate.setDate(toDate.getDate() + 1)
+
+    Book.find({ createdAt: { $gte: fromDate, $lt: toDate } })
+        .sort({ createdAt: 1 })
+        .then(books => {
+            res.json(books)
+        })
+        .catch(err => console.log(err))
+}
 
 const Librarian = User.discriminator('Librarian', librarianSchema)
 

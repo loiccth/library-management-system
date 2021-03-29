@@ -3,8 +3,11 @@ import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../settings/api'
+import marked from 'marked'
+import dompurify from 'dompurify'
 import {
     Button,
+    Box,
     Dialog,
     DialogActions,
     DialogContent,
@@ -24,6 +27,7 @@ const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
     const [window, setWindow] = useState(false)
     const [edit, setEdit] = useState(false)
     const { t } = useTranslation()
+    const sanitizer = dompurify.sanitize
 
     const handleToggle = () => {
         setWindow(!window)
@@ -90,7 +94,10 @@ const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
                         </Grid>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography variant="body1">{post.body}</Typography>
+                        {/* <Typography variant="body1">{post.body}</Typography> */}
+                        <Box sx={{ fontSize: '1rem', fontWeight: 400, lineHeight: 1.5 }}>
+                            <div dangerouslySetInnerHTML={{ __html: sanitizer(marked(post.body)) }}></div>
+                        </Box>
                     </Grid>
                 </Grid>
             </Paper>

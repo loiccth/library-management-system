@@ -16,14 +16,12 @@ import {
 } from '@material-ui/core'
 import { LocalizationProvider, DatePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import frLocale from 'date-fns/locale/fr'
+import { enGB, fr, zhCN } from 'date-fns/locale'
 
 const localeMap = {
-    fr: frLocale,
-}
-
-const maskMap = {
-    fr: '__/__/____',
+    enUS: enGB,
+    frFR: fr,
+    zhCN: zhCN
 }
 
 const ModifyBook = (props) => {
@@ -166,11 +164,10 @@ const ModifyBook = (props) => {
                                         inputRef={register({ required: t('requiredField') })}
                                         helperText={!!errors.publisher ? errors.publisher.message : " "}
                                     />
-                                    <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
+                                    <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
                                         <Controller
                                             render={({ onChange, value }) => (
                                                 <DatePicker
-                                                    mask={maskMap['fr']}
                                                     label={t('publishedDate')}
                                                     value={value}
                                                     onChange={onChange}
@@ -297,7 +294,8 @@ const useStyles = makeStyles(() => ({
 ModifyBook.propTypes = {
     book: PropTypes.object.isRequired,
     locations: PropTypes.object.isRequired,
-    categories: PropTypes.array.isRequired
+    categories: PropTypes.array.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default ModifyBook

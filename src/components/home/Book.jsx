@@ -224,14 +224,16 @@ const Book = (props) => {
                                                 <TableRow>
                                                     <TableCell style={{ border: 'none' }}>Flags</TableCell>
                                                     <TableCell style={{ border: 'none' }}>
-                                                        {book.isHighDemand ?
+                                                        {book.isHighDemand &&
                                                             <Tooltip title={t('highDemand')} arrow>
                                                                 <PriorityHighIcon className={classes.highpriority} />
                                                             </Tooltip>
-                                                            : null}
-                                                        <Tooltip title={t('recentlyAdded')} arrow>
-                                                            <FiberNewIcon />
-                                                        </Tooltip>
+                                                        }
+                                                        {(new Date() - new Date(book.createdAt)) / (1000 * 60 * 60 * 24) <= 3 &&
+                                                            <Tooltip title={t('recentlyAdded')} arrow>
+                                                                <FiberNewIcon />
+                                                            </Tooltip>
+                                                        }
                                                     </TableCell>
                                                 </TableRow>
                                             </TableBody>

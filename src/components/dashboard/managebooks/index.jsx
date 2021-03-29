@@ -18,7 +18,7 @@ import AddBookNoAPI from './AddBookNoAPI'
 import AddBookCSV from './AddBookCSV'
 import SearchBook from './SearchBook'
 
-const ManageBooks = ({ user }) => {
+const ManageBooks = ({ user, locale }) => {
     const navigate = useNavigate()
     const [options, setOptions] = useState({
         csv: false,
@@ -82,21 +82,22 @@ const ManageBooks = ({ user }) => {
                     options.api ?
                         <AddBook locations={locations} categories={categories} />
                         :
-                        <AddBookNoAPI locations={locations} categories={categories} />
+                        <AddBookNoAPI locations={locations} categories={categories} locale={locale} />
                     :
                     <AddBookCSV />
                 }
                 <Box sx={{ my: 7 }}>
                     <Divider />
                 </Box>
-                <SearchBook locations={locations} categories={categories} />
+                <SearchBook locations={locations} categories={categories} locale={locale} />
             </Box>
         </>
     )
 }
 
 ManageBooks.propTypes = {
-    user: PropTypes.object.isRequired
+    user: PropTypes.object.isRequired,
+    locale: PropTypes.string.isRequired
 }
 
 export default ManageBooks

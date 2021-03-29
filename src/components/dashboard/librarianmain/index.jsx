@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import axios from 'axios'
 import url from '../../../settings/api'
 import { Box, Divider, Grid, makeStyles } from '@material-ui/core'
@@ -8,7 +9,7 @@ import OverdueBooks from './OverdueBooks'
 import DueBooks from './DueBooks'
 import Reservations from './Reservations'
 
-const LibrarianMain = () => {
+const LibrarianMain = (props) => {
     const classes = useStyles()
     const [loading, setLoading] = useState(true)
     const [overdueBooks, setOverdueBooks] = useState()
@@ -179,7 +180,7 @@ const LibrarianMain = () => {
                     <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>
-                    <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} />
+                    <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} locale={props.locale} />
                     <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>
@@ -195,5 +196,9 @@ const useStyles = makeStyles(() => ({
         textAlign: 'center'
     }
 }))
+
+LibrarianMain.propTypes = {
+    locale: PropTypes.string.isRequired
+}
 
 export default LibrarianMain

@@ -10,15 +10,17 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Link,
     TextField
 } from '@material-ui/core'
 
 const EditPost = (props) => {
-    const { register, handleSubmit, errors, reset } = useForm({
+    const { register, handleSubmit, errors } = useForm({
         defaultValues: {
             title: props.post.title,
             body: props.post.body
-        }
+        },
+        shouldUnregister: false
     })
     const { t } = useTranslation()
 
@@ -28,11 +30,7 @@ const EditPost = (props) => {
                 props.handleEdit(result.data)
             })
             .catch(err => {
-                console.log(err)
                 props.handleEdit(err.response.data)
-            })
-            .finally(() => {
-                reset()
             })
     }
 
@@ -74,7 +72,7 @@ const EditPost = (props) => {
                             multiline
                             minRows={5}
                             inputRef={register({ required: t('requiredField') })}
-                            helperText={!!errors.body ? errors.body.message : " "}
+                            helperText={!!errors.body ? errors.body.message : <>Use <Link href="https://www.markdownguide.org/cheat-sheet/" target="_blank">Markdown</Link> to format text</>}
                         />
                     </form>
                 </DialogContent>

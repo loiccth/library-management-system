@@ -21,7 +21,6 @@ import {
     Tooltip,
     Typography
 } from '@material-ui/core'
-import FiberNewIcon from '@material-ui/icons/FiberNew'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
 const BorrowedBooks = (props) => {
@@ -84,12 +83,9 @@ const BorrowedBooks = (props) => {
                                                 <Typography variant="caption" display="block">{t('reservation')}: {row.bookid.reservation.length}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Tooltip title={t('recentlyAdded')} arrow>
-                                                    <FiberNewIcon />
-                                                </Tooltip>
                                                 {row.isHighDemand &&
                                                     <Tooltip title={t('highDemand')} arrow>
-                                                        <PriorityHighIcon />
+                                                        <PriorityHighIcon className={classes.highpriority} />
                                                     </Tooltip>
                                                 }
                                             </TableCell>
@@ -138,6 +134,9 @@ const useStyles = makeStyles(() => ({
     },
     paper: {
         overflowX: 'auto'
+    },
+    highpriority: {
+        color: 'red'
     }
 }))
 

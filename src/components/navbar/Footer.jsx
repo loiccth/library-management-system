@@ -9,6 +9,7 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Link as MuiLink,
     Typography
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
@@ -29,8 +30,11 @@ const Footer = (props) => {
 
     return (
         <Box sx={{ py: 2 }} component="footer" className={classes.footer}>
-            <Typography variant="body2" style={{ marginBottom: '6px' }}>{t('develop')} Loïc SE 2.1 2020 - 2021</Typography>
-            <Typography variant="body2"><GitHubIcon /></Typography>
+            <Typography variant="body2">{t('develop')} Loïc SE 2.1 2020 - 2021</Typography>
+            <Typography variant="body2">{t('contribute')}</Typography>
+            <Typography variant="body2" style={{ marginTop: '5px' }}>
+                <MuiLink href="https://github.com/loiccth/library-system" target="_blank" rel="noreferrer" color="inherit" style={{ outline: 'none' }}><GitHubIcon /></MuiLink>
+            </Typography>
             <Button className={classes.btn} variant="contained" disableRipple disableElevation onClick={handleOpen}>
                 {t('rules')}
             </Button>

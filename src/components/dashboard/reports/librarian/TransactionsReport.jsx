@@ -29,7 +29,7 @@ const localeMap = {
     zhCN: zhCN
 }
 
-const PaymentsReport = (props) => {
+const TransactionsReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
@@ -37,7 +37,7 @@ const PaymentsReport = (props) => {
 
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewPaymentsReport(date)
+        props.getNewTransactionsReport(date)
     }
 
     const handleDownloadCSV = () => {
@@ -48,7 +48,7 @@ const PaymentsReport = (props) => {
         <>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">{t('paymentReport')}</Typography>
+                    <Typography variant="h6">{t('transactionReport')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 1 }}>
@@ -62,10 +62,10 @@ const PaymentsReport = (props) => {
                                 onChange={handleDateUpdate}
                                 renderInput={(startProps, endProps) => (
                                     <Grid container className={classes.heading} spacing={1}>
-                                        <Grid item xs={12} sm={3} md={2}>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
                                             <TextField {...startProps} variant="standard" fullWidth />
                                         </Grid>
-                                        <Grid item xs={12} sm={3} md={2}>
+                                        <Grid item xs={12} sm={5} md={3} lg={2}>
                                             <TextField {...endProps} variant="standard" fullWidth />
                                         </Grid>
                                     </Grid>
@@ -82,56 +82,76 @@ const PaymentsReport = (props) => {
                                 >
                                     <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                     <CSVLink
-                                        data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
-                                        filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
+                                        data={props.filteredTransactions.length === 0 ? 'No records found' : props.filteredTransactions}
+                                        filename={`Book_Transactions_Report_${new Date().toLocaleDateString()}.csv`}
                                         ref={csvlink}
                                     />
                                 </Box>
                             </Grid>
                             <Grid item xs={12} sm={5} md={3} lg={2}>
                                 <TextField
-                                    name="paid"
+                                    name="type"
                                     fullWidth
                                     variant="standard"
-                                    label="Paid"
+                                    label={t('type')}
                                     select
-                                    value={props.filterPayment.paid}
-                                    onChange={props.handlePayChange}
+                                    value={props.filterTransactions.type}
+                                    onChange={props.handleTransactionChange}
                                 >
                                     <MenuItem value="All">{t('all')}</MenuItem>
-                                    <MenuItem value="Paid">{t('paid')}</MenuItem>
-                                    <MenuItem value="Unpaid">{t('unpaid')}</MenuItem>
+                                    <MenuItem value="Reserve">{t('reserve')}</MenuItem>
+                                    <MenuItem value="Borrow">{t('borrow')}</MenuItem>
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                <TextField
+                                    name="status"
+                                    fullWidth
+                                    variant="standard"
+                                    label={t('status')}
+                                    select
+                                    value={props.filterTransactions.status}
+                                    onChange={props.handleTransactionChange}
+                                >
+                                    <MenuItem value="All">{t('all')}</MenuItem>
+                                    <MenuItem value="active">{t('active')}</MenuItem>
+                                    <MenuItem value="archive">{t('archived')}</MenuItem>
+                                    {props.filterTransactions.type === 'Reserve' && <MenuItem value="expired">{t('expired')}</MenuItem>}
                                 </TextField>
                             </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
             </Box>
+
+
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={11} md={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('paymentDetails')}</TableCell>
+                                        <TableCell>{t('transactionDetails')}</TableCell>
                                         <TableCell>{t('memberid')}</TableCell>
                                         <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('amount')}</TableCell>
+                                        <TableCell>{t('reservations')}</TableCell>
+                                        <TableCell>{t('borrowDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredPayments.length === 0 &&
+                                    {props.filteredTransactions.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredPayments.map(record => (
-                                        <TableRow key={record.PaymentID}>
+                                    {props.filteredTransactions.map(record => (
+                                        <TableRow key={record.TransactionID}>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">{t('id')}: {record.PaymentID}</Typography>
-                                                <Typography variant="caption" display="block">{t('paid')}: {record.Paid === true ? 'Yes' : 'No'}</Typography>
+                                                <Typography variant="caption" display="block">{t('type')}: {record.Transaction}</Typography>
+                                                <Typography variant="caption" display="block">{t('id')}: {record.TransactionID}</Typography>
                                                 <Typography variant="caption" display="block">{t('date')}: {record.Created}</Typography>
+                                                <Typography variant="caption" display="block">{t('status')}: {record.Status}</Typography>
                                             </TableCell>
                                             <TableCell>{record.MemberID}</TableCell>
                                             <TableCell>
@@ -139,11 +159,24 @@ const PaymentsReport = (props) => {
                                                 <Typography variant="caption" display="block">{t('isbn')}: {record.BookISBN}</Typography>
                                                 {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>}
                                             </TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {record.PricePerDay}</Typography>
-                                                <Typography variant="caption" display="block">{t('daysOverdue')}: {record.NumberOfDays}</Typography>
-                                                <Typography variant="caption" display="block">{t('total')}: Rs {record.PricePerDay * record.NumberOfDays}</Typography>
-                                            </TableCell>
+                                            {record.Transaction === 'Reserve' ?
+                                                <TableCell>
+                                                    <Typography variant="caption" display="block">{t('expire')}: {record.ReservationExpire}</Typography>
+                                                    <Typography variant="caption" display="block">{t('cancel')}: {record.ReservationCancelled === true ? "Yes" : "No"}</Typography>
+                                                </TableCell>
+                                                :
+                                                <TableCell></TableCell>
+                                            }
+                                            {record.Transaction === 'Borrow' ?
+                                                <TableCell>
+                                                    <Typography variant="caption" display="block">{t('highDemand')}: {record.HighDemand === true ? "Yes" : "No"}</Typography>
+                                                    <Typography variant="caption" display="block">{t('renews')}: {record.Renews}</Typography>
+                                                    <Typography variant="caption" display="block">{t('due')}: {record.Due}</Typography>
+                                                    <Typography variant="caption" display="block">{t('return')}: {record.Returned === undefined ? "N/A" : record.Returned}</Typography>
+                                                </TableCell>
+                                                :
+                                                <TableCell></TableCell>
+                                            }
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -175,12 +208,12 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-PaymentsReport.propTypes = {
-    filteredPayments: PropTypes.array.isRequired,
-    filterPayment: PropTypes.object.isRequired,
-    getNewPaymentsReport: PropTypes.func.isRequired,
-    handlePayChange: PropTypes.func.isRequired,
+TransactionsReport.propTypes = {
+    filteredTransactions: PropTypes.array.isRequired,
+    filterTransactions: PropTypes.object.isRequired,
+    getNewTransactionsReport: PropTypes.func.isRequired,
+    handleTransactionChange: PropTypes.func.isRequired,
     locale: PropTypes.string.isRequired
 }
 
-export default PaymentsReport
+export default TransactionsReport

@@ -49,7 +49,7 @@ function App() {
     }, locales[locale])
 
     const handleToggleTheme = () => {
-        Cookies.set('darkMode', !darkMode)
+        Cookies.set('darkMode', !darkMode, { sameSite: 'strict' })
         setDarkMode(!darkMode)
     }
 
@@ -172,15 +172,15 @@ function App() {
                         <Route path='/login' element={<LoginPage user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} handleLogin={handleLogin} />} />
                         <Route path='/book/:id' element={<Book user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />} />
                         <Route path='/dashboard' element={<Dashboard user={user} darkMode={darkMode} handleToggleTheme={handleToggleTheme} handleLocale={handleLocale} handleLogout={handleLogout} />}>
-                            <Route path='/' element={<MainDashboard user={user} />} />
-                            <Route path='/managebooks' element={<ManageBooks user={user} />} />
+                            <Route path='/' element={<MainDashboard user={user} locale={locale} />} />
+                            <Route path='/managebooks' element={<ManageBooks user={user} locale={locale} />} />
                             <Route path='/managememberships' element={<ManageMembership user={user} />} />
                             <Route path='/settings' element={<Settings user={user} />} />
-                            <Route path='/reports' element={<Reports user={user} />} />
+                            <Route path='/reports' element={<Reports user={user} locale={locale} />} />
                             <Route path='/mybooks' element={<MyBooks />} />
                             <Route path='/profile' element={<Profile user={user} handlePasswordChange={handlePasswordChange} />} />
                         </Route>
-                        <Route path='/*' element={<NotFound />} />
+                        <Route path='/*' element={<NotFound darkMode={darkMode} />} />
                     </Routes>
                 }
             </div >

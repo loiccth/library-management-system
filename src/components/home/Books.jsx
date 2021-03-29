@@ -99,10 +99,10 @@ const Books = (props) => {
                 if (param.value.highDemand && param.value.recentlyAdded) {
                     return (
                         <>
-                            <Tooltip title="High Demand" arrow>
+                            <Tooltip title={t('highDemand')} arrow>
                                 <PriorityHighIcon className={classes.highpriority} />
                             </Tooltip>
-                            <Tooltip title="Recently Added" arrow>
+                            <Tooltip title={t('recentlyAdded')} arrow>
                                 <FiberNewIcon />
                             </Tooltip>
                         </>
@@ -206,7 +206,7 @@ const useStyles = makeStyles(theme => ({
     },
     highpriority: {
         color: 'red'
-    },
+    }
 }))
 
 Books.propTypes = {

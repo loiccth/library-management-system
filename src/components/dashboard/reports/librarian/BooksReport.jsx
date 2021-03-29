@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { CSVLink } from 'react-csv'
 import {
     Box,
@@ -7,7 +8,6 @@ import {
     Container,
     Grid,
     makeStyles,
-    MenuItem,
     Paper,
     Table,
     TableBody,
@@ -20,20 +20,18 @@ import {
 } from '@material-ui/core'
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
-import frLocale from 'date-fns/locale/fr'
+import { enGB, fr, zhCN } from 'date-fns/locale'
 
 const localeMap = {
-    fr: frLocale,
+    enUS: enGB,
+    frFR: fr,
+    zhCN: zhCN
 }
-
-const maskMap = {
-    fr: '__/__/____',
-}
-
 const BooksReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
+    const { t } = useTranslation()
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -48,25 +46,24 @@ const BooksReport = (props) => {
         <>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">Transaction Report</Typography>
+                    <Typography variant="h6">{t('bookReport')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 1 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={11} md={10}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap['fr']}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
                             <DateRangePicker
-                                mask={maskMap['fr']}
-                                startText="From"
-                                endText="To"
+                                startText={t('from')}
+                                endText={t('to')}
                                 value={date}
                                 onChange={handleDateUpdate}
                                 renderInput={(startProps, endProps) => (
                                     <Grid container className={classes.heading} spacing={1}>
-                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                        <Grid item xs={12} sm={3} md={2}>
                                             <TextField {...startProps} variant="standard" fullWidth />
                                         </Grid>
-                                        <Grid item xs={12} sm={5} md={3} lg={2}>
+                                        <Grid item xs={12} sm={3} md={2}>
                                             <TextField {...endProps} variant="standard" fullWidth />
                                         </Grid>
                                     </Grid>
@@ -75,109 +72,58 @@ const BooksReport = (props) => {
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
                             <Grid item xs={12} sm={5} md={3} lg={2}>
-                                <Box sx={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    height: '100%'
-                                }}
-                                >
-                                    <Button variant="contained" fullWidth onClick={handleDownloadCSV}>Download CSV</Button>
-                                    <CSVLink
-                                        data={props.filteredBooks.length === 0 ? 'No records found' : props.filteredBooks}
-                                        filename={`Book_Transactions_Report_${new Date().toLocaleDateString()}.csv`}
-                                        ref={csvlink}
-                                    />
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
-                                <TextField
-                                    name="type"
-                                    fullWidth
-                                    variant="standard"
-                                    label="Type"
-                                    select
-                                    value={props.filterBooks.type}
-                                    onChange={props.handleBookChange}
-                                >
-                                    <MenuItem value="All">All</MenuItem>
-                                    <MenuItem value="Reserve">Reserve</MenuItem>
-                                    <MenuItem value="Borrow">Borrow</MenuItem>
-                                </TextField>
-                            </Grid>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
-                                <TextField
-                                    name="status"
-                                    fullWidth
-                                    variant="standard"
-                                    label="Status"
-                                    select
-                                    value={props.filterBooks.status}
-                                    onChange={props.handleBookChange}
-                                >
-                                    <MenuItem value="All">All</MenuItem>
-                                    <MenuItem value="active">Active</MenuItem>
-                                    <MenuItem value="archive">Archived</MenuItem>
-                                    {props.filterBooks.type === 'Reserve' && <MenuItem value="expired">Expired</MenuItem>}
-                                </TextField>
+                                <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
+                                <CSVLink
+                                    data={props.books.length === 0 ? 'No records found' : props.books}
+                                    filename={`Books_Report_${new Date().toLocaleDateString()}.csv`}
+                                    ref={csvlink}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
             </Box>
-
-
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={11} md={10}>
+                    <Grid item xs={12} md={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Transaction Details</TableCell>
-                                        <TableCell>MemberID</TableCell>
-                                        <TableCell>Book Details</TableCell>
-                                        <TableCell>Reservation Details</TableCell>
-                                        <TableCell>Borrow Details</TableCell>
+                                        <TableCell>{t('bookDetails')}</TableCell>
+                                        <TableCell>{t('author')}</TableCell>
+                                        <TableCell>{t('publishDetails')}</TableCell>
+                                        <TableCell>{t('locationDetails')}</TableCell>
+                                        <TableCell>{t('otherDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredBooks.length === 0 &&
+                                    {props.books.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">No records found.</TableCell>
+                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredBooks.map(record => (
-                                        <TableRow key={record.TransactionID}>
+                                    {props.books.map(record => (
+                                        <TableRow key={record.BookID}>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Type: {record.Transaction}</Typography>
-                                                <Typography variant="caption" display="block">ID: {record.TransactionID}</Typography>
-                                                <Typography variant="caption" display="block">Date: {record.Created}</Typography>
-                                                <Typography variant="caption" display="block">Status: {record.Status}</Typography>
+                                                <Typography variant="caption" display="block">{t('title')}: {record.Title}</Typography>
+                                                <Typography variant="caption" display="block">{t('isbn')}: {record.ISBN}</Typography>
+                                                <Typography variant="caption" display="block">{t('category')}: {record.Category}</Typography>
                                             </TableCell>
-                                            <TableCell>{record.MemberID}</TableCell>
+                                            <TableCell>{record.Author}</TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">Title: {record.BookTitle}</Typography>
-                                                <Typography variant="caption" display="block">ISBN: {record.BookISBN}</Typography>
-                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">CopyID: {record.BookCopyID}</Typography>}
+                                                <Typography variant="caption" display="block">{t('publisher')}: {record.Publisher}</Typography>
+                                                <Typography variant="caption" display="block">{t('publishedDate')}: {record.PublishedDate}</Typography>
+                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>}
                                             </TableCell>
-                                            {record.Transaction === 'Reserve' ?
-                                                <TableCell>
-                                                    <Typography variant="caption" display="block">Expire: {record.ReservationExpire}</Typography>
-                                                    <Typography variant="caption" display="block">Cancelled: {record.ReservationCancelled === true ? "Yes" : "No"}</Typography>
-                                                </TableCell>
-                                                :
-                                                <TableCell></TableCell>
-                                            }
-                                            {record.Transaction === 'Borrow' ?
-                                                <TableCell>
-                                                    <Typography variant="caption" display="block">High Demand: {record.HighDemand === true ? "Yes" : "No"}</Typography>
-                                                    <Typography variant="caption" display="block">Renews: {record.Renews}</Typography>
-                                                    <Typography variant="caption" display="block">Due: {record.Due}</Typography>
-                                                    <Typography variant="caption" display="block">Return: {record.Returned === undefined ? "N/A" : record.Returned}</Typography>
-                                                </TableCell>
-                                                :
-                                                <TableCell></TableCell>
-                                            }
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">{t('campus')}: {record.Campus}</Typography>
+                                                <Typography variant="caption" display="block">{t('location')}: {record.Location}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">{t('addedDate')}: {record.DateAdded}</Typography>
+                                                <Typography variant="caption" display="block">{t('copies')}: {record.NumOfCopies}</Typography>
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -210,10 +156,9 @@ const useStyles = makeStyles(theme => ({
 }))
 
 BooksReport.propTypes = {
-    filteredBooks: PropTypes.array.isRequired,
-    filterBooks: PropTypes.object.isRequired,
+    books: PropTypes.array.isRequired,
     getNewBooksReport: PropTypes.func.isRequired,
-    handleBookChange: PropTypes.func.isRequired
+    locale: PropTypes.string.isRequired
 }
 
 export default BooksReport

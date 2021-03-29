@@ -22,7 +22,6 @@ import {
     Tooltip,
     Typography,
 } from '@material-ui/core'
-import AutorenewIcon from '@material-ui/icons/Autorenew'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
 const OverdueBooks = (props) => {
@@ -135,14 +134,9 @@ const OverdueBooks = (props) => {
                                                 <Typography variant="caption" display="block">{t('renews')}: {row.renews}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                {row.renews === 3 &&
-                                                    <Tooltip title={t('maxRenews')} arrow>
-                                                        <AutorenewIcon />
-                                                    </Tooltip>
-                                                }
                                                 {row.isHighDemand &&
                                                     <Tooltip title={t('highDemand')} arrow>
-                                                        <PriorityHighIcon />
+                                                        <PriorityHighIcon className={classes.highpriority} />
                                                     </Tooltip>
                                                 }
                                             </TableCell>
@@ -171,6 +165,9 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down("sm")]: {
             justifyContent: 'center'
         }
+    },
+    highpriority: {
+        color: 'red'
     }
 }))
 
