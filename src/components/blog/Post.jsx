@@ -16,7 +16,8 @@ import {
     IconButton,
     makeStyles,
     Paper,
-    Typography
+    Typography,
+    useTheme
 } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
@@ -28,6 +29,7 @@ const Post = ({ post, user, handleDeletePost, handleEditPost, locale }) => {
     const [edit, setEdit] = useState(false)
     const { t } = useTranslation()
     const sanitizer = dompurify.sanitize
+    const theme = useTheme()
 
     const handleToggle = () => {
         setWindow(!window)
@@ -73,6 +75,7 @@ const Post = ({ post, user, handleDeletePost, handleEditPost, locale }) => {
                                         <Dialog
                                             open={window}
                                             onClose={handleToggle}
+                                            style={{ direction: theme.direction }}
                                         >
                                             <DialogContent>
                                                 <DialogContentText>

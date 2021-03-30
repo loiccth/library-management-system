@@ -296,5 +296,7 @@ export const TRANSLATIONS_ZH = {
     msgPost404: '找不到帖子',
     msgPostAdd: '帖子添加成功',
     msgPostUpdate: '发布成功更新',
-    msgPostDelete: '发布成功删除'
+    msgPostDelete: '发布成功删除',
+    msgPayment404: '找不到付款',
+    msgPaymentAlreadyPaid: '付款已付'
 }

@@ -11,7 +11,8 @@ import {
     DialogContent,
     DialogTitle,
     Link,
-    TextField
+    TextField,
+    useTheme
 } from '@material-ui/core'
 
 const EditPost = (props) => {
@@ -23,6 +24,7 @@ const EditPost = (props) => {
         shouldUnregister: false
     })
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const onSubmit = (data) => {
         axios.put(`${url}/posts/${props.post._id}`, data, { withCredentials: true })
@@ -41,6 +43,7 @@ const EditPost = (props) => {
                 fullWidth
                 open={props.edit}
                 onClose={props.handleEditToggle}
+                style={{ direction: theme.direction }}
             >
                 <DialogTitle>
                     {t('editPostTitle')}

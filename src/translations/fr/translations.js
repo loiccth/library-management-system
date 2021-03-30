@@ -296,5 +296,7 @@ export const TRANSLATIONS_FR = {
     msgPost404: 'Message introuvable',
     msgPostAdd: 'Publication ajouté avec succès',
     msgPostUpdate: 'Message mis à jour avec succès',
-    msgPostDelete: 'Message supprimé avec succès'
+    msgPostDelete: 'Message supprimé avec succès',
+    msgPayment404: 'Paiement introuvable',
+    msgPaymentAlreadyPaid: 'Paiement déjà payé'
 }

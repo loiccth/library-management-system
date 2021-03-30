@@ -20,6 +20,7 @@ import {
     RadioGroup,
     TextField,
     Typography,
+    useTheme
 } from '@material-ui/core'
 
 const ReturnBook = (props) => {
@@ -34,6 +35,7 @@ const ReturnBook = (props) => {
         }
     })
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const onSubmit = (data) => {
         axios.post(`${url}/books/return_book`, data, { withCredentials: true })
@@ -55,9 +57,12 @@ const ReturnBook = (props) => {
 
     const handleFine = () => {
         setClick(true)
-        axios.post(`${url}/users/payfine/${paymentID}`)
+        axios.post(`${url}/users/payfine/${paymentID}`, {}, { withCredentials: true })
             .then(result => {
                 setPaymentMsg(t(result.data.message))
+            })
+            .catch(err => {
+                setPaymentMsg(t(err.response.data.error))
             })
     }
 
@@ -91,7 +96,7 @@ const ReturnBook = (props) => {
             <Button variant="contained" fullWidth onClick={handleClickOpen}>
                 {t('returnBook')}
             </Button>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
+            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="form-dialog-title">{t('returnBook')}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>

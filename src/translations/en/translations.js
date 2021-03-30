@@ -296,5 +296,7 @@ export const TRANSLATIONS_EN = {
     msgPost404: 'Post not found',
     msgPostAdd: 'Post successfully added',
     msgPostUpdate: 'Post successfully updated',
-    msgPostDelete: 'Post successfully deleted'
+    msgPostDelete: 'Post successfully deleted',
+    msgPayment404: 'Payment not found',
+    msgPaymentAlreadyPaid: 'Payment already paid'
 }

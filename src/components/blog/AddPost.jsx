@@ -12,13 +12,15 @@ import {
     DialogTitle,
     Grid,
     Link,
-    TextField
+    TextField,
+    useTheme
 } from '@material-ui/core'
 
 const AddPost = (props) => {
     const [window, setWindow] = useState(false)
     const { register, handleSubmit, errors, reset } = useForm()
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const handleToggle = () => {
         setWindow(!window)
@@ -53,6 +55,7 @@ const AddPost = (props) => {
                         fullWidth
                         open={window}
                         onClose={handleWindowClose}
+                        style={{ direction: theme.direction }}
                     >
                         <DialogTitle>
                             {t('addPostTitle')}

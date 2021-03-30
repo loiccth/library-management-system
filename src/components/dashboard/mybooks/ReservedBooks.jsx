@@ -19,7 +19,8 @@ import {
     TableRow,
     Toolbar,
     Tooltip,
-    Typography
+    Typography,
+    useTheme
 } from '@material-ui/core'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
@@ -27,6 +28,7 @@ const ReservedBooks = (props) => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const handleToggle = () => {
         setOpen(!open)
@@ -94,6 +96,7 @@ const ReservedBooks = (props) => {
                                                     onClose={handleToggle}
                                                     aria-labelledby="alert-dialog-title"
                                                     aria-describedby="alert-dialog-description"
+                                                    style={{ direction: theme.direction }}
                                                 >
                                                     <DialogContent>
                                                         <DialogContentText id="alert-dialog-description">

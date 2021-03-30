@@ -10,7 +10,8 @@ import {
     DialogContent,
     DialogTitle,
     Link as MuiLink,
-    Typography
+    Typography,
+    useTheme
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import GitHubIcon from '@material-ui/icons/GitHub'
@@ -19,6 +20,7 @@ const Footer = (props) => {
     const classes = useStyles()
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const handleOpen = () => {
         setOpen(true)
@@ -41,7 +43,7 @@ const Footer = (props) => {
             <Button component={Link} to="/blog" className={classes.btn} variant="contained" disableRipple disableElevation>
                 {t('blog')}
             </Button>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="rules-and-regulations" maxWidth="sm" fullWidth>
+            <Dialog open={open} onClose={handleClose} aria-labelledby="rules-and-regulations" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="rules-and-regulations">{t('rules')}</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" paragraph>{t('rulesParagraph')}</Typography>

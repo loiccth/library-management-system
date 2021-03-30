@@ -203,8 +203,8 @@ export const TRANSLATIONS_AR = {
     addedDate: 'تاريخ الإضافة',
     duePayments: 'المدفوعات المستحقة',
     fineDetails: 'بيانات الدفع',
-    use: 'لتنسيق النص',
-    markdown: 'استخدم',
+    use: 'استخدم',
+    markdown: 'لتنسيق النص',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',
@@ -296,5 +296,7 @@ export const TRANSLATIONS_AR = {
     msgPost404: 'لم يتم العثور على المشاركة',
     msgPostAdd: 'تمت إضافة المشاركة بنجاح',
     msgPostUpdate: 'تم تحديث النشر بنجاح',
-    msgPostDelete: 'تم حذف المشاركة بنجاح'
+    msgPostDelete: 'تم حذف المشاركة بنجاح',
+    msgPayment404: 'الدفع غير موجود',
+    msgPaymentAlreadyPaid: 'تم الدفع بالفعل'
 }

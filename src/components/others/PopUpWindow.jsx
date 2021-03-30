@@ -8,15 +8,17 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Typography
+    Typography,
+    useTheme
 } from '@material-ui/core'
 
 const PopUpWindow = (props) => {
     const { t } = useTranslation()
+    const theme = useTheme()
 
     return (
         <>
-            <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
+            <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="form-dialog-title">{t('csvMenuTitle')}</DialogTitle>
                 <DialogContent>
                     <Box sx={{ mb: 2 }}>

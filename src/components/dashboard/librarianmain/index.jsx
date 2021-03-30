@@ -176,6 +176,10 @@ const LibrarianMain = (props) => {
         )
     }
 
+    const handleFinePayment = (payment) => {
+        setDuePayments(duePayments.filter(due => due._id !== payment._id))
+    }
+
     return (
         <>
             {loading ? null :
@@ -199,7 +203,7 @@ const LibrarianMain = (props) => {
                     <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>
-                    <DuePayments duePayments={duePayments} />
+                    <DuePayments duePayments={duePayments} handleFinePayment={handleFinePayment} />
                     <Box sx={{ my: 3 }}>
                         <Divider />
                     </Box>

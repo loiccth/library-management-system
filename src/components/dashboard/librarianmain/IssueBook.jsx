@@ -20,6 +20,7 @@ import {
     RadioGroup,
     TextField,
     Typography,
+    useTheme
 } from '@material-ui/core'
 
 const IssueBook = (props) => {
@@ -32,6 +33,7 @@ const IssueBook = (props) => {
         }
     })
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const onSubmit = (data) => {
         axios.post(`${url}/books/issue`, data, { withCredentials: true })
@@ -77,7 +79,7 @@ const IssueBook = (props) => {
             <Button variant="contained" fullWidth onClick={handleClickOpen}>
                 {t('issueBook')}
             </Button>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth>
+            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="form-dialog-title">{t('issueBook')}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>

@@ -22,7 +22,8 @@ import {
     TableCell,
     TableRow,
     Tooltip,
-    Typography
+    Typography,
+    useTheme
 } from '@material-ui/core'
 import FiberNewIcon from '@material-ui/icons/FiberNew'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
@@ -39,6 +40,7 @@ const Book = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [openSnack, setOpenSnack] = useState(false)
     const { t } = useTranslation()
+    const theme = useTheme()
 
     const handleClick = () => {
         setOpenSnack(true)
@@ -151,6 +153,7 @@ const Book = (props) => {
                                                             onClose={handleToggle}
                                                             aria-labelledby="alert-dialog-title"
                                                             aria-describedby="alert-dialog-description"
+                                                            style={{ direction: theme.direction }}
                                                         >
                                                             <DialogContent>
                                                                 <DialogContentText id="alert-dialog-description">

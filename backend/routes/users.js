@@ -146,13 +146,21 @@ router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (re
 router.post('/payfine/:fineid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
 
-    Payment.findById(req.params.findid)
+    Payment.findById(req.params.fineid)
         .then(payment => {
-            payment.paid = true
+            if (payment) {
+                if (!payment.paid) {
+                    payment.paid = true
 
-            payment.save().then(() => {
-                res.json({ message: 'msgPaymentSuccess' })
-            })
+                    payment.save().then(() => {
+                        res.json({ message: 'msgPaymentSuccess', payment })
+                    })
+                }
+                else
+                    res.status(400).json({ error: 'msgPaymentAlreadyPaid' })
+            }
+            else
+                res.status(404).json({ error: 'msgPayment404' })
         })
         .catch(err => console.log(err))
 })
