@@ -8,6 +8,7 @@ import url from '../../settings/api'
 import {
     AppBar,
     Button,
+    Hidden,
     IconButton,
     Menu,
     MenuItem,
@@ -73,10 +74,12 @@ const Navbar = (props) => {
             <AppBar position="fixed" className={classes.appBar}>
                 <Toolbar>
                     <div className={classes.title}>
-                        <Link to='/'>
-                            <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
-                            <img src={props.darkMode ? logo : whitelogo} alt="udmlogo" style={{ display: 'none' }} />
-                        </Link>
+                        <Hidden smDown>
+                            <Link to='/'>
+                                <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
+                                <img src={props.darkMode ? logo : whitelogo} alt="udmlogo" style={{ display: 'none' }} />
+                            </Link>
+                        </Hidden>
                     </div>
                     {props.darkMode ?
                         <IconButton

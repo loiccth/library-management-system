@@ -23,7 +23,7 @@ import {
     useTheme
 } from '@material-ui/core'
 
-const ReturnBook = (props) => {
+const ReturnBook = () => {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState()
     const [paymentID, setPaymentID] = useState()
@@ -114,11 +114,6 @@ const ReturnBook = (props) => {
                                     inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.userid}
                                     helperText={!!errors.userid ? errors.userid.message : ""}
-                                    InputLabelProps={{
-                                        style: {
-                                            left: props.locale === 'arEG' ? 'auto' : 0
-                                        }
-                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -133,11 +128,6 @@ const ReturnBook = (props) => {
                                     inputRef={register({ required: t('requiredField') })}
                                     error={!!errors.isbn}
                                     helperText={!!errors.isbn ? errors.isbn.message : ""}
-                                    InputLabelProps={{
-                                        style: {
-                                            left: props.locale === 'arEG' ? 'auto' : 0
-                                        }
-                                    }}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -208,7 +198,6 @@ const ReturnBook = (props) => {
 }
 
 ReturnBook.propTypes = {
-    locale: PropTypes.string.isRequired
 }
 
 export default ReturnBook

@@ -40,7 +40,7 @@ const Books = (props) => {
         {
             field: 'no',
             headerName: 'No',
-            width: 70
+            width: 80
         },
         {
             field: 'thumbnail',

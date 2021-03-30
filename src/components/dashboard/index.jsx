@@ -167,10 +167,12 @@ const Dashboard = (props) => {
                             <MenuIcon />
                         </IconButton>
                         <div className={classes.title}>
-                            <Link to='/'>
-                                <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
-                                <img src={props.darkMode ? logo : whitelogo} alt="udmlogo" style={{ display: 'none' }} />
-                            </Link>
+                            <Hidden smDown>
+                                <Link to='/'>
+                                    <img src={props.darkMode ? whitelogo : logo} alt="udmlogo" style={{ maxHeight: '50px', maxWidth: 'auto' }} />
+                                    <img src={props.darkMode ? logo : whitelogo} alt="udmlogo" style={{ display: 'none' }} />
+                                </Link>
+                            </Hidden>
                         </div>
                         {props.darkMode ?
                             <IconButton

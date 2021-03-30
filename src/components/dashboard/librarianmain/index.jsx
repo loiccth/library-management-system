@@ -186,10 +186,10 @@ const LibrarianMain = (props) => {
                 <Box sx={{ my: 5 }}>
                     <Grid container justifyContent="space-evenly">
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <IssueBook locale={props.locale} />
+                            <IssueBook />
                         </Grid>
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <ReturnBook locale={props.locale} />
+                            <ReturnBook />
                         </Grid>
                     </Grid>
                     <Box sx={{ my: 3 }}>

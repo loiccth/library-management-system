@@ -23,7 +23,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import EditPost from './EditPost'
 
-const Post = ({ post, user, handleDeletePost, handleEditPost, locale }) => {
+const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
     const classes = useStyles()
     const [window, setWindow] = useState(false)
     const [edit, setEdit] = useState(false)
@@ -70,7 +70,7 @@ const Post = ({ post, user, handleDeletePost, handleEditPost, locale }) => {
                                 {user.isLoggedIn && (user.memberType === 'Librarian' || user.memberType === 'Admin') &&
                                     <>
                                         <IconButton onClick={handleEditToggle}><EditIcon /></IconButton>
-                                        <EditPost post={post} edit={edit} handleEditToggle={handleEditToggle} handleEdit={handleEdit} locale={locale} />
+                                        <EditPost post={post} edit={edit} handleEditToggle={handleEditToggle} handleEdit={handleEdit} />
                                         <IconButton onClick={handleToggle}><DeleteIcon /></IconButton>
                                         <Dialog
                                             open={window}
@@ -118,7 +118,6 @@ Post.propTypes = {
     post: PropTypes.object.isRequired,
     handleDeletePost: PropTypes.func.isRequired,
     handleEditPost: PropTypes.func.isRequired,
-    locale: PropTypes.string.isRequired
 }
 
 export default Post

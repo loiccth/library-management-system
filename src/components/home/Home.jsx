@@ -105,11 +105,6 @@ const Home = (props) => {
                                                 margin="normal"
                                                 label={t('category')}
                                                 select
-                                                InputLabelProps={{
-                                                    style: {
-                                                        left: props.locale === 'arEG' ? 'auto' : 0
-                                                    }
-                                                }}
                                             >
                                                 <MenuItem value="All">{t('all')}</MenuItem>
                                                 {categories.map((category, index) => (

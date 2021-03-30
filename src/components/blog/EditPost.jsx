@@ -62,11 +62,6 @@ const EditPost = (props) => {
                             inputRef={register({ required: t('requiredField') })}
                             error={!!errors.title}
                             helperText={!!errors.title ? errors.title.message : " "}
-                            InputLabelProps={{
-                                style: {
-                                    left: props.locale === 'arEG' ? 'auto' : 0
-                                }
-                            }}
                         />
                         <TextField
                             fullWidth
@@ -81,11 +76,6 @@ const EditPost = (props) => {
                             minRows={5}
                             inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.body ? errors.body.message : <>{t('use')} <Link href="https://www.markdownguide.org/cheat-sheet/" target="_blank">Markdown</Link> {t('markdown')}</>}
-                            InputLabelProps={{
-                                style: {
-                                    left: props.locale === 'arEG' ? 'auto' : 0
-                                }
-                            }}
                         />
                     </form>
                 </DialogContent>
@@ -98,7 +88,7 @@ const EditPost = (props) => {
                         type="submit"
                         form="add-post"
                     >
-                        {t('post')}
+                        {t('update')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -111,7 +101,6 @@ EditPost.propTypes = {
     edit: PropTypes.bool.isRequired,
     handleEditToggle: PropTypes.func.isRequired,
     handleEdit: PropTypes.func.isRequired,
-    locale: PropTypes.string.isRequired
 }
 
 export default EditPost
