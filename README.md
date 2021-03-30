@@ -1,3 +1,7 @@
+![udmlogo](https://udm.ac.mu/wp-content/uploads/2019/10/mainLogo.png)
+
+This project is submitted to the Department of Software Engineering of the Université des Mascareignes in partial fulfillment of the requirements for the award of the Diploma in Software Engineering
+
 # Getting started
 
 ```bash
@@ -24,3 +28,5 @@ npm run dev
 ## Requirements
 
 1. NodeJS
+2. MongoDB Server
+3. SMTP Server
