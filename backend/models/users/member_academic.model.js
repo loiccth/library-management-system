@@ -12,7 +12,7 @@ const memberASchema = new Schema()
 memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, status: 'active' })
 
-    if (bookBorrowed !== null) return res.json({ 'message': 'Cannot borrow multiple copies of the same book.' })
+    if (bookBorrowed !== null) return res.status(400).json({ error: 'msgBorrowMultiple' })
     else {
         const numOfBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active' })
         const userSettings = await Setting.findOne({ setting: 'USER' })

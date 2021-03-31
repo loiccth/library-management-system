@@ -54,7 +54,7 @@ const Books = (props) => {
         {
             field: 'title',
             headerName: t('title'),
-            flex: 1,
+            flex: 2,
             renderCell: (param) => (
                 <Typography variant="body2" display="block">{param.value}</Typography>
             )
@@ -62,7 +62,7 @@ const Books = (props) => {
         {
             field: 'authors',
             headerName: t('authors'),
-            width: 200,
+            flex: 1,
             renderCell: (param) => (
                 <Typography variant="body2" display="block">{param.value}</Typography>
             )
@@ -93,7 +93,6 @@ const Books = (props) => {
         {
             field: 'flags',
             headerName: 'Flags',
-            sortable: false,
             width: 90,
             renderCell: (param) => {
                 if (param.value.highDemand && param.value.recentlyAdded) {
@@ -124,6 +123,18 @@ const Books = (props) => {
                 }
                 else
                     return <></>
+            },
+            sortComparator: (v1, v2) => {
+                let count = 0
+                if (v2.highDemand)
+                    count += 2
+                count += v2.recentlyAdded
+
+                if (v1.highDemand)
+                    count -= 2
+                count -= v1.recentlyAdded
+
+                return count
             }
         }
     ]
@@ -164,11 +175,17 @@ const Books = (props) => {
 
     return (
         <React.Fragment>
-            <Box sx={{ mb: 7 }}>
+            <Box sx={{ mb: 7 }} className={classes.container}>
                 <DataGrid
                     rows={rows}
                     columns={columns}
                     disableSelectionOnClick
+                    sortModel={[
+                        {
+                            field: 'title',
+                            sort: 'asc'
+                        }
+                    ]}
                     className={classes.table}
                     autoHeight
                     page={page}
@@ -194,11 +211,17 @@ const Books = (props) => {
 }
 
 const useStyles = makeStyles(theme => ({
-    table: {
+    container: {
         maxWidth: '80%',
         margin: 'auto',
+        overflowY: 'auto',
         [theme.breakpoints.down("xl")]: {
             maxWidth: '95%'
+        }
+    },
+    table: {
+        [theme.breakpoints.down("xl")]: {
+            minWidth: '1300px'
         }
     },
     thumbnail: {

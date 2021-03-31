@@ -184,8 +184,7 @@ Home.propTypes = {
     darkMode: PropTypes.bool.isRequired,
     handleToggleTheme: PropTypes.func.isRequired,
     handleLocale: PropTypes.func.isRequired,
-    handleLogout: PropTypes.func.isRequired,
-    locale: PropTypes.string.isRequired
+    handleLogout: PropTypes.func.isRequired
 }
 
 export default Home

@@ -133,9 +133,11 @@ router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req)
         const regex = new RegExp(escapeRegExp(req.body.search), 'gi')
         if (!req.body.category || req.body.category === 'All')
             Book.find({ [req.body.searchType]: regex, 'copies.0': { $exists: true } })
+                .sort({ 'title': 1 })
                 .then(books => res.json(books))
         else
             Book.find({ [req.body.searchType]: regex, category: req.body.category, 'copies.0': { $exists: true } })
+                .sort({ 'title': 1 })
                 .then(books => res.json(books))
     }
 })
@@ -225,6 +227,7 @@ router.post('/remove', jwt({ secret, credentialsRequired: true, getToken: (req) 
 // Get list of books
 router.get('/', (req, res) => {
     Book.find({ 'copies.0': { $exists: true } })
+        .sort({ 'title': 1 })
         .then(books => res.json({
             books
         }))

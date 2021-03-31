@@ -209,7 +209,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 Locations.propTypes = {
-    locationSettings: PropTypes.array.isRequired,
+    locationSettings: PropTypes.object.isRequired,
     handleUpdateLocationsSettings: PropTypes.func.isRequired
 }
 

@@ -12,13 +12,15 @@ import {
     makeStyles,
     Snackbar,
     TextField,
-    Typography
+    Typography,
+    useTheme
 } from '@material-ui/core'
 import { LocalizationProvider, TimePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 
 const LibraryHours = ({ hours }) => {
-    const classes = useStyles()
+    const theme = useTheme()
+    const classes = useStyles(theme)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, control, setValue, getValues, trigger } = useForm()
@@ -82,6 +84,7 @@ const LibraryHours = ({ hours }) => {
                                         <Controller
                                             render={({ onChange, value }) => (
                                                 <TimePicker
+                                                    className={classes.picker}
                                                     label={t(openHrs.day)}
                                                     value={value}
                                                     ampm={false}
@@ -95,6 +98,16 @@ const LibraryHours = ({ hours }) => {
                                                             variant="standard"
                                                             error={errors.opening === undefined ? false : errors.opening[index] === undefined ? false : true}
                                                             helperText={errors.opening === undefined ? "" : !!errors.opening[index] ? t('invalidTimeRange') : ""}
+                                                            InputLabelProps={{
+                                                                style: {
+                                                                    left: theme.direction === 'rtl' ? 'auto' : 0
+                                                                }
+                                                            }}
+                                                            FormHelperTextProps={{
+                                                                style: {
+                                                                    textAlign: theme.direction === 'rtl' ? 'right' : 'left'
+                                                                }
+                                                            }}
                                                         />
                                                     )}
                                                 />
@@ -123,6 +136,7 @@ const LibraryHours = ({ hours }) => {
                                         <Controller
                                             render={({ onChange, value }) => (
                                                 <TimePicker
+                                                    className={classes.picker}
                                                     label={t(hours.closing[index].day)}
                                                     value={value}
                                                     ampm={false}
@@ -136,6 +150,16 @@ const LibraryHours = ({ hours }) => {
                                                             variant="standard"
                                                             error={errors.closing === undefined ? false : errors.closing[index] === undefined ? false : true}
                                                             helperText={errors.closing === undefined ? "" : !!errors.closing[index] ? t('invalidTimeRange') : ""}
+                                                            InputLabelProps={{
+                                                                style: {
+                                                                    left: theme.direction === 'rtl' ? 'auto' : 0
+                                                                }
+                                                            }}
+                                                            FormHelperTextProps={{
+                                                                style: {
+                                                                    textAlign: theme.direction === 'rtl' ? 'right' : 'left'
+                                                                }
+                                                            }}
                                                         />
                                                     )}
                                                 />
@@ -184,11 +208,14 @@ const useStyles = makeStyles(() => ({
     },
     boxAlign: {
         textAlign: 'center'
+    },
+    picker: {
+        direction: theme => theme.direction
     }
 }))
 
 LibraryHours.propTypes = {
-    hours: PropTypes.array.isRequired
+    hours: PropTypes.object.isRequired
 }
 
 export default LibraryHours

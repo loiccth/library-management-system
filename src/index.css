@@ -11,7 +11,14 @@
 .MuiPickersDay-root {
   border-radius: 50% !important;
 }
+
+/* RTL Action Button spacing bug */
 .MuiDialogActions-spacing > :not(:first-child) {
   margin-left: 8px;
   margin-right: 8px;
+}
+
+/* DataGrid page count selector bug */
+.MuiInputBase-root {
+  display: inline-flex !important
 }

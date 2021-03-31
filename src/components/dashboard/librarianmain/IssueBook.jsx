@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'

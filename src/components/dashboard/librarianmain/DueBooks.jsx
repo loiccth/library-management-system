@@ -125,12 +125,12 @@ const DueBooks = (props) => {
                                                     fullWidth
                                                     InputLabelProps={{
                                                         style: {
-                                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                                            left: theme.direction === 'rtl' ? 'auto' : 0
                                                         }
                                                     }}
                                                     FormHelperTextProps={{
                                                         style: {
-                                                            textAlign: props.locale === 'arEG' ? 'right' : 'left'
+                                                            textAlign: theme.direction === 'rtl' ? 'right' : 'left'
                                                         }
                                                     }}
                                                 />
@@ -142,12 +142,12 @@ const DueBooks = (props) => {
                                                     fullWidth
                                                     InputLabelProps={{
                                                         style: {
-                                                            left: props.locale === 'arEG' ? 'auto' : 0
+                                                            left: theme.direction === 'rtl' ? 'auto' : 0
                                                         }
                                                     }}
                                                     FormHelperTextProps={{
                                                         style: {
-                                                            textAlign: props.locale === 'arEG' ? 'right' : 'left'
+                                                            textAlign: theme.direction === 'rtl' ? 'right' : 'left'
                                                         }
                                                     }}
                                                 />
