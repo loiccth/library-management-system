@@ -39,7 +39,7 @@ const maskMap = {
     arEG: '__/__/____'
 }
 
-const PaymentsReport = (props) => {
+const MembersReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
@@ -48,7 +48,7 @@ const PaymentsReport = (props) => {
 
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewPaymentsReport(date)
+        props.getNewMembersReport(date)
     }
 
     const handleDownloadCSV = () => {
@@ -59,7 +59,7 @@ const PaymentsReport = (props) => {
         <>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">{t('paymentReport')}</Typography>
+                    <Typography variant="h6">{t('memberReport')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 1 }}>
@@ -72,6 +72,7 @@ const PaymentsReport = (props) => {
                                     startText={t('from')}
                                     endText={t('to')}
                                     value={date}
+                                    disableFuture
                                     onChange={handleDateUpdate}
                                     renderInput={(startProps, endProps) => (
                                         <Grid container className={classes.heading} spacing={1}>
@@ -124,25 +125,25 @@ const PaymentsReport = (props) => {
                                 >
                                     <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                     <CSVLink
-                                        data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
-                                        filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
+                                        data={props.filteredMembers.length === 0 ? 'No records found' : props.filteredMembers}
+                                        filename={`Members_Report_${new Date().toLocaleDateString()}.csv`}
                                         ref={csvlink}
                                     />
                                 </Box>
                             </Grid>
                             <Grid item xs={12} sm={5} md={3} lg={2}>
                                 <TextField
-                                    name="paid"
+                                    name="status"
                                     fullWidth
                                     variant="standard"
-                                    label={t('paid')}
+                                    label={t('status')}
                                     select
-                                    value={props.filterPayment.paid}
-                                    onChange={props.handlePayChange}
+                                    value={props.filterMembers.status}
+                                    onChange={props.handleMembersChange}
                                 >
                                     <MenuItem value="All">{t('all')}</MenuItem>
-                                    <MenuItem value="Paid">{t('paid')}</MenuItem>
-                                    <MenuItem value="Unpaid">{t('unpaid')}</MenuItem>
+                                    <MenuItem value="active">{t('active')}</MenuItem>
+                                    <MenuItem value="suspended">{t('suspended')}</MenuItem>
                                 </TextField>
                             </Grid>
                         </Grid>
@@ -156,35 +157,39 @@ const PaymentsReport = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('paymentDetails')}</TableCell>
-                                        <TableCell>{t('memberid')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('amount')}</TableCell>
+                                        <TableCell>{t('registrationDetails')}</TableCell>
+                                        <TableCell>{t('personalDetails')}</TableCell>
+                                        <TableCell>{t('otherDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredPayments.length === 0 &&
+                                    {props.filteredMembers.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={3} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredPayments.map(record => (
-                                        <TableRow key={record.PaymentID}>
+                                    {props.filteredMembers.map(record => (
+                                        <TableRow key={record.RegistrationID}>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">{t('id')}: {record.PaymentID}</Typography>
-                                                <Typography variant="caption" display="block">{t('paid')}: {record.Paid === true ? 'Yes' : 'No'}</Typography>
-                                                <Typography variant="caption" display="block">{t('date')}: {record.Created}</Typography>
-                                            </TableCell>
-                                            <TableCell>{record.MemberID}</TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('title')}: {record.BookTitle}</Typography>
-                                                <Typography variant="caption" display="block">{t('isbn')}: {record.BookISBN}</Typography>
-                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>}
+                                                <Typography variant="caption" display="block">{t('registrationId')}: {record.RegistrationID}</Typography>
+                                                <Typography variant="caption" display="block">{t('memberid')}: {record.MemberID}</Typography>
+                                                <Typography variant="caption" display="block">{t('memberType')}: {record.MemberType}</Typography>
+                                                <Typography variant="caption" display="block">{t('date')}: {new Date(record.Date).toLocaleDateString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('status')}: {record.Status}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {record.PricePerDay}</Typography>
-                                                <Typography variant="caption" display="block">{t('daysOverdue')}: {record.NumberOfDays}</Typography>
-                                                <Typography variant="caption" display="block">{t('total')}: Rs {record.PricePerDay * record.NumberOfDays}</Typography>
+                                                <Typography variant="caption" display="block">{t('firstName')}: {record.FirstName}</Typography>
+                                                <Typography variant="caption" display="block">{t('lastName')}: {record.LastName}</Typography>
+                                                <Typography variant="caption" display="block">{t('email')}: {record.Email}</Typography>
+                                                <Typography variant="caption" display="block">{t('phone')}: {record.Phone}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">{t('type')}: {record.udmType}</Typography>
+                                                {record.udmType === 'Staff' && <Typography variant="caption" display="block">{t('mode')}: {record.staffType}</Typography>}
+                                                {record.udmType === 'Staff' && <Typography variant="caption" display="block">{t('academic')}: {record.academic}</Typography>}
+                                                {record.udmType === 'Student' && <Typography variant="caption" display="block">{t('mode')}: {record.studentType}</Typography>}
+                                                {record.faculty && <Typography variant="caption" display="block">{t('faculty')}: {record.faculty}</Typography>}
+                                                {record.contractEndDate && <Typography variant="caption" display="block">{t('contract')}: {new Date(record.contractEndDate).toLocaleDateString()}</Typography>}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -217,12 +222,12 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-PaymentsReport.propTypes = {
-    filteredPayments: PropTypes.array.isRequired,
-    filterPayment: PropTypes.object.isRequired,
-    getNewPaymentsReport: PropTypes.func.isRequired,
-    handlePayChange: PropTypes.func.isRequired,
+MembersReport.propTypes = {
+    filteredMembers: PropTypes.array.isRequired,
+    getNewMembersReport: PropTypes.func.isRequired,
+    handleMembersChange: PropTypes.func.isRequired,
+    filterMembers: PropTypes.object.isRequired,
     locale: PropTypes.string.isRequired
 }
 
-export default PaymentsReport
+export default MembersReport

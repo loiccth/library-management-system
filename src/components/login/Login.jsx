@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../settings/api'
+import { analytics } from '../../functions/analytics'
 import {
     Alert,
     Button,
@@ -37,6 +38,7 @@ const Login = (props) => {
                 props.handleLogin(result.data)
             })
             .catch(err => {
+                analytics('action', `login attempt failed - memberid: ${data.userid}`)
                 setSnackbar(t(err.response.data.error))
                 handleClick()
             })

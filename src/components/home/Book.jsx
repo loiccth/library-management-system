@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../settings/api'
+import { analytics } from '../../functions/analytics'
 import {
     Alert,
     Box,
@@ -60,6 +61,7 @@ const Book = (props) => {
         if (transaction === null) {
             axios.post(`${url}/books/reserve/${id}`, {}, { withCredentials: true })
                 .then(result => {
+                    analytics('action', `book reservation success - id: ${id}`)
                     setTransaction('Reserve')
                     setSnackbar({
                         type: 'success',
@@ -68,16 +70,20 @@ const Book = (props) => {
                     getBook(id)
                 })
                 .catch(err => {
-                    if (err.response.data.error === 'msgReserveMax')
+                    if (err.response.data.error === 'msgReserveMax') {
+                        analytics('action', { message: 'book reservation fail, max reservation', book: id })
                         setSnackbar({
                             type: 'warning',
                             msg: t(err.response.data.error, { max: err.response.data.max })
                         })
-                    else
+                    }
+                    else {
+                        analytics('action', { message: 'book reservation fail', book: id })
                         setSnackbar({
                             type: 'warning',
                             msg: t(err.response.data.error)
                         })
+                    }
                 })
                 .finally(() => {
                     handleClick()

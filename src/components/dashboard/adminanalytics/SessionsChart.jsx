@@ -1,27 +1,29 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { Bar } from 'react-chartjs-2'
 import { Paper, Box, Typography, makeStyles, useTheme } from '@material-ui/core'
 
 const SessionsChart = ({ sessions }) => {
     const classes = useStyles()
     const theme = useTheme()
+    const { t } = useTranslation()
 
     const data = {
         labels: sessions.labels,
         datasets: [
             {
-                label: 'Total',
+                label: t('total'),
                 data: sessions.totalData,
                 backgroundColor: 'rgba(255,99,132)'
             },
             {
-                label: 'Users',
+                label: t('users'),
                 data: sessions.usersData,
                 backgroundColor: 'rgb(54, 162, 235)'
             },
             {
-                label: 'Guests',
+                label: t('guests'),
                 data: sessions.guestsData,
                 backgroundColor: 'rgb(75, 192, 192)'
             }
@@ -31,7 +33,7 @@ const SessionsChart = ({ sessions }) => {
     return (
         <Paper>
             <Box sx={{ p: 2 }}>
-                <Typography className={classes.title} variant="h6">Number of sessions for last seven days</Typography>
+                <Typography className={classes.title} variant="h6">{t('session')}</Typography>
                 <Bar
                     data={data}
                     options={{

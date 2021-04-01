@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from './settings/api'
 import Cookies from 'js-cookie'
-import { deviceDetect, deviceType } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
+import { analytics } from './functions/analytics'
 import rtl from 'jss-rtl'
 import { create } from 'jss'
 import { getLocale } from './functions/getLocale'
+import useInterval from './functions/useInternal'
 import {
     Alert,
     createMuiTheme,
@@ -44,6 +45,7 @@ function App() {
     const [locale, setLocale] = useState(getLocale())
     const [snackbar, setSnackbar] = useState()
     const [open, setOpen] = useState(false)
+    const [queue, setQueue] = useState([])
     const location = useLocation()
     const { t } = useTranslation()
     const jss = create({ plugins: [...jssPreset().plugins, rtl({ enabled: getLocale() === 'arEG' ? true : false })] })
@@ -77,26 +79,12 @@ function App() {
     }
 
     useEffect(() => {
-        if (!sessionStorage.getItem('session_id')) {
-            sessionStorage.setItem('session_id', uuidv4())
-        }
+        setQueue([
+            ...queue,
+            { type: 'view', info: location.pathname + location.search }
+        ])
 
-        const { userAgent, ua } = deviceDetect()
-
-        const data = {
-            sessionid: sessionStorage.getItem('session_id'),
-            device: deviceType,
-            userAgent: userAgent === undefined ? ua : userAgent,
-            events: {
-                type: 'view',
-                path: location.pathname
-            }
-        }
-
-        axios.post(`${url}/analytics`, data, { withCredentials: true })
-            .catch(err => {
-                console.log(err.message)
-            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
 
     useEffect(() => {
@@ -127,9 +115,17 @@ function App() {
         verifyLogin()
     }, [])
 
+    useInterval(() => {
+        if (queue.length > 0) {
+            analytics(queue[0].type, queue[0].info)
+            setQueue(queue.slice(1))
+        }
+    }, 1000)
+
     const handleLogin = (e) => {
         sessionStorage.removeItem('session_id')
         sessionStorage.setItem('session_id', uuidv4())
+        analytics('action', 'login success')
         const { message, userid, email, memberType, phone, temporaryPassword } = e
         setUser({
             isLoggedIn: true,

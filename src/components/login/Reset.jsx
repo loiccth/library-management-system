@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import ReCAPTCHA from 'react-google-recaptcha'
 import url from '../../settings/api'
+import { analytics } from '../../functions/analytics'
 import {
     Alert,
     Button,
@@ -39,12 +40,14 @@ const Reset = (props) => {
     const onSubmit = (data) => {
         axios.patch(`${url}/users/reset`, data)
             .then(result => {
+                analytics('action', 'password reset success')
                 setSnackbar({
                     type: 'success',
                     msg: t(result.data.message)
                 })
             })
             .catch(err => {
+                analytics('action', `password reset success - memberid: ${data.userid}`)
                 setSnackbar({
                     type: 'warning',
                     msg: t(err.response.data.error)

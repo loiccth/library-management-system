@@ -8,7 +8,6 @@ import {
     Container,
     Grid,
     makeStyles,
-    MenuItem,
     Paper,
     Table,
     TableBody,
@@ -24,6 +23,7 @@ import {
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
+import Row from './Row'
 
 const localeMap = {
     enUS: enGB,
@@ -39,16 +39,16 @@ const maskMap = {
     arEG: '__/__/____'
 }
 
-const PaymentsReport = (props) => {
+const AnalyticsReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
-    const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
+    const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
 
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewPaymentsReport(date)
+        props.getNewAnalyticsReport(date)
     }
 
     const handleDownloadCSV = () => {
@@ -59,7 +59,7 @@ const PaymentsReport = (props) => {
         <>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">{t('paymentReport')}</Typography>
+                    <Typography variant="h6">{t('analyticsReport')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 1 }}>
@@ -72,6 +72,7 @@ const PaymentsReport = (props) => {
                                     startText={t('from')}
                                     endText={t('to')}
                                     value={date}
+                                    disableFuture
                                     onChange={handleDateUpdate}
                                     renderInput={(startProps, endProps) => (
                                         <Grid container className={classes.heading} spacing={1}>
@@ -116,34 +117,12 @@ const PaymentsReport = (props) => {
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
                             <Grid item xs={12} sm={5} md={3} lg={2}>
-                                <Box sx={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    height: '100%'
-                                }}
-                                >
-                                    <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
-                                    <CSVLink
-                                        data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
-                                        filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
-                                        ref={csvlink}
-                                    />
-                                </Box>
-                            </Grid>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
-                                <TextField
-                                    name="paid"
-                                    fullWidth
-                                    variant="standard"
-                                    label={t('paid')}
-                                    select
-                                    value={props.filterPayment.paid}
-                                    onChange={props.handlePayChange}
-                                >
-                                    <MenuItem value="All">{t('all')}</MenuItem>
-                                    <MenuItem value="Paid">{t('paid')}</MenuItem>
-                                    <MenuItem value="Unpaid">{t('unpaid')}</MenuItem>
-                                </TextField>
+                                <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
+                                <CSVLink
+                                    data={props.analytics.length === 0 ? 'No records found' : props.csv}
+                                    filename={`Analytics_Report_${new Date().toLocaleDateString()}.csv`}
+                                    ref={csvlink}
+                                />
                             </Grid>
                         </Grid>
                     </Grid>
@@ -156,37 +135,20 @@ const PaymentsReport = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('paymentDetails')}</TableCell>
-                                        <TableCell>{t('memberid')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('amount')}</TableCell>
+                                        <TableCell />
+                                        <TableCell>{t('userDetails')}</TableCell>
+                                        <TableCell>{t('geolocation')}</TableCell>
+                                        <TableCell>{t('deviceDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredPayments.length === 0 &&
+                                    {props.analytics.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredPayments.map(record => (
-                                        <TableRow key={record.PaymentID}>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('id')}: {record.PaymentID}</Typography>
-                                                <Typography variant="caption" display="block">{t('paid')}: {record.Paid === true ? 'Yes' : 'No'}</Typography>
-                                                <Typography variant="caption" display="block">{t('date')}: {record.Created}</Typography>
-                                            </TableCell>
-                                            <TableCell>{record.MemberID}</TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('title')}: {record.BookTitle}</Typography>
-                                                <Typography variant="caption" display="block">{t('isbn')}: {record.BookISBN}</Typography>
-                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {record.PricePerDay}</Typography>
-                                                <Typography variant="caption" display="block">{t('daysOverdue')}: {record.NumberOfDays}</Typography>
-                                                <Typography variant="caption" display="block">{t('total')}: Rs {record.PricePerDay * record.NumberOfDays}</Typography>
-                                            </TableCell>
-                                        </TableRow>
+                                    {props.analytics.map(row => (
+                                        <Row key={row.sessionid} row={row} />
                                     ))}
                                 </TableBody>
                             </Table>
@@ -217,12 +179,11 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-PaymentsReport.propTypes = {
-    filteredPayments: PropTypes.array.isRequired,
-    filterPayment: PropTypes.object.isRequired,
-    getNewPaymentsReport: PropTypes.func.isRequired,
-    handlePayChange: PropTypes.func.isRequired,
+AnalyticsReport.propTypes = {
+    analytics: PropTypes.array.isRequired,
+    getNewAnalyticsReport: PropTypes.func.isRequired,
+    csv: PropTypes.array.isRequired,
     locale: PropTypes.string.isRequired
 }
 
-export default PaymentsReport
+export default AnalyticsReport

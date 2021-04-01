@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import LibrarianReports from './librarian'
+import AdminReports from './admin'
 
 const Reports = ({ user, locale }) => {
     const navigate = useNavigate()
@@ -18,7 +19,7 @@ const Reports = ({ user, locale }) => {
     else if (user.memberType === 'Admin') {
         return (
             <>
-                hello admin {user.memberType}
+                <AdminReports locale={locale} />
             </>
         )
     }

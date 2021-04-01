@@ -1,15 +1,29 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
-import { Box, Divider, Grid, makeStyles, Paper } from '@material-ui/core'
+import {
+    Box,
+    Container,
+    Divider,
+    Grid,
+    makeStyles,
+    Paper,
+    Toolbar,
+    Typography
+} from '@material-ui/core'
 import SessionsChart from './SessionsChart'
 import DevicesPie from './DevicesPie'
+import LatestLogins from './LatestLogins'
 
 const AdminAnalytics = () => {
     const classes = useStyles()
     const [loading, setLoading] = useState(true)
+    const [stats, setStats] = useState()
     const [sessions, setSessions] = useState()
+    const [latest, setLatest] = useState()
     const [devices, setDevices] = useState()
+    const { t } = useTranslation()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -17,6 +31,10 @@ const AdminAnalytics = () => {
             setSessions(tempSession.data)
             const tempDevices = await axios.get(`${url}/analytics/devices`, { withCredentials: true })
             setDevices(tempDevices.data)
+            const getStats = await axios.get(`${url}/analytics/stats`, { withCredentials: true })
+            setStats(getStats.data)
+            const getLatest = await axios.get(`${url}/analytics/latest`, { withCredentials: true })
+            setLatest(getLatest.data)
 
             setLoading(false)
         }
@@ -28,43 +46,48 @@ const AdminAnalytics = () => {
     return (
         <>
             {loading ? null :
-                <>
-                    <Box sx={{ my: 5 }}>
+                <Box sx={{ my: 5 }}>
+                    <Container>
+                        <Toolbar>
+                            <Typography variant="h6">{t('stats')}</Typography>
+                        </Toolbar>
+                    </Container>
+                    <Box sx={{ my: 3 }}>
                         <Grid container justifyContent="center">
                             <Grid item xs={11} md={10}>
                                 <Grid container spacing={2} justifyContent="center">
                                     <Grid item xs={10} sm={5} md={3} lg={3} className={classes.card}>
                                         <Box>
                                             <Paper className={classes.paper}>
-                                                hello
+                                                {t('activeUsers')}: {stats.users}
                                             </Paper>
                                         </Box>
                                     </Grid>
                                     <Grid item xs={10} sm={5} md={3} lg={3} className={classes.card}>
                                         <Box>
                                             <Paper className={classes.paper}>
-                                                hello
+                                                {t('guestUsers')}: {stats.guests}
                                             </Paper>
                                         </Box>
                                     </Grid>
                                     <Grid item xs={10} sm={5} md={3} lg={3} className={classes.card}>
                                         <Box>
                                             <Paper className={classes.paper}>
-                                                hello
+                                                {t('loginFailed')}: {stats.failedLogin}
                                             </Paper>
                                         </Box>
                                     </Grid>
                                     <Grid item xs={10} sm={5} md={3} lg={3} className={classes.card}>
                                         <Box>
                                             <Paper className={classes.paper}>
-                                                hello
+                                                {t('passwordReset')}: {stats.passwordReset}
                                             </Paper>
                                         </Box>
                                     </Grid>
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Box sx={{ my: 7 }}>
+                        <Box sx={{ my: 5 }}>
                             <Divider />
                         </Box>
                         <Grid container justifyContent="center">
@@ -79,8 +102,12 @@ const AdminAnalytics = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
+                        <Box sx={{ my: 5 }}>
+                            <Divider />
+                        </Box>
+                        <LatestLogins latest={latest} />
                     </Box>
-                </>
+                </Box>
             }
         </>
     )
@@ -91,8 +118,9 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center'
     },
     paper: {
-        paddingTop: theme.spacing(2),
-        paddingBottom: theme.spacing(2)
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1),
+        fontSize: '1.3em'
     }
 }))
 

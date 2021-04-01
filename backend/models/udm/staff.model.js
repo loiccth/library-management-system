@@ -6,6 +6,7 @@ const Schema = mongoose.Schema
 const staffSchema = new Schema({
     staffType: { type: String, required: true, enum: ['ft', 'pt'] },
     academic: { type: Boolean, required: true },
+    faculty: { type: String, enum: ['ict', 'ba', "eng"] },
     contractEndDate: { type: Date }
 })
 

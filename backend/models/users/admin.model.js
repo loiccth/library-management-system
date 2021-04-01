@@ -283,6 +283,21 @@ adminSchema.methods.toggleStatus = function (userid, res) {
         .catch(err => console.log(err))
 }
 
+adminSchema.methods.getMembersReport = function (from, to, res) {
+    const fromDate = new Date(new Date(from).toDateString())
+    const toDate = new Date(new Date(to).toDateString())
+    toDate.setDate(toDate.getDate() + 1)
+
+    User.find({ createdAt: { $gte: fromDate, $lt: toDate } })
+        .select(['status', 'createdAt', 'userid'])
+        .populate('udmid', ['firstName', 'lastName', 'email', 'phone', 'staffType', 'academic', 'faculty', 'contractEndDate', 'studentType'])
+        .sort({ createdAt: 1 })
+        .then(users => {
+            res.json(users)
+        })
+        .catch(err => console.log(err))
+}
+
 const Admin = User.discriminator('Admin', adminSchema)
 
 module.exports = Admin

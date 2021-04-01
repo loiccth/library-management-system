@@ -1,13 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { useTranslation } from 'react-i18next'
 import { Pie } from 'react-chartjs-2'
 import { Paper, Box, Typography, makeStyles, useTheme } from '@material-ui/core'
 
 const DevicesPie = ({ devices }) => {
     const classes = useStyles()
     const theme = useTheme()
+    const { t } = useTranslation()
 
-    const customLabels = devices.labels.map((label, index) => `${label}: ${devices.data[index]}`)
+    const customLabels = devices.labels.map((label, index) => `${t(label)}: ${devices.data[index]}`)
 
     const data = {
         labels: customLabels,
@@ -25,7 +27,7 @@ const DevicesPie = ({ devices }) => {
     return (
         <Paper style={{ height: '100%' }}>
             <Box sx={{ p: 2, height: '100%' }}>
-                <Typography className={classes.title} variant="h6">Traffic by device for last seven days</Typography>
+                <Typography className={classes.title} variant="h6">{t('traffic')}</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '85%' }}>
                     <Pie
                         data={data}

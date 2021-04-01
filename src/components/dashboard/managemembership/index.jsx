@@ -15,7 +15,7 @@ import RegisterMemberCSV from './RegisterMemberCSV'
 import RegisterMember from './RegisterMember'
 import SearchUsers from './SearchUsers'
 
-const ManageMenbership = (props) => {
+const ManageMembership = (props) => {
     const navigate = useNavigate()
     const [csv, setCsv] = useState(true)
     const { t } = useTranslation()
@@ -54,8 +54,8 @@ const ManageMenbership = (props) => {
     )
 }
 
-ManageMenbership.propTypes = {
+ManageMembership.propTypes = {
     user: PropTypes.object.isRequired
 }
 
-export default ManageMenbership
+export default ManageMembership

@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
+import { analytics } from '../../../functions/analytics'
 import {
     Alert,
     Button,
@@ -40,15 +41,20 @@ const ChangePassword = (props) => {
             .then(result => {
                 props.handlePasswordChange(props.parent)
 
-                if (props.parent === 'forcePasswordChange')
+                if (props.parent === 'forcePasswordChange') {
+                    analytics('action', 'changed temporary password')
                     navigate('/dashboard', { replace: true })
-                else
+                }
+                else {
+                    analytics('action', 'password change success')
                     setSnackbar({
                         type: 'success',
                         msg: t(result.data.message)
                     })
+                }
             })
             .catch(err => {
+                analytics('action', 'password change fail')
                 setSnackbar({
                     type: 'error',
                     msg: t(err.response.data.error)

@@ -79,7 +79,7 @@ router.post('/togglestatus', jwt({ secret, credentialsRequired: true, getToken: 
 
 // Verify if user is already logged in on page load
 router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (req.user === null) return res.json({ 'success': false })
+    if (!req.user) return res.json({ 'success': false })
 
     else {
         const { _id, userid, email, phone, memberType, temporaryPassword } = req.user
@@ -200,6 +200,17 @@ router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => 
             .sort({ createdAt: 1 })
             .then(payments => {
                 res.json(payments)
+            })
+            .catch(err => console.log(err))
+    }
+})
+
+router.post('/membersreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    else {
+        Admin.findOne({ _id: req.user._id })
+            .then(admin => {
+                admin.getMembersReport(req.body.from, req.body.to, res)
             })
             .catch(err => console.log(err))
     }
