@@ -248,6 +248,7 @@ export const TRANSLATIONS_EN = {
     user: 'User',
     events: 'Events',
     filterMemberid: 'Filter MemberID',
+    queuePosition: 'Position in queue',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',

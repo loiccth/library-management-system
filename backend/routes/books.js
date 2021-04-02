@@ -242,8 +242,7 @@ router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => 
             .then(async book => {
                 if (book === null) return res.sendStatus(404)
                 else {
-                    let response
-                    response = {
+                    let response = {
                         book
                     }
                     if (req.user) {
@@ -253,6 +252,22 @@ router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => 
                             response = {
                                 ...response,
                                 transaction: transaction.transactionType
+                            }
+
+                            if (transaction.transactionType === 'Reserve') {
+                                let position
+
+                                for (let i = 0; i < book.reservation.length; i++) {
+                                    if (req.user._id === String(book.reservation[i].userid)) {
+                                        position = i + 1
+                                        break
+                                    }
+                                }
+
+                                response = {
+                                    ...response,
+                                    position
+                                }
                             }
                         }
                     }

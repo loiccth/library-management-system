@@ -350,15 +350,56 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                     }
                 }
             },
-            {
-                $sort: {
-                    _id: 1
-                }
-            }
+            { $sort: { '_id.sessionid': 1 } },
         ])
             .then(analytics => {
                 User.populate(analytics, { path: '_id.userid', select: ['userid'] })
-                    .then(analytics => res.json(analytics))
+                    .then(analytics => {
+                        const anal = []
+                        const csv = []
+                        let events = []
+
+                        for (let i = 0; i < analytics.length; i++) {
+                            events = []
+                            for (let j = 0; j < analytics[i].events.length; j++) {
+                                events.push({
+                                    type: analytics[i].events[j].event.type,
+                                    info: analytics[i].events[j].event.info,
+                                    date: analytics[i].events[j].date
+                                })
+
+                                csv.push({
+                                    user: j === 0 ? analytics[i]._id.userid === null ? 'Guest' : analytics[i]._id.userid.userid : null,
+                                    sessionid: j === 0 ? analytics[i]._id.sessionid : null,
+                                    sessionDate: j === 0 ? analytics[i]._id.sessionDate : null,
+                                    ip: j === 0 ? analytics[i]._id.ip : null,
+                                    geolocation: j === 0 ? analytics[i].geolocation.regionName + ', ' + analytics[i].geolocation.countryName + ', ' + analytics[i].geolocation.continentName : null,
+                                    device: j === 0 ? analytics[i]._id.device : null,
+                                    userAgent: j === 0 ? analytics[i]._id.userAgent : null,
+                                    eventTime: analytics[i].events[j].date,
+                                    events: analytics[i].events[j].event.type + ' - ' + analytics[i].events[j].event.info
+                                })
+                            }
+
+                            anal.push({
+                                sessionid: analytics[i]._id.sessionid,
+                                sessionDate: analytics[i]._id.sessionDate,
+                                user: analytics[i]._id.userid,
+                                ip: analytics[i]._id.ip,
+                                geolocation: analytics[i].geolocation,
+                                device: analytics[i]._id.device,
+                                userAgent: analytics[i]._id.userAgent,
+                                events
+                            })
+                        }
+
+                        res.json({
+                            analytics: anal,
+                            csv
+                        })
+
+
+                    })
                     .catch(err => console.log(err))
             })
             .catch(err => console.log(err))

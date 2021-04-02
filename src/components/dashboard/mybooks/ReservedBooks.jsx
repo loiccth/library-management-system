@@ -61,12 +61,12 @@ const ReservedBooks = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.reserved.length === 0 &&
+                                    {props.reserved.booksReserved.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.reserved.map(row => (
+                                    {props.reserved.booksReserved.map((row, index) => (
                                         <TableRow key={row._id}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('reservedDate')}: {new Date(row.createdAt).toLocaleString()}</Typography>
@@ -74,13 +74,14 @@ const ReservedBooks = (props) => {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {row.bookid.title}</Typography>
-                                                <Typography variant="caption" display="block">ISBN: {row.bookid.isbn}</Typography>
+                                                <Typography variant="caption" display="block">{t('isbn')}: {row.bookid.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('total')}: {row.bookid.copies.length}</Typography>
                                                 <Typography variant="caption" display="block">{t('onloan')}: {row.bookid.noOfBooksOnLoan}</Typography>
                                                 <Typography variant="caption" display="block">{t('hold')}: {row.bookid.noOfBooksOnHold}</Typography>
                                                 <Typography variant="caption" display="block">{t('reservation')}: {row.bookid.reservation.length}</Typography>
+                                                <Typography variant="caption" display="block">{t('queuePosition')}: {props.reserved.position[index]}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 {row.bookid.isHighDemand &&

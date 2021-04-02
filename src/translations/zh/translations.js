@@ -247,6 +247,7 @@ export const TRANSLATIONS_ZH = {
     sessionDate: '开课日期',
     user: '用户',
     events: '大事记',
+    queuePosition: '在队列中的位置',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

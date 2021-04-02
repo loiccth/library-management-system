@@ -23,8 +23,7 @@ const AdminReports = ({ locale }) => {
             setMembers(getMembers)
             setFilteredMembers(getMembers)
 
-            const getAnalytics = await getAnalyticsReport(firstDay, new Date())
-            setAnalytics(getAnalytics)
+            getAnalyticsReport(firstDay, new Date())
 
             setLoading(false)
         }
@@ -84,64 +83,19 @@ const AdminReports = ({ locale }) => {
         return temp
     }
 
-    const getAnalyticsReport = async (from, to) => {
-        const getAnalytics = await axios.post(`${url}/analytics/report`, { from, to }, { withCredentials: true })
-        const temp = getAnalytics.data.map(record => {
-            let temp2 = []
-
-            for (let i = 0; i < record.events.length; i++) {
-                temp2.push({
-                    type: record.events[i].event.type,
-                    info: record.events[i].event.info,
-                    date: record.events[i].date
-                })
-            }
-
-            return {
-                sessionid: record._id.sessionid,
-                sessionDate: record._id.sessionDate,
-                user: record._id.userid,
-                ip: record._id.ip,
-                geolocation: record.geolocation,
-                device: record._id.device,
-                userAgent: record._id.userAgent,
-                events: temp2
-            }
-        })
-
-        return temp
+    const getAnalyticsReport = (from, to) => {
+        axios.post(`${url}/analytics/report`, { from, to }, { withCredentials: true })
+            .then(result => {
+                setAnalytics(result.data.analytics)
+                setCsv(result.data.csv)
+            })
     }
 
-    const getNewAnalyticsReport = async (date) => {
+    const getNewAnalyticsReport = (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
-            const getAnalytics = await getAnalyticsReport(date[0], date[1])
-            setAnalytics(getAnalytics)
+            getAnalyticsReport(date[0], date[1])
         }
     }
-
-    useEffect(() => {
-        let temp = []
-
-        if (analytics.length > 0) {
-            for (let i = 0; i < analytics.length; i++) {
-                for (let j = 0; j < analytics[i].events.length; j++) {
-                    temp.push({
-                        user: j === 0 ? analytics[i].user === null ? 'Guest' : analytics[i].user.userid : null,
-                        sessionid: j === 0 ? analytics[i].sessionid : null,
-                        sessionDate: j === 0 ? analytics[i].sessionDate : null,
-                        ip: j === 0 ? analytics[i].ip : null,
-                        geolocation: j === 0 ? analytics[i].geolocation.regionName + ', ' + analytics[i].geolocation.countryName + ', ' + analytics[i].geolocation.continentName : null,
-                        device: j === 0 ? analytics[i].device : null,
-                        userAgent: j === 0 ? analytics[i].userAgent : null,
-                        eventTime: analytics[i].events[j].date,
-                        events: analytics[i].events[j].type + ' - ' + analytics[i].events[j].info
-                    })
-                }
-            }
-        }
-
-        setCsv(temp)
-    }, [analytics])
 
     return (
         <>

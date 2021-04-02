@@ -247,6 +247,7 @@ export const TRANSLATIONS_AR = {
     sessionDate: 'تاريخ الجلسة',
     user: 'المستعمل',
     events: 'الأحداث',
+    queuePosition: 'موقف في قائمة الانتظار',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',

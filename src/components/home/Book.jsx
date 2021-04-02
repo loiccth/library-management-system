@@ -37,6 +37,7 @@ const Book = (props) => {
     const classes = useStyles()
     const [book, setBook] = useState(null)
     const [transaction, setTransaction] = useState(null)
+    const [position, setPosition] = useState(0)
     const [open, setOpen] = useState(false)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [openSnack, setOpenSnack] = useState(false)
@@ -108,6 +109,7 @@ const Book = (props) => {
         axios.get(`${url}/books/${id}`, { withCredentials: true })
             .then(book => {
                 setBook(book.data.book)
+                setPosition(book.data.position)
 
                 if (book.data.transaction)
                     setTransaction(book.data.transaction)
@@ -148,6 +150,11 @@ const Book = (props) => {
                                             <Grid item xs={4}>
                                                 <Typography variant="body2" align="center">{t('hold')}: {book.noOfBooksOnHold}</Typography>
                                             </Grid>
+                                            {transaction === 'Reserve' &&
+                                                <Grid item xs={12}>
+                                                    <Typography variant="body2" align="center">{t('queuePosition')}: {position}</Typography>
+                                                </Grid>
+                                            }
                                             <Grid item xs={12} style={{ textAlign: 'center' }}>
                                                 {props.user.isLoggedIn ?
                                                     <React.Fragment>

@@ -348,9 +348,27 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
 }
 
 baseUserSchema.methods.getReservedBooks = function (res) {
-    Reserve.find({ userid: this._id, status: 'active' }).populate('bookid')
+    Reserve.find({ userid: this._id, status: 'active' })
+        .populate('bookid', ['noOfBooksOnLoan', 'noOfBooksOnHold', 'isHighDemand', 'title', 'isbn', 'copies', 'reservation'])
         .then(booksReserved => {
-            return res.json(booksReserved)
+            const position = []
+            let temp
+
+            for (let i = 0; i < booksReserved.length; i++) {
+                temp = 0
+                for (let j = 0; j < booksReserved[i].bookid.reservation.length; j++) {
+                    if (String(this._id) === String(booksReserved[i].bookid.reservation[j].userid)) {
+                        temp = j + 1
+                        break
+                    }
+                }
+                position.push(temp)
+            }
+
+            res.json({
+                booksReserved,
+                position
+            })
         })
 }
 

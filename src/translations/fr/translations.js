@@ -247,6 +247,7 @@ export const TRANSLATIONS_FR = {
     sessionDate: 'Date de la session',
     user: 'Utilisateur',
     events: 'Événements',
+    queuePosition: "Position dans la file d'attente",
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',
