@@ -28,7 +28,7 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
             .then(async session => {
                 sessionDate = session.length > 0 ? session[0].sessionDate : new Date()
 
-                if (session.length === 0 || event.info === 'login success') {
+                if (session.length === 0 || event.info === 'login success' || (session.length > 0 && req.user && String(session[0].userid) !== req.user._id)) {
                     const geolocationDetails = await axios.post(`http://api.ipstack.com/${ip}?access_key=${process.env.IPSTACK_API}`)
 
                     const { continent_code, continent_name, country_code, country_name, region_code, region_name, city } = geolocationDetails.data
@@ -350,7 +350,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                     }
                 }
             },
-            { $sort: { '_id.sessionid': 1 } },
+            { $sort: { '_id.sessionDate': 1 } },
         ])
             .then(analytics => {
                 User.populate(analytics, { path: '_id.userid', select: ['userid'] })

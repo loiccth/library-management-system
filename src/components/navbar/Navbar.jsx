@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import i18n from '../../translations/i18n'
 import axios from 'axios'
 import url from '../../settings/api'
+import { analytics } from '../../functions/analytics'
 import {
     AppBar,
     Button,
@@ -63,6 +64,7 @@ const Navbar = (props) => {
     }
 
     const handleLogout = () => {
+        analytics('action', 'logout success')
         axios.get(`${url}/users/logout`, { withCredentials: true })
             .then(result => {
                 props.handleLogout(result.data.message)
