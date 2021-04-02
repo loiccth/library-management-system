@@ -28,6 +28,7 @@ const LibrarianMain = (props) => {
                         _id: borrow._id,
                         userid: borrow.userid.userid,
                         email: borrow.userid.udmid.email,
+                        phone: borrow.userid.udmid.phone,
                         title: borrow.bookid.title,
                         isbn: borrow.bookid.isbn,
                         dueDate: borrow.dueDate,
@@ -45,6 +46,7 @@ const LibrarianMain = (props) => {
                         _id: borrow._id,
                         userid: borrow.userid.userid,
                         email: borrow.userid.udmid.email,
+                        phone: borrow.userid.udmid.phone,
                         title: borrow.bookid.title,
                         isbn: borrow.bookid.isbn,
                         dueDate: borrow.dueDate,
@@ -180,16 +182,27 @@ const LibrarianMain = (props) => {
         setDuePayments(duePayments.filter(due => due._id !== payment._id))
     }
 
+    const handleIssueBook = (id) => {
+        setReservations(reservations.filter(reserve => reserve._id !== id))
+    }
+
+    const handleReturnBook = (id, dueCount) => {
+        if (dueCount <= 0)
+            setDueBooks(dueBooks.filter(book => book._id !== id))
+        else
+            setOverdueBooks(overdueBooks.filter(book => book._id !== id))
+    }
+
     return (
         <>
             {loading ? null :
                 <Box sx={{ my: 5 }}>
                     <Grid container justifyContent="space-evenly">
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <IssueBook />
+                            <IssueBook handleIssueBook={handleIssueBook} />
                         </Grid>
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <ReturnBook />
+                            <ReturnBook handleReturnBook={handleReturnBook} />
                         </Grid>
                     </Grid>
                     <Box sx={{ my: 3 }}>

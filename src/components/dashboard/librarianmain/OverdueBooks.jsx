@@ -55,9 +55,9 @@ const OverdueBooks = (props) => {
             })
             .finally(() => {
                 handleClick()
+                props.handleUncheckAll()
+                setCheck(false)
             })
-        props.handleUncheckAll()
-        setCheck(false)
     }
 
     const handleCheckAll = (e) => {

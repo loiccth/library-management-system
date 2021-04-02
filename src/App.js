@@ -155,7 +155,7 @@ function App() {
         })
 
         if (parent === 'forcePasswordChange') {
-            setSnackbar('msgPasswordChangeSuccess')
+            setSnackbar(t('msgPasswordChangeSuccess'))
             handleClick()
         }
     }

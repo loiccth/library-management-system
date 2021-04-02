@@ -72,7 +72,8 @@ memberSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                                 return res.status(201).json({
                                                     message: 'msgBorrowSuccess',
                                                     title: book.title,
-                                                    dueDate: new Date(dueDate)
+                                                    dueDate: new Date(dueDate),
+                                                    reservationid: bookReserved._id
                                                 })
                                             }).catch(err => console.log(err))
                                             break

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
@@ -22,7 +23,7 @@ import {
     useTheme
 } from '@material-ui/core'
 
-const ReturnBook = () => {
+const ReturnBook = (props) => {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState()
     const [paymentID, setPaymentID] = useState()
@@ -45,6 +46,7 @@ const ReturnBook = () => {
                     setMessage(t('msgReturnBookOverdue', { days: result.data.noOfDaysOverdue, fine: result.data.finePerDay, total: result.data.noOfDaysOverdue * result.data.finePerDay }))
                     setPaymentID(result.data.paymentID)
                 }
+                props.handleReturnBook(result.data.borrowid, result.data.noOfDaysOverdue)
             })
             .catch(err => {
                 setMessage(t(err.response.data.error))
@@ -197,6 +199,7 @@ const ReturnBook = () => {
 }
 
 ReturnBook.propTypes = {
+    handleReturnBook: PropTypes.func.isRequired
 }
 
 export default ReturnBook

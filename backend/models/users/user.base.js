@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jsonwebtoken = require('jsonwebtoken')
 const generator = require('generate-password')
 const transporter = require('../../config/mail.config')
+const twilio = require('twilio')
 const Transaction = require('../transactions/transaction.base')
 const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
@@ -168,16 +169,36 @@ baseUserSchema.methods.resetPassword = async function (res) {
 
     this.save()
         .then(() => {
-            const mailForgotPassword = {
-                from: 'no-reply@udmlibrary.com',
-                to: email.udmid.email,
-                subject: 'Your new temporary password',
-                text: 'Your new password is valid for 24 hours:  ' + pwd
-            }
-            transporter.sendMail(mailForgotPassword, (err, info) => {
-                if (err) return res.status(500).json({ error: 'msgResetPwdUnexpectedError' })
-                else res.json({ message: 'msgResetPwdSuccess' })
-            })
+            UDM.findById(this.udmid)
+                .then(udm => {
+                    const mailForgotPassword = {
+                        from: 'no-reply@udmlibrary.com',
+                        to: email.udmid.email,
+                        subject: 'Password Reset - UDMLibrary',
+                        text: `Your new credentials for https://udmlibrary.com/ \nMemberID: ${this.userid} \nPassword: ${pwd} \nTemporary password is valid for 24 hours.`
+                    }
+
+                    const accountSid = process.env.TWILIO_SID
+                    const authToken = process.env.TWILIO_AUTH
+
+                    const client = new twilio(accountSid, authToken)
+
+                    client.messages.create({
+                        body: `Your new credentials for https://udmlibrary.com/ \nMemberID: ${this.userid} \nPassword: ${pwd} \nTemporary password is valid for 24 hours.`,
+                        to: `+230${udm.phone}`,
+                        from: process.env.TWILIO_PHONE
+                    })
+                        .then(message => console.log(message))
+                        .catch(err => {
+                            console.log(err)
+                        })
+
+                    transporter.sendMail(mailForgotPassword, (err, info) => {
+                        if (err) return res.status(500).json({ error: 'msgResetPwdUnexpectedError' })
+                        else res.json({ message: 'msgResetPwdSuccess' })
+                    })
+                })
+                .catch(err => console.log(err))
         })
         .catch(err => console.log(err))
 }

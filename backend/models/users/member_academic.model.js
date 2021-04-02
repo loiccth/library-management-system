@@ -28,7 +28,7 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
 
             if (numOfHighDemandBooksBorrowed <= 0) {
                 const now = new Date()
-                const bookReserved = await Reserve.findOne({ bookid, userid: this._id, astatus: 'active', expireAt: { $gte: now } })
+                const bookReserved = await Reserve.findOne({ bookid, userid: this._id, status: 'active', expireAt: { $gte: now } })
 
                 Book.findById(bookid)
                     .then(async book => {
@@ -73,7 +73,8 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                                 return res.status(201).json({
                                                     message: 'msgBorrowSuccess',
                                                     title: book.title,
-                                                    dueDate: new Date(dueDate)
+                                                    dueDate: new Date(dueDate),
+                                                    reservationid: bookReserved._id
                                                 })
                                             }).catch(err => console.log(err))
                                             break

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
@@ -22,7 +23,7 @@ import {
     useTheme
 } from '@material-ui/core'
 
-const IssueBook = () => {
+const IssueBook = (props) => {
     const [open, setOpen] = useState(false)
     const [check, setCheck] = useState(false)
     const [message, setMessage] = useState()
@@ -41,8 +42,10 @@ const IssueBook = () => {
                     {
                         title: result.data.title,
                         userid: data.userid,
-                        date: new Date(result.data.dueDate).toLocaleString()
+                        date: new Date(result.data.dueDate)
                     }))
+                if (result.data.reservationid)
+                    props.handleIssueBook(result.data.reservationid)
             })
             .catch(err => {
                 if (err.response.data.error === 'msgBorrowLibrarianLimit' || err.response.data.error === 'msgBorrowMemberLimit')
@@ -159,6 +162,7 @@ const IssueBook = () => {
 }
 
 IssueBook.propTypes = {
+    handleIssueBook: PropTypes.func.isRequired
 }
 
 export default IssueBook

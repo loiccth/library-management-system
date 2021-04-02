@@ -10,6 +10,7 @@ const Setting = require('../setting.model')
 const csv = require('csv-parser')
 const fs = require('fs')
 const transporter = require('../../config/mail.config')
+const twilio = require('twilio')
 
 const Schema = mongoose.Schema
 
@@ -82,7 +83,8 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                                 return res.status(201).json({
                                                     message: 'msgBorrowSuccess',
                                                     title: book.title,
-                                                    dueDate: new Date(dueDate)
+                                                    dueDate: new Date(dueDate),
+                                                    reservationid: bookReserved._id
                                                 })
                                             }).catch(err => console.log(err))
                                             break
@@ -450,7 +452,8 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                         res.json({
                                                             noOfDaysOverdue: numOfDays,
                                                             finePerDay,
-                                                            paymentID: paymentID ? paymentID._id : null
+                                                            paymentID: paymentID ? paymentID._id : null,
+                                                            borrowid: borrow._id
                                                         })
                                                     })
                                                     .catch(err => console.log(err))
@@ -461,6 +464,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                         else
                                             res.status(404).json({ error: 'msgReturn404' })
                                     })
+                                    .catch(err => console.log(err))
                             }
                             else
                                 res.status(404).json({ error: 'msgReturnBook404' })
@@ -478,7 +482,7 @@ librarianSchema.methods.getOverdueBooks = function (res) {
     const now = new Date(new Date().toDateString())
 
     Borrow.find({ status: 'active', dueDate: { $lt: now } })
-        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
+        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['email', 'phone'] } })
         .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
         .catch(err => console.log(err))
@@ -490,16 +494,17 @@ librarianSchema.methods.getDueBooks = function (from, to, res) {
     toDate.setDate(toDate.getDate() + 1)
 
     Borrow.find({ status: 'active', dueDate: { $gte: fromDate, $lt: toDate } })
-        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: 'email' } })
+        .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['email', 'phone'] } })
         .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
         .catch(err => console.log(err))
 }
 
 librarianSchema.methods.getReservations = function (res) {
-    const now = new Date(new Date().toDateString())
+    const now = new Date()
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
 
-    Reserve.find({ status: 'active', expireAt: { $ne: null, $gt: now } })
+    Reserve.find({ status: 'active', expireAt: { $ne: null, $gt: now, $lt: tomorrow } })
         .populate('userid', ['userid'])
         .populate('bookid', ['title', 'isbn', 'isHighDemand'])
         .then(books => res.json(books))
@@ -589,14 +594,31 @@ librarianSchema.methods.removeBook = function (bookCopies, res) {
 librarianSchema.methods.notify = async function (books, type, res) {
     let emailSent = []
 
+    console.log(books)
+
     for (let i = 0; i < books.length; i++) {
         if (books[i].checked) {
             const mailRegister = {
                 from: 'no-reply@udmlibrary.com',
                 to: books[i].email,
                 subject: type === 'overdue' ? 'NOTIFY: Book overdue' : 'NOTIFY: Book due',
-                text: `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}`
+                text: type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`
             }
+
+            const accountSid = process.env.TWILIO_SID
+            const authToken = process.env.TWILIO_AUTH
+
+            const client = new twilio(accountSid, authToken)
+
+            client.messages.create({
+                body: type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`,
+                to: `+230${books[i].phone}`,
+                from: process.env.TWILIO_PHONE
+            })
+                .catch(err => {
+                    console.log(err)
+                })
+
             try {
                 await transporter.sendMail(mailRegister)
                 emailSent.push(books[i].userid)

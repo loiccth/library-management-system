@@ -82,9 +82,9 @@ const DueBooks = (props) => {
             })
             .finally(() => {
                 handleClick()
+                props.handleUncheckAllDue()
+                setCheck(false)
             })
-        props.handleUncheckAllDue()
-        setCheck(false)
     }
 
     const handleCheckAll = (e) => {

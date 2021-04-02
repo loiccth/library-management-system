@@ -9,6 +9,7 @@ const Student = require('../udm/student.model')
 const Staff = require('../udm/staff.model')
 const csv = require('csv-parser')
 const fs = require('fs')
+const twilio = require('twilio')
 const transporter = require('../../config/mail.config')
 const generator = require('generate-password')
 
@@ -38,7 +39,7 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
 
             if (numOfHighDemandBooksBorrowed <= 0) {
                 const now = new Date()
-                const bookReserved = await Reserve.findOne({ bookid, userid: this._id, archive: false, expireAt: { $gte: now } })
+                const bookReserved = await Reserve.findOne({ bookid, userid: this._id, status: 'active', expireAt: { $gte: now } })
 
                 Book.findById(bookid)
                     .then(async book => {
@@ -83,7 +84,8 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                                                 return res.status(201).json({
                                                     message: 'msgBorrowSuccess',
                                                     title: book.title,
-                                                    dueDate: new Date(dueDate)
+                                                    dueDate: new Date(dueDate),
+                                                    reservationid: bookReserved._id
                                                 })
                                             }).catch(err => console.log(err))
                                             break
@@ -173,6 +175,21 @@ adminSchema.methods.registerMember = function (email, res) {
                                         subject: 'Register password',
                                         text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
                                     }
+
+                                    const accountSid = process.env.TWILIO_SID
+                                    const authToken = process.env.TWILIO_AUTH
+
+                                    const client = new twilio(accountSid, authToken)
+
+                                    client.messages.create({
+                                        body: `Account credentials for https://udmlibrary.com \nMemberID: ${userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`,
+                                        to: `+230${udm.phone}`,
+                                        from: process.env.TWILIO_PHONE
+                                    })
+                                        .catch(err => {
+                                            console.log(err)
+                                        })
+
                                     transporter.sendMail(mailRegister, (err, info) => {
                                         if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
                                         else
@@ -237,6 +254,21 @@ adminSchema.methods.registerCSV = function (file, res) {
                                     subject: 'Register password',
                                     text: `Your memberid is ${member.userid} and your password is valid for 24 hours:  ${password}`
                                 }
+
+                                const accountSid = process.env.TWILIO_SID
+                                const authToken = process.env.TWILIO_AUTH
+
+                                const client = new twilio(accountSid, authToken)
+
+                                client.messages.create({
+                                    body: `Account credentials for https://udmlibrary.com \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`,
+                                    to: `+230${udm.phone}`,
+                                    from: process.env.TWILIO_PHONE
+                                })
+                                    .catch(err => {
+                                        console.log(err)
+                                    })
+
                                 transporter.sendMail(mailRegister, (err, info) => {
                                     if (err) return resolve(fail.push(`Error sending email - ${email}`))
                                     console.log(info)
