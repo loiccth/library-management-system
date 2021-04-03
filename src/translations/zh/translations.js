@@ -248,6 +248,12 @@ export const TRANSLATIONS_ZH = {
     user: '用户',
     events: '大事记',
     queuePosition: '在队列中的位置',
+    requestedBooks: '要求的书',
+    requestBook: '索取书籍',
+    request: '要求',
+    requestedDate: '申请日期',
+    removeRequestedBookDialog: '您确定要删除这本书吗？',
+    paidDialog: '您确定该会员支付了罚款吗？',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',
@@ -341,5 +347,10 @@ export const TRANSLATIONS_ZH = {
     msgPostUpdate: '发布成功更新',
     msgPostDelete: '发布成功删除',
     msgPayment404: '找不到付款',
-    msgPaymentAlreadyPaid: '付款已付'
+    msgPaymentAlreadyPaid: '付款已付',
+    msgRequestSuccess: '预订请求成功',
+    msgBookAlreadyAvailable: '已有书籍',
+    msgUnexpectedError: '发生意外错误',
+    msgRequestDeleteSuccess: '预订请求已删除',
+    msgRequest404: '找不到预订请求'
 }

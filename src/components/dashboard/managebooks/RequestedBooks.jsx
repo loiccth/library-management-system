@@ -1,12 +1,9 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
-import axios from 'axios'
-import url from '../../../settings/api'
 import {
-    Alert,
-    Box,
     Button,
+    Box,
     Container,
     Dialog,
     DialogActions,
@@ -16,7 +13,6 @@ import {
     makeStyles,
     Pagination,
     Paper,
-    Snackbar,
     Table,
     TableBody,
     TableCell,
@@ -27,62 +23,27 @@ import {
     useTheme
 } from '@material-ui/core'
 
-const DuePayments = (props) => {
+const RequestedBooks = (props) => {
     const classes = useStyles()
     const { t } = useTranslation()
-    const [snackbar, setSnackbar] = useState({ type: null })
-    const [open, setOpen] = useState(false)
     const [page, setPage] = useState(1)
-    const [openDialog, setOpenDialog] = useState(false)
+    const [open, setOpen] = useState(false)
     const theme = useTheme()
     const rowPerPage = 5
-
-    const handleClick = () => {
-        setOpen(true)
-    }
-
-    const handleClose = () => {
-        setOpen(false)
-    }
-
-    const handleToggle = () => {
-        setOpenDialog(!openDialog)
-    }
-
-    const handleFine = (id) => {
-        axios.post(`${url}/users/payfine/${id}`, {}, { withCredentials: true })
-            .then(result => {
-                setSnackbar({
-                    type: 'success',
-                    msg: t(result.data.message)
-                })
-                props.handleFinePayment(result.data.payment)
-            })
-            .catch(err => {
-                setSnackbar({
-                    type: 'warning',
-                    msg: t(err.response.data.error)
-                })
-            })
-            .finally(() => {
-                handleClick()
-            })
-    }
 
     const handlePagination = (e, value) => {
         setPage(value)
     }
 
+    const handleToggle = () => {
+        setOpen(!open)
+    }
+
     return (
         <>
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
-                    {snackbar.msg}
-                </Alert>
-            </Snackbar>
             <Container>
                 <Toolbar>
-                    <Typography variant="h6">{t('duePayments')}</Typography>
+                    <Typography variant="h6">{t('requestedBooks')}</Typography>
                 </Toolbar>
             </Container>
             <Box sx={{ mt: 3 }}>
@@ -92,38 +53,42 @@ const DuePayments = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('memberid')}</TableCell>
+                                        <TableCell>{t('memberDetails')}</TableCell>
                                         <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('fineDetails')}</TableCell>
-                                        <TableCell></TableCell>
+                                        <TableCell>{t('publishDetails')}</TableCell>
+                                        <TableCell>{t('date')}</TableCell>
+                                        <TableCell />
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.duePayments.length === 0 &&
+                                    {props.books.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.duePayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
+                                    {props.books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
-                                                {row.userid}
+                                                <Typography variant="caption" display="block">{t('memberid')}: {row.userid.userid}</Typography>
+                                                <Typography variant="caption" display="block">{t('faculty')}: {row.userid.udmid.faculty}</Typography>
+                                                <Typography variant="caption" display="block">{t('firstName')}: {row.userid.udmid.firstName}</Typography>
+                                                <Typography variant="caption" display="block">{t('lastName')}: {row.userid.udmid.lastName}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {row.title}</Typography>
                                                 <Typography variant="caption" display="block">{t('isbn')}: {row.isbn}</Typography>
-                                                <Typography variant="caption" display="block">{t('copyid')}: {row.copyid}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">{t('date')}: {new Date(row.date).toLocaleString()}</Typography>
-                                                <Typography variant="caption" display="block">{t('daysOverdue')}: {row.days}</Typography>
-                                                <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {row.price}</Typography>
-                                                <Typography variant="caption" display="block">{t('total')}: Rs {row.price * row.days}</Typography>
+                                                <Typography variant="caption" display="block">{t('publisher')}: {row.publisher}</Typography>
+                                                <Typography variant="caption" display="block">{t('publishedDate')}: {new Date(row.publishedDate).toLocaleDateString()}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Button variant="contained" onClick={handleToggle}>{t('paid')}</Button>
+                                                <Typography variant="caption" display="block">{t('requestedDate')}: {new Date(row.createdAt).toLocaleString()}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button variant="contained" onClick={handleToggle}>{t('remove')}</Button>
                                                 <Dialog
-                                                    open={openDialog}
+                                                    open={open}
                                                     onClose={handleToggle}
                                                     aria-labelledby="alert-dialog-title"
                                                     aria-describedby="alert-dialog-description"
@@ -131,7 +96,7 @@ const DuePayments = (props) => {
                                                 >
                                                     <DialogContent>
                                                         <DialogContentText id="alert-dialog-description">
-                                                            {t('paidDialog')}
+                                                            {t('removeRequestedBookDialog')}
                                                         </DialogContentText>
                                                     </DialogContent>
                                                     <DialogActions>
@@ -139,8 +104,8 @@ const DuePayments = (props) => {
                                                             {t('cancel')}
                                                         </Button>
                                                         <Button variant="contained" onClick={() => {
-                                                            setOpenDialog(false)
-                                                            handleFine(row._id)
+                                                            setOpen(false)
+                                                            props.handleRemove(row._id)
                                                         }}
                                                             autoFocus
                                                         >
@@ -152,12 +117,12 @@ const DuePayments = (props) => {
                                         </TableRow>
                                     ))}
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={5}>
                                             <Grid container justifyContent="center">
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.duePayments.length / rowPerPage)}
+                                                        count={Math.ceil(props.books.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />
@@ -189,9 +154,9 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-DuePayments.propTypes = {
-    duePayments: PropTypes.array.isRequired,
-    handleFinePayment: PropTypes.func.isRequired
+RequestedBooks.propTypes = {
+    books: PropTypes.array.isRequired,
+    handleRemove: PropTypes.func.isRequired
 }
 
-export default DuePayments
+export default RequestedBooks

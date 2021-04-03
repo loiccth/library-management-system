@@ -248,6 +248,12 @@ export const TRANSLATIONS_FR = {
     user: 'Utilisateur',
     events: 'Événements',
     queuePosition: "Position dans la file d'attente",
+    requestedBooks: 'Livres demandés',
+    requestBook: 'Demander un livre',
+    request: 'Demander',
+    requestedDate: 'Date demandée',
+    removeRequestedBookDialog: 'Voulez-vous vraiment supprimer ce livre?',
+    paidDialog: 'Êtes-vous sûr que ce membre a payé son amende?',
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',
@@ -341,5 +347,10 @@ export const TRANSLATIONS_FR = {
     msgPostUpdate: 'Message mis à jour avec succès',
     msgPostDelete: 'Message supprimé avec succès',
     msgPayment404: 'Paiement introuvable',
-    msgPaymentAlreadyPaid: 'Paiement déjà payé'
+    msgPaymentAlreadyPaid: 'Paiement déjà payé',
+    msgRequestSuccess: 'Demande de livre réussie',
+    msgBookAlreadyAvailable: 'Réservez déjà disponible',
+    msgUnexpectedError: "Une erreur inattendue s'est produite",
+    msgRequestDeleteSuccess: 'Demande de livre supprimée',
+    msgRequest404: 'Demande de livre introuvable'
 }

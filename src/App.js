@@ -185,7 +185,7 @@ function App() {
                                 <Route path='/managememberships' element={<ManageMembership user={user} />} />
                                 <Route path='/settings' element={<Settings user={user} />} />
                                 <Route path='/reports' element={<Reports user={user} locale={locale} />} />
-                                <Route path='/mybooks' element={<MyBooks />} />
+                                <Route path='/mybooks' element={<MyBooks user={user} />} />
                                 <Route path='/profile' element={<Profile user={user} handlePasswordChange={handlePasswordChange} />} />
                             </Route>
                             <Route path='/*' element={<NotFound darkMode={darkMode} />} />

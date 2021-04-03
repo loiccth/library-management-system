@@ -202,7 +202,12 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                         message: 'msgBookAddSuccess',
                         title: APIValidation ? title : book.title
                     }))
-                    .catch(err => console.log(err))
+                    .catch(err => {
+                        res.json({
+                            error: 'msgUnexpectedError'
+                        })
+                        console.log(err)
+                    })
             }
             else {
                 for (let i = 0; i < noOfCopies; i++)

@@ -8,7 +8,7 @@ const MainDashboard = ({ user, locale }) => {
 
     if (user.memberType === 'Member' || user.memberType === 'MemberA' || user.memberType === 'MemberNA') {
         return (
-            <MyBooks />
+            <MyBooks user={user} />
         )
     }
     else if (user.memberType === 'Librarian') {

@@ -5,17 +5,20 @@ import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
+    Alert,
     Box,
     Divider,
     Container,
     FormControlLabel,
     Switch,
     Toolbar,
-    Typography
+    Typography,
+    Snackbar
 } from '@material-ui/core'
 import AddBook from './AddBook'
 import AddBookNoAPI from './AddBookNoAPI'
 import AddBookCSV from './AddBookCSV'
+import RequestedBooks from './RequestedBooks'
 import SearchBook from './SearchBook'
 
 const ManageBooks = ({ user, locale }) => {
@@ -33,6 +36,9 @@ const ManageBooks = ({ user, locale }) => {
         }
     })
     const [categories, setCategories] = useState([])
+    const [books, setBooks] = useState([])
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [openSnack, setOpenSnack] = useState(false)
     const { t } = useTranslation()
 
     useEffect(() => {
@@ -45,9 +51,21 @@ const ManageBooks = ({ user, locale }) => {
             .then(locations => {
                 setCategories(locations.data)
             })
+        axios.get(`${url}/books/request`, { withCredentials: true })
+            .then(books => {
+                setBooks(books.data)
+            })
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    const handleClick = () => {
+        setOpenSnack(true)
+    }
+
+    const handleClose = () => {
+        setOpenSnack(false)
+    }
 
     const handleChange = (e) => {
         setOptions({
@@ -56,12 +74,37 @@ const ManageBooks = ({ user, locale }) => {
         })
     }
 
+    const handleRemove = (id) => {
+        axios.delete(`${url}/books/request/${id}`, { withCredentials: true })
+            .then(result => {
+                setBooks(books.filter(book => book._id !== id))
+                setSnackbar({
+                    type: 'success',
+                    msg: t(result.data.message)
+                })
+            })
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: t(err.response.data.message)
+                })
+            })
+            .finally(() => {
+                handleClick()
+            })
+    }
+
     if (user.memberType !== 'Librarian') {
         navigate('/dashboard', { replace: true })
     }
 
     return (
         <>
+            <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleClose}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={handleClose}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
             <Box sx={{ my: 5 }}>
                 <Container>
                     <Toolbar>
@@ -86,7 +129,11 @@ const ManageBooks = ({ user, locale }) => {
                     :
                     <AddBookCSV />
                 }
-                <Box sx={{ my: 7 }}>
+                <Box sx={{ my: 3 }}>
+                    <Divider />
+                </Box>
+                <RequestedBooks books={books} handleRemove={handleRemove} />
+                <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>
                 <SearchBook locations={locations} categories={categories} locale={locale} />

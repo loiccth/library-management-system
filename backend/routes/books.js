@@ -14,7 +14,9 @@ const MemberA = require('../models/users/member_academic.model')
 const MemberNA = require('../models/users/member_non_academic.model')
 const Librarian = require('../models/users/librarian.model')
 const Admin = require('../models/users/admin.model')
+const Request = require('../models/request.model')
 const escapeRegExp = require('../function/escapeRegExp')
+const axios = require('axios')
 const secret = process.env.JWT_SECRET
 
 // Add a single book
@@ -232,6 +234,80 @@ router.get('/', (req, res) => {
             books
         }))
         .catch(err => console.log(err))
+})
+
+router.get('/request', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Request.find()
+            .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['faculty', 'firstName', 'lastName'] } })
+            .then(requests => res.json(requests))
+            .catch(err => console.log(err))
+    }
+})
+
+router.delete('/request/:id', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else {
+        Request.findByIdAndDelete(req.params.id)
+            .then(request => {
+                if (request)
+                    res.json({
+                        message: 'msgRequestDeleteSuccess',
+                        request
+                    })
+                else
+                    res.json({
+                        error: 'msgRequest404'
+                    })
+            })
+            .catch(err => console.log(err))
+    }
+})
+
+router.post('/request', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'MemberA') return res.sendStatus(403)
+    else if (!req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
+    else {
+        Book.findOne({ isbn: req.body.isbn })
+            .then(book => {
+                if (!book) {
+                    axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${req.body.isbn}`)
+                        .then(result => {
+                            if (result.data.totalItems === 0) return res.status(404).json({ error: 'msgGoogleAPI404' })
+                            else {
+                                const newRequest = new Request({
+                                    userid: req.user._id,
+                                    isbn: req.body.isbn,
+                                    title: result.data.items[0].volumeInfo.title,
+                                    author: result.data.items[0].volumeInfo.authors,
+                                    publisher: result.data.items[0].volumeInfo.publisher,
+                                    publishedDate: result.data.items[0].volumeInfo.publishedDate
+                                })
+
+                                newRequest.save()
+                                    .then(request => {
+                                        res.json({
+                                            message: 'msgRequestSuccess',
+                                            request
+                                        })
+                                    })
+                                    .catch(err => {
+                                        res.json({
+                                            error: 'msgUnexpectedError'
+                                        })
+                                        console.log(err)
+                                    })
+                            }
+                        })
+                }
+                else
+                    res.status(400).json({
+                        error: 'msgBookAlreadyAvailable'
+                    })
+            })
+            .catch(err => console.log(err))
+    }
 })
 
 // Get an individual book by id

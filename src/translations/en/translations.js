@@ -247,8 +247,13 @@ export const TRANSLATIONS_EN = {
     sessionDate: 'Session date',
     user: 'User',
     events: 'Events',
-    filterMemberid: 'Filter MemberID',
     queuePosition: 'Position in queue',
+    requestedBooks: 'Requested Books',
+    requestBook: 'Request a book',
+    request: 'Request',
+    requestedDate: 'Requested date',
+    removeRequestedBookDialog: 'Are you sure you want to remove this book?',
+    paidDialog: 'Are you sure this member paid their fine?',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',
@@ -342,5 +347,10 @@ export const TRANSLATIONS_EN = {
     msgPostUpdate: 'Post successfully updated',
     msgPostDelete: 'Post successfully deleted',
     msgPayment404: 'Payment not found',
-    msgPaymentAlreadyPaid: 'Payment already paid'
+    msgPaymentAlreadyPaid: 'Payment already paid',
+    msgRequestSuccess: 'Book request successful',
+    msgBookAlreadyAvailable: 'Book already available',
+    msgUnexpectedError: 'An unexpected error happened',
+    msgRequestDeleteSuccess: 'Book request deleted',
+    msgRequest404: 'Book request not found'
 }

@@ -248,6 +248,12 @@ export const TRANSLATIONS_AR = {
     user: 'المستعمل',
     events: 'الأحداث',
     queuePosition: 'موقف في قائمة الانتظار',
+    requestedBooks: 'الكتب المطلوبة',
+    requestBook: 'اطلب كتابا',
+    request: 'طلب',
+    requestedDate: 'التاريخ المطلوب',
+    removeRequestedBookDialog: 'هل أنت متأكد أنك تريد إزالة هذا الكتاب؟',
+    paidDialog: 'هل أنت متأكد من أن هذا العضو دفع الغرامة؟',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',
@@ -341,5 +347,10 @@ export const TRANSLATIONS_AR = {
     msgPostUpdate: 'تم تحديث النشر بنجاح',
     msgPostDelete: 'تم حذف المشاركة بنجاح',
     msgPayment404: 'الدفع غير موجود',
-    msgPaymentAlreadyPaid: 'تم الدفع بالفعل'
+    msgPaymentAlreadyPaid: 'تم الدفع بالفعل',
+    msgRequestSuccess: 'تم طلب الكتاب بنجاح',
+    msgBookAlreadyAvailable: 'الكتاب متاح بالفعل',
+    msgUnexpectedError: 'حدث خطأ غير متوقع',
+    msgRequestDeleteSuccess: 'تم حذف طلب الكتاب',
+    msgRequest404: 'لم يتم العثور على طلب الكتاب'
 }

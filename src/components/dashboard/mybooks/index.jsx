@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import { Alert, Box, Divider, Snackbar } from '@material-ui/core'
+import RequestBooks from './RequestBooks'
 import BorrowedBooks from './BorrowedBooks'
 import ReservedBooks from './ReservedBooks'
 
-const MyBooks = () => {
+const MyBooks = (props) => {
     const [borrowed, setBorrowed] = useState()
     const [reserved, setReserved] = useState()
     const [loading, setLoading] = useState(true)
@@ -80,6 +82,20 @@ const MyBooks = () => {
             })
     }
 
+    const handleRequestBook = (result) => {
+        if (result.message)
+            setSnackbar({
+                type: 'success',
+                msg: t(result.message)
+            })
+        else
+            setSnackbar({
+                type: 'warning',
+                msg: t(result.error)
+            })
+        handleClick()
+    }
+
     return (
         <>
             <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleClose}>
@@ -89,6 +105,14 @@ const MyBooks = () => {
             </Snackbar>
             {loading ? null :
                 <Box sx={{ my: 5 }}>
+                    {props.user.memberType === 'MemberA' &&
+                        <>
+                            <RequestBooks handleRequestBook={handleRequestBook} />
+                            <Box sx={{ my: 3 }}>
+                                <Divider />
+                            </Box>
+                        </>
+                    }
                     <BorrowedBooks borrowed={borrowed} handleRenew={handleRenew} />
                     <Box sx={{ my: 7 }}>
                         <Divider />
@@ -98,6 +122,10 @@ const MyBooks = () => {
             }
         </>
     )
+}
+
+MyBooks.propTypes = {
+    user: PropTypes.object.isRequired
 }
 
 export default MyBooks
