@@ -26,7 +26,7 @@ import {
 const ReturnBook = (props) => {
     const [open, setOpen] = useState(false)
     const [message, setMessage] = useState()
-    const [paymentID, setPaymentID] = useState()
+    const [payment, setPayment] = useState()
     const [click, setClick] = useState(false)
     const [paymentMsg, setPaymentMsg] = useState()
     const { register, handleSubmit, errors, reset, control } = useForm({
@@ -44,7 +44,7 @@ const ReturnBook = (props) => {
                     setMessage(t('msgReturnBookNoOverdue'))
                 else {
                     setMessage(t('msgReturnBookOverdue', { days: result.data.noOfDaysOverdue, fine: result.data.finePerDay, total: result.data.noOfDaysOverdue * result.data.finePerDay }))
-                    setPaymentID(result.data.paymentID)
+                    setPayment(result.data.payment)
                 }
                 props.handleReturnBook(result.data.borrowid, result.data.noOfDaysOverdue)
             })
@@ -58,7 +58,7 @@ const ReturnBook = (props) => {
 
     const handleFine = () => {
         setClick(true)
-        axios.post(`${url}/users/payfine/${paymentID}`, {}, { withCredentials: true })
+        axios.post(`${url}/users/payfine/${payment._id}`, {}, { withCredentials: true })
             .then(result => {
                 setPaymentMsg(t(result.data.message))
             })
@@ -69,6 +69,7 @@ const ReturnBook = (props) => {
 
     const handleClick = () => {
         setClick(true)
+        props.handleNewPayment(payment)
     }
 
     const handleClickOpen = () => {
@@ -79,7 +80,7 @@ const ReturnBook = (props) => {
         setOpen(false)
         setClick(false)
         setMessage()
-        setPaymentID()
+        setPayment()
         setPaymentMsg()
         reset()
     }
@@ -87,7 +88,7 @@ const ReturnBook = (props) => {
     const handleReset = () => {
         setClick(false)
         setMessage()
-        setPaymentID()
+        setPayment()
         setPaymentMsg()
         reset()
     }
@@ -168,7 +169,7 @@ const ReturnBook = (props) => {
                                 {message}
                             </Typography>
 
-                            {paymentID &&
+                            {payment &&
                                 <>
                                     {!click &&
                                         <>
@@ -199,7 +200,8 @@ const ReturnBook = (props) => {
 }
 
 ReturnBook.propTypes = {
-    handleReturnBook: PropTypes.func.isRequired
+    handleReturnBook: PropTypes.func.isRequired,
+    handleNewPayment: PropTypes.func.isRequired
 }
 
 export default ReturnBook

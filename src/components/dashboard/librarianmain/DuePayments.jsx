@@ -10,6 +10,7 @@ import {
     Container,
     Grid,
     makeStyles,
+    Pagination,
     Paper,
     Snackbar,
     Table,
@@ -26,6 +27,8 @@ const DuePayments = (props) => {
     const { t } = useTranslation()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
 
     const handleClick = () => {
         setOpen(true)
@@ -53,6 +56,10 @@ const DuePayments = (props) => {
             .finally(() => {
                 handleClick()
             })
+    }
+
+    const handlePagination = (e, value) => {
+        setPage(value)
     }
 
     return (
@@ -83,10 +90,10 @@ const DuePayments = (props) => {
                                 <TableBody>
                                     {props.duePayments.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.duePayments.map(row => (
+                                    {props.duePayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 {row.userid}
@@ -107,6 +114,20 @@ const DuePayments = (props) => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.duePayments.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -124,6 +145,10 @@ const useStyles = makeStyles(() => ({
     table: {
         minWidth: 650,
         overflowX: 'auto'
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

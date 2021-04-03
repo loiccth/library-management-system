@@ -8,7 +8,6 @@ const Transaction = require('../transactions/transaction.base')
 const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
-const Payment = require('../payment.model') //TODO: Check why this is here
 const Setting = require('../setting.model')
 const UDM = require('../udm/udm.base')
 
@@ -281,17 +280,49 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
                         }
 
                         if (reserve.expireAt !== null) {
-                            // TODO: if book was on hold, inform next member in queue, if any.
-
-                            if (book.reservation.length - book.noOfBooksOnHold > 0) {
+                            if (book.reservation.length - book.noOfBooksOnHold >= 0) {
                                 const bookSettings = await Setting.findOne({ setting: 'BOOK' })
                                 const timeOnHold = bookSettings.options.time_onhold.value
 
-                                // TODO: need testing
                                 for (let k = 0; k < book.reservation.length; k++) {
                                     if (book.reservation[k].expireAt === null) {
-                                        book.reservation[k].expireAt = new Date(new Date().getTime() + (timeOnHold * 1000))
-                                        Reserve.findOneAndUpdate({ bookid: book._id, userid: book.reservation[k].userid }, { expireAt: new Date(new Date().getTime() + (timeOnHold * 1000)) })
+                                        const expireDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                        book.reservation[k].expireAt = expireDate
+                                        Reserve.findOne({ bookid: book._id, userid: book.reservation[k].userid, status: 'active', expireAt: null })
+                                            .then(reserve => {
+                                                reserve.expireAt = expireDate
+                                                reserve.save()
+                                                    .then(() => {
+                                                        User.findById(book.reservation[k].userid)
+                                                            .populate('udmid', ['email', 'phone'])
+                                                            .then(user => {
+                                                                const mailNotification = {
+                                                                    from: 'no-reply@udmlibrary.com',
+                                                                    to: user.udmid.email,
+                                                                    subject: 'Book available',
+                                                                    text: `Your reservation for book titled ${book.title} is now available.`
+                                                                }
+
+                                                                transporter.sendMail(mailNotification, (err, info) => {
+                                                                    if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                                                                })
+
+                                                                const accountSid = process.env.TWILIO_SID
+                                                                const authToken = process.env.TWILIO_AUTH
+
+                                                                const client = new twilio(accountSid, authToken)
+
+                                                                client.messages.create({
+                                                                    body: `Your reservation for book titled ${book.title} is now available.`,
+                                                                    to: `+230${user.udmid.phone}`,
+                                                                    from: process.env.TWILIO_PHONE
+                                                                })
+                                                                    .catch(err => {
+                                                                        console.log(err)
+                                                                    })
+                                                            })
+                                                    })
+                                            })
                                     }
                                 }
                             }
@@ -335,7 +366,6 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                 const borrowDate = new Date(borrow.dueDate.toDateString())
                 let numOfDays = ((borrowDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
                 if (numOfDays > 2) return res.status(400).json({ error: 'msgRenew2Days' })
-                // TODO: allow renew if overdue
                 else if (numOfDays < 0) return res.status(400).json({ error: 'msgRenewOverdue', days: numOfDays * -1 })
                 else {
                     const newDueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)

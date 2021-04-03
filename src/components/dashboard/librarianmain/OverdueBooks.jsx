@@ -11,6 +11,7 @@ import {
     Container,
     Grid,
     makeStyles,
+    Pagination,
     Paper,
     Snackbar,
     Table,
@@ -30,6 +31,8 @@ const OverdueBooks = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
 
     const handleClick = () => {
         setOpen(true);
@@ -63,6 +66,10 @@ const OverdueBooks = (props) => {
     const handleCheckAll = (e) => {
         setCheck(e.target.checked)
         props.handleCheckAll(e)
+    }
+
+    const handlePagination = (e, value) => {
+        setPage(value)
     }
 
     return (
@@ -116,7 +123,7 @@ const OverdueBooks = (props) => {
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.overdueBooks.map(row => (
+                                    {props.overdueBooks.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheck} />
@@ -142,6 +149,20 @@ const OverdueBooks = (props) => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={5}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.overdueBooks.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -168,6 +189,10 @@ const useStyles = makeStyles(theme => ({
     },
     highpriority: {
         color: 'red'
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

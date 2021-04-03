@@ -193,6 +193,23 @@ const LibrarianMain = (props) => {
             setOverdueBooks(overdueBooks.filter(book => book._id !== id))
     }
 
+    const handleNewPayment = (payment) => {
+        setDuePayments([
+            ...duePayments,
+            {
+                _id: payment._id,
+                userid: payment.userid.userid,
+                memberType: payment.userid.memberType,
+                title: payment.bookid.title,
+                isbn: payment.bookid.isbn,
+                copyid: payment.copyid,
+                days: payment.numOfDays,
+                price: payment.pricePerDay,
+                date: payment.createdAt
+            }
+        ])
+    }
+
     return (
         <>
             {loading ? null :
@@ -202,7 +219,7 @@ const LibrarianMain = (props) => {
                             <IssueBook handleIssueBook={handleIssueBook} />
                         </Grid>
                         <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <ReturnBook handleReturnBook={handleReturnBook} />
+                            <ReturnBook handleReturnBook={handleReturnBook} handleNewPayment={handleNewPayment} />
                         </Grid>
                     </Grid>
                     <Box sx={{ my: 3 }}>

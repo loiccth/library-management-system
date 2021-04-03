@@ -14,8 +14,9 @@ mongoose.connect(uri, {
 const connection = mongoose.connection
 connection.once('open', () => {
     console.log("MongoDB database connection established successfully")
-    // const expireReservations = require('./cronjob/expireReservations')
-    // const highDemand = require('./cronjob/highDemand')
+    require('./cronjob/expireReservations')
+    require('./cronjob/highDemand')
+    require('./cronjob/expiredContractsPT')
 })
 
 app.listen(port, () => {

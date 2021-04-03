@@ -9,6 +9,7 @@ import {
     Grid,
     makeStyles,
     MenuItem,
+    Pagination,
     Paper,
     Table,
     TableBody,
@@ -45,6 +46,8 @@ const MembersReport = (props) => {
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -54,6 +57,11 @@ const MembersReport = (props) => {
     const handleDownloadCSV = () => {
         csvlink.current.link.click()
     }
+
+    const handlePagination = (e, value) => {
+        setPage(value)
+    }
+
 
     return (
         <>
@@ -168,7 +176,7 @@ const MembersReport = (props) => {
                                             <TableCell colSpan={3} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredMembers.map(record => (
+                                    {props.filteredMembers.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
                                         <TableRow key={record.RegistrationID}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('registrationId')}: {record.RegistrationID}</Typography>
@@ -193,6 +201,20 @@ const MembersReport = (props) => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.filteredMembers.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -219,6 +241,10 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down("sm")]: {
             justifyContent: 'center'
         }
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

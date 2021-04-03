@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import {
@@ -6,6 +6,7 @@ import {
     Container,
     Grid,
     makeStyles,
+    Pagination,
     Paper,
     Table,
     TableBody,
@@ -21,6 +22,12 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 const Reservations = (props) => {
     const classes = useStyles()
     const { t } = useTranslation()
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
+
+    const handlePagination = (e, value) => {
+        setPage(value)
+    }
 
     return (
         <>
@@ -45,10 +52,10 @@ const Reservations = (props) => {
                                 <TableBody>
                                     {props.reservations.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.reservations.map(row => (
+                                    {props.reservations.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 {row.userid}
@@ -70,6 +77,20 @@ const Reservations = (props) => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.reservations.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -90,6 +111,10 @@ const useStyles = makeStyles(() => ({
     },
     highpriority: {
         color: 'red'
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

@@ -8,6 +8,7 @@ import {
     Container,
     Grid,
     makeStyles,
+    Pagination,
     Paper,
     Table,
     TableBody,
@@ -45,6 +46,8 @@ const AnalyticsReport = (props) => {
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -53,6 +56,10 @@ const AnalyticsReport = (props) => {
 
     const handleDownloadCSV = () => {
         csvlink.current.link.click()
+    }
+
+    const handlePagination = (e, value) => {
+        setPage(value)
     }
 
     return (
@@ -147,9 +154,23 @@ const AnalyticsReport = (props) => {
                                             <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.analytics.map(row => (
-                                        <Row key={row.sessionid} row={row} />
+                                    {props.analytics.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map((row, index) => (
+                                        <Row key={index} row={row} />
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.analytics.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -176,6 +197,10 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down("sm")]: {
             justifyContent: 'center'
         }
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

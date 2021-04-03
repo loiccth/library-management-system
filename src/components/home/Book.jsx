@@ -68,7 +68,6 @@ const Book = (props) => {
                         type: 'success',
                         msg: t(result.data.message)
                     })
-                    getBook(id)
                 })
                 .catch(err => {
                     if (err.response.data.error === 'msgReserveMax') {
@@ -87,6 +86,7 @@ const Book = (props) => {
                     }
                 })
                 .finally(() => {
+                    getBook(id)
                     handleClick()
                 })
         }
@@ -99,6 +99,14 @@ const Book = (props) => {
                         type: 'success',
                         msg: t(result.data.message)
                     })
+                })
+                .catch(err => {
+                    setSnackbar({
+                        type: 'warning',
+                        msg: t(err.response.data.error)
+                    })
+                })
+                .finally(() => {
                     getBook(id)
                     handleClick()
                 })

@@ -143,7 +143,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 ReservedBooks.propTypes = {
-    reserved: PropTypes.array.isRequired,
+    reserved: PropTypes.object.isRequired,
     handleCancel: PropTypes.func.isRequired
 }
 

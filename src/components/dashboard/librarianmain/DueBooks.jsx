@@ -11,6 +11,7 @@ import {
     Container,
     Grid,
     makeStyles,
+    Pagination,
     Paper,
     Snackbar,
     Table,
@@ -52,6 +53,8 @@ const DueBooks = (props) => {
     const [date, setDate] = useState([new Date(), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -90,6 +93,10 @@ const DueBooks = (props) => {
     const handleCheckAll = (e) => {
         setCheck(e.target.checked)
         props.handleCheckAllDue(e)
+    }
+
+    const handlePagination = (e, value) => {
+        setPage(value)
     }
 
     return (
@@ -193,7 +200,7 @@ const DueBooks = (props) => {
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.dueBooks.map(row => (
+                                    {props.dueBooks.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheckDue} />
@@ -219,6 +226,20 @@ const DueBooks = (props) => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={5}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.dueBooks.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -248,6 +269,10 @@ const useStyles = makeStyles(theme => ({
     },
     highpriority: {
         color: 'red'
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

@@ -9,6 +9,7 @@ import {
     Grid,
     makeStyles,
     MenuItem,
+    Pagination,
     Paper,
     Table,
     TableBody,
@@ -45,6 +46,8 @@ const TransactionsReport = (props) => {
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
+    const [page, setPage] = useState(1)
+    const rowPerPage = 5
 
     const handleDateUpdate = (date) => {
         setDate(date)
@@ -53,6 +56,10 @@ const TransactionsReport = (props) => {
 
     const handleDownloadCSV = () => {
         csvlink.current.link.click()
+    }
+
+    const handlePagination = (e, value) => {
+        setPage(value)
     }
 
     return (
@@ -187,7 +194,7 @@ const TransactionsReport = (props) => {
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredTransactions.map(record => (
+                                    {props.filteredTransactions.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
                                         <TableRow key={record.TransactionID}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('type')}: {record.Transaction}</Typography>
@@ -221,6 +228,20 @@ const TransactionsReport = (props) => {
                                             }
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={5}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(props.filteredTransactions.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -247,6 +268,10 @@ const useStyles = makeStyles(theme => ({
         [theme.breakpoints.down("sm")]: {
             justifyContent: 'center'
         }
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

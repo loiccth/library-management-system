@@ -388,7 +388,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                 let numOfDays
                                                 const finePerDay = bookSettings.options.fine_per_day.value
                                                 const timeOnHold = bookSettings.options.time_onhold.value
-                                                let paymentID
+                                                let payment
 
                                                 borrow.returnedOn = Date()
                                                 borrow.status = 'archive'
@@ -412,7 +412,12 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                         pricePerDay: finePerDay
                                                     })
 
-                                                    paymentID = await newPayment.save().catch(err => console.log(err))
+                                                    payment = await newPayment.save().catch(err => console.log(err))
+
+                                                    payment = await payment
+                                                        .populate('userid', ['userid'])
+                                                        .populate('bookid', ['title', 'isbn'])
+                                                        .execPopulate()
                                                 }
                                                 borrow.save().catch(err => console.log(err))
 
@@ -422,6 +427,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                         if (book.copies[i].borrower.userid.toString() === borrow.userid.toString()) {
                                                             if (book.reservation.length - book.noOfBooksOnHold > 0) {
                                                                 book.copies[i].availability = 'onhold'
+                                                                book.copies[i].borrower = null
                                                                 book.noOfBooksOnHold++
                                                                 for (let j = 0; j < book.reservation.length; j++) {
                                                                     if (book.reservation[j].expireAt === null) {
@@ -432,9 +438,37 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                                                 reserve.expireAt = dueDate
 
                                                                                 reserve.save().catch(err => console.log(err))
+
+                                                                                User.findById(reserve.userid)
+                                                                                    .populate('udmid', ['email', 'phone'])
+                                                                                    .then(user => {
+                                                                                        const mailNotification = {
+                                                                                            from: 'no-reply@udmlibrary.com',
+                                                                                            to: user.udmid.email,
+                                                                                            subject: 'Book available',
+                                                                                            text: `Your reservation for book titled ${book.title} is now available.`
+                                                                                        }
+
+                                                                                        transporter.sendMail(mailNotification, (err, info) => {
+                                                                                            if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                                                                                        })
+
+                                                                                        const accountSid = process.env.TWILIO_SID
+                                                                                        const authToken = process.env.TWILIO_AUTH
+
+                                                                                        const client = new twilio(accountSid, authToken)
+
+                                                                                        client.messages.create({
+                                                                                            body: `Your reservation for book titled ${book.title} is now available.`,
+                                                                                            to: `+230${user.udmid.phone}`,
+                                                                                            from: process.env.TWILIO_PHONE
+                                                                                        })
+                                                                                            .catch(err => {
+                                                                                                console.log(err)
+                                                                                            })
+                                                                                    })
                                                                             })
                                                                         break
-                                                                        // TODO: Inform next member in reservation queue
                                                                     }
                                                                 }
                                                             }
@@ -452,7 +486,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                         res.json({
                                                             noOfDaysOverdue: numOfDays,
                                                             finePerDay,
-                                                            paymentID: paymentID ? paymentID._id : null,
+                                                            payment: payment ? payment : null,
                                                             borrowid: borrow._id
                                                         })
                                                     })
@@ -502,7 +536,7 @@ librarianSchema.methods.getDueBooks = function (from, to, res) {
 
 librarianSchema.methods.getReservations = function (res) {
     const now = new Date()
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2)
 
     Reserve.find({ status: 'active', expireAt: { $ne: null, $gt: now, $lt: tomorrow } })
         .populate('userid', ['userid'])
