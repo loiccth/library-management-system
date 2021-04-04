@@ -173,7 +173,7 @@ adminSchema.methods.registerMember = function (email, res) {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
                                         subject: 'Register password',
-                                        text: `Your memberid is ${userid} and your password is valid for 24 hours:  ${password}`
+                                        text: `Account credentials for https://udmlibrary.com \nMemberID: ${userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
                                     }
 
                                     const accountSid = process.env.TWILIO_SID
@@ -212,81 +212,93 @@ adminSchema.methods.registerCSV = function (file, res) {
     let success = []
     let fail = []
     let promises = []
+    let temp = 2
 
     fs.createReadStream(file)
         .pipe(csv())
-        .on('data', user => {
+        .on('data', (user, count = (function () {
+            return temp
+        })()) => {
             promises.push(new Promise(async (resolve) => {
                 let { email } = user
 
-                email = email.trim()
+                if (email) {
+                    email = email.trim()
 
-                const udm = await UDM.findOne({ email })
+                    const udm = await UDM.findOne({ email })
 
-                if (udm) {
-                    const user = await User.findOne({ udmid: udm._id })
+                    if (udm) {
+                        const user = await User.findOne({ udmid: udm._id })
 
-                    if (!user) {
-                        const password = generator.generate({ length: 10, numbers: true })
-                        let userid = null
-                        if (udm.udmType === 'Student') {
-                            userid = udm.studentid
-                            memberType = 'Member'
-                        }
-                        else {
-                            userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
-                            if (udm.academic) memberType = 'MemberA'
-                            else memberType = 'MemberNA'
-                        }
+                        if (!user) {
+                            const password = generator.generate({ length: 10, numbers: true })
+                            let userid = null
+                            if (udm.udmType === 'Student') {
+                                userid = udm.studentid
+                                memberType = 'Member'
+                            }
+                            else {
+                                userid = udm.firstName.slice(0, 3) + udm.lastName.slice(0, 3) + Math.floor((Math.random() * 100) + 1)
+                                if (udm.academic) memberType = 'MemberA'
+                                else memberType = 'MemberNA'
+                            }
 
-                        const newMember = new User({
-                            memberType,
-                            udmid: udm._id,
-                            userid,
-                            password
-                        })
-
-                        newMember.save()
-                            .then(member => {
-                                const mailRegister = {
-                                    from: 'no-reply@udmlibrary.com',
-                                    to: email,
-                                    subject: 'Register password',
-                                    text: `Your memberid is ${member.userid} and your password is valid for 24 hours:  ${password}`
-                                }
-
-                                const accountSid = process.env.TWILIO_SID
-                                const authToken = process.env.TWILIO_AUTH
-
-                                const client = new twilio(accountSid, authToken)
-
-                                client.messages.create({
-                                    body: `Account credentials for https://udmlibrary.com \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`,
-                                    to: `+230${udm.phone}`,
-                                    from: process.env.TWILIO_PHONE
-                                })
-                                    .catch(err => {
-                                        console.log(err)
-                                    })
-
-                                transporter.sendMail(mailRegister, (err, info) => {
-                                    if (err) return resolve(fail.push(`Error sending email - ${email}`))
-                                    console.log(info)
-                                    resolve(success.push(`MemberID ${userid} registered with ${email}`))
-                                })
+                            const newMember = new User({
+                                memberType,
+                                udmid: udm._id,
+                                userid,
+                                password
                             })
-                            .catch(err => console.log(err))
+
+                            newMember.save()
+                                .then(member => {
+                                    const mailRegister = {
+                                        from: 'no-reply@udmlibrary.com',
+                                        to: email,
+                                        subject: 'Register password',
+                                        text: `Account credentials for https://udmlibrary.com \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
+                                    }
+
+                                    const accountSid = process.env.TWILIO_SID
+                                    const authToken = process.env.TWILIO_AUTH
+
+                                    const client = new twilio(accountSid, authToken)
+
+                                    client.messages.create({
+                                        body: `Account credentials for https://udmlibrary.com \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`,
+                                        to: `+230${udm.phone}`,
+                                        from: process.env.TWILIO_PHONE
+                                    })
+                                        .catch(err => {
+                                            console.log(err)
+                                        })
+
+                                    transporter.sendMail(mailRegister, (err, info) => {
+                                        if (err) return resolve(fail.push(`Row ${count}: ${email} - Error sending email`))
+                                        console.log(info)
+                                        resolve(success.push(`Row ${count}: ${email} registered with MemberID ${userid}`))
+                                    })
+                                })
+                                .catch(err => console.log(err))
+                        }
+                        else
+                            resolve(fail.push(`Row ${count}: ${email} - Account already exist`))
                     }
                     else
-                        resolve(fail.push(`Account already exist - ${email}`))
+                        resolve(fail.push(`Row ${count}: ${email} - Email not found`))
                 }
                 else
-                    resolve(fail.push(`Email not found - ${email}`))
+                    resolve(fail.push(`Row ${count}: No email address`))
             }))
+            temp++
         })
         .on('end', () => {
             Promise.all(promises)
                 .then(() => {
+
+                    success.sort()
+                    fail.sort()
+
                     res.status(201).json({
                         success,
                         fail

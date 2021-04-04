@@ -148,11 +148,7 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
 
     let { isbn, category, campus, location, noOfCopies } = book
 
-    isbn = isbn.trim()
-    category = category.trim()
-    campus = campus.trim()
-    location = location.trim()
-    noOfCopies = noOfCopies.trim()
+    let googleBookAPI
 
     if (isbn.length !== 10 && isbn.length !== 13)
         return res.status(400).json({ error: 'msgInvalidISBNLength' })
@@ -164,15 +160,18 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
         return res.status(400).json({ error: 'msgInvalidCategory' })
     else if (noOfCopies < 1)
         return res.status(400).json({ error: 'msgInvalidCopies' })
-
-    let googleBookAPI
-
-    if (APIValidation) {
+    else if (APIValidation) {
         googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
         if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ error: 'msgGoogleAPI404' })
     }
     Book.findOne({ isbn })
         .then(result => {
+            isbn = isbn.trim()
+            category = category.trim()
+            campus = campus.trim()
+            location = location.trim()
+            noOfCopies = noOfCopies.trim()
+
             if (!result) {
                 let image, secureImg
 
@@ -235,36 +234,37 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
     let success = []
     let fail = []
     let promises = []
+    let temp = 2
 
     fs.createReadStream(file)
         .pipe(csv())
-        .on('data', (book) => {
+        .on('data', (book, count = (function () {
+            return temp
+        })()) => {
             promises.push(new Promise(async (resolve) => {
                 let { isbn, category, campus, location, noOfCopies } = book
 
-                isbn = isbn.trim()
-                category = category.trim()
-                campus = campus.trim()
-                location = location.trim()
-                noOfCopies = noOfCopies.trim()
-
-                if (!isbn || (isbn.length !== 10 && isbn.length !== 13))
-                    resolve(fail.push(isbn + ' - Invalid ISBN'))
-                else if (!campus || (campus !== 'pam' && campus !== 'rhill'))
-                    resolve(fail.push(isbn + ' - Invalid campus'))
-                else if (!location || (!pamLocation.includes(location) && !rhillLocation.includes(location)))
-                    resolve(fail.push(isbn + ' - Invalid location'))
-                else if (!category || (!categories.includes(category)))
-                    resolve(fail.push(isbn + ' - Invalid category'))
-                else if (!noOfCopies || noOfCopies < 1)
-                    resolve(fail.push(isbn + ' - Invalid number of copies'))
-
                 const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
-                if (googleBookAPI.data.totalItems === 0) {
-                    resolve(fail.push(isbn + ' - Invalid ISBN'))
-                }
+                if (!isbn || (isbn.length !== 10 && isbn.length !== 13))
+                    resolve(fail.push(`Row ${count}: ${isbn} - Invalid ISBN`))
+                else if (!campus || (campus !== 'pam' && campus !== 'rhill'))
+                    resolve(fail.push(`Row ${count}: ${isbn} - Invalid campus`))
+                else if (!location || (!pamLocation.includes(location) && !rhillLocation.includes(location)))
+                    resolve(fail.push(`Row ${count}: ${isbn} - Invalid location`))
+                else if (!category || (!categories.includes(category)))
+                    resolve(fail.push(`Row ${count}: ${isbn} - Invalid category`))
+                else if (!noOfCopies || noOfCopies < 1)
+                    resolve(fail.push(`Row ${count}: ${isbn} - Invalid number of copies`))
+                else if (googleBookAPI.data.totalItems === 0)
+                    resolve(fail.push(`Row ${count}: ${isbn} - Invalid ISBN`))
                 else {
+                    isbn = isbn.trim()
+                    category = category.trim()
+                    campus = campus.trim()
+                    location = location.trim()
+                    noOfCopies = noOfCopies.trim()
+
                     await Book.findOne({ isbn })
                         .then(async (book) => {
                             const { title, authors, publisher, publishedDate, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
@@ -289,24 +289,29 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
                                 for (let i = 0; i < noOfCopies; i++)
                                     newBook.copies.push({})
                                 newBook.save()
-                                    .then(() => resolve(success.push(`${title} (${isbn})`)))
-                                    .catch(err => resolve(fail.push(`${title} (${isbn}) - ${err.message}`)))
+                                    .then(() => resolve(success.push(`Row ${count}: ${isbn} - ${title}`)))
+                                    .catch(err => resolve(fail.push(`Row ${count}: ${isbn} - ${err.message}`)))
                             }
                             else {
                                 for (let i = 0; i < noOfCopies; i++)
                                     book.copies.push({})
                                 await book.save()
-                                    .then(() => resolve(success.push(`${title} (${isbn})`)))
-                                    .catch(err => resolve(fail.push(`${title} (${isbn}) - ${err.message}`)))
+                                    .then(() => resolve(success.push(`Row ${count}: ${isbn} - ${title}`)))
+                                    .catch(err => resolve(fail.push(`Row ${count}: ${isbn} - ${err.message}`)))
                             }
                         })
                         .catch(err => console.log(err))
                 }
             }))
+            temp++
         })
         .on('end', () => {
             Promise.all(promises)
                 .then(() => {
+
+                    success.sort()
+                    fail.sort()
+
                     res.status(201).json({
                         success,
                         fail
