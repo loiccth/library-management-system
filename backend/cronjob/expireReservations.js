@@ -26,7 +26,7 @@ const expireReservations = new CronJob('*/15 * * * *', () => {
                     }
 
                     transporter.sendMail(mailRegister, (err, info) => {
-                        if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                        if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
                     })
 
                     const accountSid = process.env.TWILIO_SID
@@ -108,7 +108,7 @@ const expireReservations = new CronJob('*/15 * * * *', () => {
                                     }
 
                                     transporter.sendMail(mailRegister, (err, info) => {
-                                        if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                                        if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
                                     })
 
                                     const accountSid = process.env.TWILIO_SID

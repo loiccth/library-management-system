@@ -5,7 +5,7 @@ const twilio = require('twilio')
 const transporter = require('../config/mail.config')
 
 
-const highDemand = new CronJob('* * * * *', () => {
+const expiredContracts = new CronJob('0 0 * * *', () => {
     const now = new Date()
 
     Staff.find({ staffType: 'pt', contractEndDate: { $lt: now } })
@@ -27,7 +27,7 @@ const highDemand = new CronJob('* * * * *', () => {
                                 }
 
                                 transporter.sendMail(mailRegister, (err, info) => {
-                                    if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                                    if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
                                 })
 
                                 const accountSid = process.env.TWILIO_SID
@@ -50,4 +50,4 @@ const highDemand = new CronJob('* * * * *', () => {
         })
 }, null, true, 'Indian/Mauritius')
 
-module.exports = highDemand
+module.exports = expiredContracts
