@@ -18,6 +18,7 @@ connection.once('open', () => {
     require('./cronjob/highDemand')
     require('./cronjob/expiredContractsPT')
     require('./cronjob/dueNotification')
+    require('./cronjob/publicHolidays')
 })
 
 app.listen(port, () => {

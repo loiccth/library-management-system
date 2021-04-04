@@ -5,6 +5,7 @@ const Setting = require('../models/setting.model')
 const User = require('../models/users/user.base')
 const twilio = require('twilio')
 const transporter = require('../config/mail.config')
+const checkHolidays = require('../function/checkHolidays')
 
 const expireReservations = new CronJob('*/15 * * * *', () => {
     const now = new Date()
@@ -88,13 +89,18 @@ const expireReservations = new CronJob('*/15 * * * *', () => {
                         const timeOnHold = bookSettings.options.time_onhold.value
 
                         for (let k = 0; k < highest; k++) {
-                            const expireDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                            let expireDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+
+                            expireDate = await checkHolidays(expireDate)
+
                             books[i].reservation[k].expireAt = expireDate
 
                             Reserve.findOne({ bookid: books[i]._id, userid: books[i].reservation[k].userid, expireAt: null, status: 'active' })
                                 .then(reserve => {
-                                    reserve.expireAt = expireDate
-                                    reserve.save().catch(err => console.log(err))
+                                    if (reserve) {
+                                        reserve.expireAt = expireDate
+                                        reserve.save().catch(err => console.log(err))
+                                    }
                                 })
 
                             User.findById(books[i].reservation[k].userid)

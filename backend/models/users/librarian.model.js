@@ -11,6 +11,7 @@ const csv = require('csv-parser')
 const fs = require('fs')
 const transporter = require('../../config/mail.config')
 const twilio = require('twilio')
+const checkHolidays = require('../../function/checkHolidays')
 
 const Schema = mongoose.Schema
 
@@ -441,7 +442,9 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                                 book.noOfBooksOnHold++
                                                                 for (let j = 0; j < book.reservation.length; j++) {
                                                                     if (book.reservation[j].expireAt === null) {
-                                                                        const dueDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                                                        let dueDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                                                        dueDate = await checkHolidays(dueDate)
+
                                                                         book.reservation[j].expireAt = dueDate
                                                                         Reserve.findOne({ bookid: borrow.bookid, userid: book.reservation[j].userid, status: 'active' })
                                                                             .then(reserve => {

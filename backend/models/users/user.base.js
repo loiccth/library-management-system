@@ -10,6 +10,7 @@ const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
 const Setting = require('../setting.model')
 const UDM = require('../udm/udm.base')
+const checkHolidays = require('../../function/checkHolidays')
 
 const Schema = mongoose.Schema
 const SALT_WORK_FACTOR = 10
@@ -234,10 +235,13 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                     }
                 }
 
+                let expireDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                expireDate = await checkHolidays(expireDate)
+
                 book.reservation.push({
                     userid: this._id,
                     reservedAt: Date(),
-                    expireAt: bookAvailable ? new Date(new Date().getTime() + (timeOnHold * 1000)) : null
+                    expireAt: bookAvailable ? expireDate : null
                 })
 
                 await book.save().catch(err => console.log(err))
@@ -245,7 +249,7 @@ baseUserSchema.methods.reserveBook = async function (bookid, res) {
                 const newReservation = new Reserve({
                     userid: this._id,
                     bookid: bookid,
-                    expireAt: bookAvailable ? new Date(new Date().getTime() + (timeOnHold * 1000)) : null
+                    expireAt: bookAvailable ? expireDate : null
                 })
 
                 newReservation.save()
@@ -286,7 +290,9 @@ baseUserSchema.methods.cancelReservation = function (bookid, res) {
 
                                 for (let k = 0; k < book.reservation.length; k++) {
                                     if (book.reservation[k].expireAt === null) {
-                                        const expireDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                        let expireDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                        expireDate = await checkHolidays(expireDate)
+
                                         book.reservation[k].expireAt = expireDate
                                         Reserve.findOne({ bookid: book._id, userid: book.reservation[k].userid, status: 'active', expireAt: null })
                                             .then(reserve => {
