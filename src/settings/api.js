@@ -1,4 +1,4 @@
-const prod = 'https://api.udmlibrary.com'
+const prod = 'https://apis.udmlibrary.com'
 
 const dev = 'http://localhost:5000'
 
