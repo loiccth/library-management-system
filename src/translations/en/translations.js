@@ -195,7 +195,7 @@ export const TRANSLATIONS_EN = {
     unpaid: 'Unpaid',
     paymentDetails: 'Payment details',
     amount: 'Amount',
-    pricePerDay: 'Price per day',
+    pricePerDay: 'Fine per day',
     daysOverdue: 'Day(s) overdue',
     bookReport: 'Book Report',
     publishDetails: 'Publish details',
@@ -254,6 +254,9 @@ export const TRANSLATIONS_EN = {
     requestedDate: 'Requested date',
     removeRequestedBookDialog: 'Are you sure you want to remove this book?',
     paidDialog: 'Are you sure this member paid their fine?',
+    borrowDate: 'Borrow date',
+    returnDate: 'Return date',
+    dueDate: 'Due date',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',

@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const paymentSchema = new Schema({
+    borrowid: { type: Schema.Types.ObjectId, ref: 'Borrow', required: true },
     userid: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     bookid: { type: Schema.Types.ObjectId, ref: 'Book', required: true },
     copyid: { type: Schema.Types.ObjectId, required: true },

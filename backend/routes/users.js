@@ -195,6 +195,7 @@ router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => 
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
         Payment.find({ paid: false })
+            .populate('borrowid')
             .populate('userid', ['userid'])
             .populate('bookid', ['title', 'isbn'])
             .sort({ createdAt: 1 })

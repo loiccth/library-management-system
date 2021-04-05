@@ -17,7 +17,7 @@ const highDemand = new CronJob('0 0 * * *', () => {
             Setting.findOne({ setting: 'HOLIDAYS' })
                 .then(setting => {
                     if (setting) {
-                        settings.option = dates
+                        setting.option = dates
                         setting.markModified('options')
 
                         setting.save().catch(err => console.log(err))

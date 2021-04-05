@@ -195,7 +195,7 @@ export const TRANSLATIONS_ZH = {
     unpaid: '未付款',
     paymentDetails: '付款明细',
     amount: '金额',
-    pricePerDay: '每日价格',
+    pricePerDay: '每天罚款',
     daysOverdue: '过期天',
     bookReport: '图书报告',
     publishDetails: '发布详细信息',
@@ -254,6 +254,9 @@ export const TRANSLATIONS_ZH = {
     requestedDate: '申请日期',
     removeRequestedBookDialog: '您确定要删除这本书吗？',
     paidDialog: '您确定该会员支付了罚款吗？',
+    borrowDate: '借阅日期',
+    returnDate: '归期',
+    dueDate: '截止日期',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

@@ -75,6 +75,9 @@ const LibrarianMain = (props) => {
                 getDuePayments.data.map(payment => {
                     return {
                         _id: payment._id,
+                        borrowDate: payment.borrowid.createdAt,
+                        returnedDate: payment.borrowid.returnedOn,
+                        dueDate: payment.borrowid.dueDate,
                         userid: payment.userid.userid,
                         memberType: payment.userid.memberType,
                         title: payment.bookid.title,

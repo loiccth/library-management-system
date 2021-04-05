@@ -195,7 +195,7 @@ export const TRANSLATIONS_AR = {
     unpaid: 'غير مدفوعة',
     paymentDetails: 'بيانات الدفع',
     amount: 'كمية',
-    pricePerDay: 'السعر باليوم',
+    pricePerDay: 'غرامة يوميا',
     daysOverdue: 'أيام المتأخرة',
     bookReport: 'تقرير كتاب',
     publishDetails: 'نشر التفاصيل',
@@ -254,6 +254,9 @@ export const TRANSLATIONS_AR = {
     requestedDate: 'التاريخ المطلوب',
     removeRequestedBookDialog: 'هل أنت متأكد أنك تريد إزالة هذا الكتاب؟',
     paidDialog: 'هل أنت متأكد من أن هذا العضو دفع الغرامة؟',
+    borrowDate: 'تاريخ الاقتراض',
+    returnDate: 'تاريخ العودة',
+    dueDate: 'تاريخ الاستحقاق',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',

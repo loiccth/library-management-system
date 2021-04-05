@@ -25,7 +25,6 @@ import Brightness3Icon from '@material-ui/icons/Brightness3'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import HomeIcon from '@material-ui/icons/Home'
 import MenuIcon from '@material-ui/icons/Menu'
-import InfoIcon from '@material-ui/icons/Info'
 import TranslateIcon from '@material-ui/icons/Translate'
 import logo from '../../img/logo.png'
 import whitelogo from '../../img/logo_white.png'
@@ -238,14 +237,6 @@ const Dashboard = (props) => {
                                 عربي
                         </MenuItem>
                         </Menu>
-                        <IconButton
-                            aria-haspopup="false"
-                            color="inherit"
-                            component={Link}
-                            to="/info"
-                        >
-                            <InfoIcon />
-                        </IconButton>
                         <IconButton
                             aria-haspopup="false"
                             color="inherit"

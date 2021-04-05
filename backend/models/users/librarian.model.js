@@ -49,6 +49,7 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
                             tomorrow.setDate(tomorrow.getDate() + 2)
                             tomorrow.setHours(0, 0, 0, 0)
 
+                            // TODO check this
                             if (libraryOpenTime === 0) return res.status(400).json({ error: 'msgBorrowHighDemand' })
                             else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
                         }
@@ -171,7 +172,6 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
             category = category.trim()
             campus = campus.trim()
             location = location.trim()
-            noOfCopies = noOfCopies.trim()
 
             if (!result) {
                 let image, secureImg
@@ -264,7 +264,6 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
                     category = category.trim()
                     campus = campus.trim()
                     location = location.trim()
-                    noOfCopies = noOfCopies.trim()
 
                     await Book.findOne({ isbn })
                         .then(async (book) => {
@@ -416,6 +415,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                 if (numOfDays > 0) {
 
                                                     const newPayment = new Payment({
+                                                        borrowid: borrow_id,
                                                         userid: borrow.userid,
                                                         bookid: borrow.bookid,
                                                         copyid: borrow.copyid,
@@ -426,6 +426,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                     payment = await newPayment.save().catch(err => console.log(err))
 
                                                     payment = await payment
+                                                        .populate('borrowid')
                                                         .populate('userid', ['userid'])
                                                         .populate('bookid', ['title', 'isbn'])
                                                         .execPopulate()
@@ -497,6 +498,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                 book.save()
                                                     .then(() => {
                                                         res.json({
+                                                            title: book.title,
                                                             noOfDaysOverdue: numOfDays,
                                                             finePerDay,
                                                             payment: payment ? payment : null,

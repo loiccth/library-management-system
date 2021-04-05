@@ -95,13 +95,14 @@ const DuePayments = (props) => {
                                         <TableCell>{t('memberid')}</TableCell>
                                         <TableCell>{t('bookDetails')}</TableCell>
                                         <TableCell>{t('fineDetails')}</TableCell>
+                                        <TableCell>{t('borrowDetails')}</TableCell>
                                         <TableCell></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {props.duePayments.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
                                     {props.duePayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
@@ -119,6 +120,11 @@ const DuePayments = (props) => {
                                                 <Typography variant="caption" display="block">{t('daysOverdue')}: {row.days}</Typography>
                                                 <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {row.price}</Typography>
                                                 <Typography variant="caption" display="block">{t('total')}: Rs {row.price * row.days}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">{t('borrowDate')}: {new Date(row.borrowDate).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('dueDate')}: {new Date(row.dueDate).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('returnDate')}: {new Date(row.returnedDate).toLocaleString()}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Button variant="contained" onClick={handleToggle}>{t('paid')}</Button>
@@ -152,7 +158,7 @@ const DuePayments = (props) => {
                                         </TableRow>
                                     ))}
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={5}>
                                             <Grid container justifyContent="center">
                                                 <Grid item xs={12}>
                                                     <Pagination
