@@ -177,8 +177,13 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                 let image, secureImg
 
                 if (APIValidation) {
-                    image = googleBookAPI.data.items[0].volumeInfo.imageLinks.thumbnail
-                    secureImg = image.replace('http:', 'https:')
+                    try {
+                        image = googleBookAPI.data.items[0].volumeInfo.imageLinks.thumbnail
+                        secureImg = image.replace('http:', 'https:')
+                    }
+                    catch (e) {
+                        return res.status(400).json({ error: 'msgThumbnail404' })
+                    }
                 }
 
                 const newBook = new Book({
@@ -197,17 +202,23 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                 })
                 for (let i = 0; i < noOfCopies; i++)
                     newBook.copies.push({})
-                newBook.save()
-                    .then(() => res.status(201).json({
-                        message: 'msgBookAddSuccess',
-                        title: APIValidation ? title : book.title
-                    }))
-                    .catch(err => {
-                        res.json({
-                            error: 'msgUnexpectedError'
+
+                try {
+                    newBook.save()
+                        .then(() => res.status(201).json({
+                            message: 'msgBookAddSuccess',
+                            title: APIValidation ? title : book.title
+                        }))
+                        .catch(err => {
+                            res.json({
+                                error: 'msgUnexpectedError'
+                            })
+                            console.log(err)
                         })
-                        console.log(err)
-                    })
+                }
+                catch (e) {
+                    res.status(400).json({ error: 'msgGoogleAPI404Params' })
+                }
             }
             else {
                 for (let i = 0; i < noOfCopies; i++)

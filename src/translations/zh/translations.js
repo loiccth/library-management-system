@@ -355,5 +355,7 @@ export const TRANSLATIONS_ZH = {
     msgBookAlreadyAvailable: '已有书籍',
     msgUnexpectedError: '发生意外错误',
     msgRequestDeleteSuccess: '预订请求已删除',
-    msgRequest404: '找不到预订请求'
+    msgRequest404: '找不到预订请求',
+    msgThumbnail404: '找不到缩略图',
+    msgGoogleAPI404Params: 'Google API中缺少书籍详细信息'
 }

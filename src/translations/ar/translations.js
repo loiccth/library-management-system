@@ -355,5 +355,7 @@ export const TRANSLATIONS_AR = {
     msgBookAlreadyAvailable: 'الكتاب متاح بالفعل',
     msgUnexpectedError: 'حدث خطأ غير متوقع',
     msgRequestDeleteSuccess: 'تم حذف طلب الكتاب',
-    msgRequest404: 'لم يتم العثور على طلب الكتاب'
+    msgRequest404: 'لم يتم العثور على طلب الكتاب',
+    msgThumbnail404: 'لم يتم العثور على الصورة المصغرة',
+    msgGoogleAPI404Params: 'تفاصيل الكتاب مفقودة في Google API'
 }

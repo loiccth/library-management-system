@@ -355,5 +355,7 @@ export const TRANSLATIONS_FR = {
     msgBookAlreadyAvailable: 'Réservez déjà disponible',
     msgUnexpectedError: "Une erreur inattendue s'est produite",
     msgRequestDeleteSuccess: 'Demande de livre supprimée',
-    msgRequest404: 'Demande de livre introuvable'
+    msgRequest404: 'Demande de livre introuvable',
+    msgThumbnail404: 'Vignette introuvable',
+    msgGoogleAPI404Params: "Détails du livre manquants dans l'API Google"
 }

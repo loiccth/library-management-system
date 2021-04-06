@@ -355,5 +355,7 @@ export const TRANSLATIONS_EN = {
     msgBookAlreadyAvailable: 'Book already available',
     msgUnexpectedError: 'An unexpected error happened',
     msgRequestDeleteSuccess: 'Book request deleted',
-    msgRequest404: 'Book request not found'
+    msgRequest404: 'Book request not found',
+    msgThumbnail404: 'Thumbnail not found',
+    msgGoogleAPI404Params: 'Missing book details in GoogleAPI'
 }

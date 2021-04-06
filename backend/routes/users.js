@@ -88,14 +88,20 @@ router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req)
 })
 
 // Logout and remove cookie
-router.get('/logout', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ _id: req.user._id })
-        .then(user => {
-            if (user)
-                user.logout(res)
-            else
-                res.sendStatus(404)
-        })
+router.get('/logout', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user._id)
+        User.findOne({ _id: req.user._id })
+            .then(user => {
+                if (user)
+                    user.logout(res)
+                else
+                    res.sendStatus(404)
+            })
+    else {
+        res.clearCookie('jwttoken')
+        res.clearCookie('user')
+        res.json({ message: 'msgLogoutSuccess' })
+    }
 })
 
 // Update password
