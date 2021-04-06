@@ -79,11 +79,14 @@ router.post('/togglestatus', jwt({ secret, credentialsRequired: true, getToken: 
 
 // Verify if user is already logged in on page load
 router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (!req.user) return res.json({ 'success': false })
-
+    if (!req.user) {
+        res.clearCookie('jwttoken')
+        res.clearCookie('user')
+        res.sendStatus(200)
+    }
     else {
         const { _id, userid, email, phone, memberType, temporaryPassword } = req.user
-        res.json({ 'success': true, _id, userid, email, phone, memberType, temporaryPassword })
+        res.json({ _id, userid, email, phone, memberType, temporaryPassword })
     }
 })
 

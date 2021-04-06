@@ -11,18 +11,19 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
     if (!sessionid || !device || !userAgent || !event) return res.status(400).json({ error: 'msgMissingParams' })
 
     else {
-        // Change when push to prod
-        let ip = req.connection.remoteAddress
+        let ip
 
-        // let ip = req.headers['x-forwarded-for']
-        // ip = ip.split(', ')
-        // ip = ip[0]
+        if (process.env.NODE_ENV === 'production') {
+            ip = req.headers['x-forwarded-for']
+            ip = ip.split(', ')
+            ip = ip[0]
+        }
+        else
+            ip = '102.100.100.1'
+
         if (ip.substr(0, 7) == "::ffff:") {
             ip = ip.substr(7)
         }
-
-        // Change when push to prod
-        ip = ip === '127.0.0.1' || ip === '::1' ? '102.114.39.1' : ip
 
         Analytics.find({ sessionid: sessionid })
             .then(async session => {

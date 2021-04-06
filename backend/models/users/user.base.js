@@ -80,14 +80,21 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
                     sameSite: 'Lax'
                 })
 
-                res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
-                    expires: new Date(Date.now() + 604800000),
-                    secure: false,
-                    httpOnly: false,
-                    sameSite: 'Lax',
-                    // domain: 'udmlibrary.com'
-                    // Change when push to prod
-                })
+                if (process.env.NODE_ENV === 'production')
+                    res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
+                        expires: new Date(Date.now() + 604800000),
+                        secure: false,
+                        httpOnly: false,
+                        sameSite: 'Lax',
+                        domain: 'udmlibrary.com'
+                    })
+                else
+                    res.cookie('user', JSON.stringify({ isLoggedIn: true, _id, userid, email, phone, memberType, temporaryPassword }), {
+                        expires: new Date(Date.now() + 604800000),
+                        secure: false,
+                        httpOnly: false,
+                        sameSite: 'Lax',
+                    })
 
                 res.json({
                     message: 'msgLoginSuccess',
@@ -140,14 +147,21 @@ baseUserSchema.methods.changePassword = function (oldPassword, newPassword, res)
                             sameSite: 'Lax'
                         })
 
-                        res.cookie('user', JSON.stringify({ isLoggedIn: true, _id: this._id, userid: this.userid, email: this.email, phone: this.phone, memberType: this.memberType, temporaryPassword: false }), {
-                            expires: new Date(Date.now() + 604800000),
-                            secure: false,
-                            httpOnly: false,
-                            sameSite: 'Lax',
-                            // domain: 'udmlibrary.com'
-                            // Change when push to prod
-                        })
+                        if (process.env.NODE_ENV === 'production')
+                            res.cookie('user', JSON.stringify({ isLoggedIn: true, _id: this._id, userid: this.userid, email: this.email, phone: this.phone, memberType: this.memberType, temporaryPassword: false }), {
+                                expires: new Date(Date.now() + 604800000),
+                                secure: false,
+                                httpOnly: false,
+                                sameSite: 'Lax',
+                                domain: 'udmlibrary.com'
+                            })
+                        else
+                            res.cookie('user', JSON.stringify({ isLoggedIn: true, _id: this._id, userid: this.userid, email: this.email, phone: this.phone, memberType: this.memberType, temporaryPassword: false }), {
+                                expires: new Date(Date.now() + 604800000),
+                                secure: false,
+                                httpOnly: false,
+                                sameSite: 'Lax',
+                            })
 
                         res.json({ message: 'msgPasswordChangeSuccess' })
                     })

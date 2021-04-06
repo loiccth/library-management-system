@@ -7,9 +7,12 @@ require('dotenv').config()
 
 const app = express()
 
-// Change when push to prod
-// app.use(morgan('combined'))
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
+if (process.env.NODE_ENV === 'production') {
+    app.use(cors({ credentials: true, origin: 'https://udmlibrary.com' }))
+    app.use(morgan('tiny'))
+}
+else
+    app.use(cors({ credentials: true, origin: 'http://localhost:3000' }))
 app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))

@@ -91,7 +91,7 @@ function App() {
         const verifyLogin = () => {
             axios.get(`${url}/users/account`, { withCredentials: true })
                 .then(user => {
-                    if (user.data.success && !user.isLoggedIn) {
+                    if (user.data.userid)
                         setUser({
                             isLoggedIn: true,
                             userid: user.data.userid,
@@ -100,15 +100,10 @@ function App() {
                             phone: user.data.phone,
                             temporaryPassword: user.data.temporaryPassword
                         })
-                    }
-                    else if (!user.data.success && user.isLoggedIn) {
+                    else
                         setUser({
                             isLoggedIn: false
                         })
-                    }
-                })
-                .catch(err => {
-                    console.log(err.message)
                 })
         }
 
