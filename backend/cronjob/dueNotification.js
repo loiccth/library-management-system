@@ -5,8 +5,8 @@ const transporter = require('../config/mail.config')
 
 const dueNotifications = new CronJob('0 8 * * *', () => {
     const now = new Date()
-    const nowPlus2Days = newDate(now)
-    nowPlus2Days.setDate(tomorrow.getDate() + 2)
+    const nowPlus2Days = new Date(now)
+    nowPlus2Days.setDate(nowPlus2Days.getDate() + 2)
 
     Borrow.find({ dueDate: { $gt: now, $lt: nowPlus2Days }, status: 'active' })
         .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['email', 'phone'] } })
