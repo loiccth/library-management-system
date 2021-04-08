@@ -374,7 +374,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                                     sessionid: j === 0 ? analytics[i]._id.sessionid : null,
                                     sessionDate: j === 0 ? analytics[i]._id.sessionDate : null,
                                     ip: j === 0 ? analytics[i]._id.ip : null,
-                                    geolocation: j === 0 ? analytics[i].geolocation.regionName + ', ' + analytics[i].geolocation.countryName + ', ' + analytics[i].geolocation.continentName : null,
+                                    geolocation: j === 0 && analytics[i].geolocation !== null ? analytics[i].geolocation.regionName + ', ' + analytics[i].geolocation.countryName + ', ' + analytics[i].geolocation.continentName : null,
                                     device: j === 0 ? analytics[i]._id.device : null,
                                     userAgent: j === 0 ? analytics[i]._id.userAgent : null,
                                     eventTime: analytics[i].events[j].date,

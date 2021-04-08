@@ -37,9 +37,11 @@ const Row = (props) => {
                 </TableCell>
                 <TableCell>
                     <Typography variant="caption" display="block">{t('ip')}: {row.ip}</Typography>
-                    <Typography variant="caption" display="block">{t('continent')}: {row.geolocation.continentName}</Typography>
-                    <Typography variant="caption" display="block">{t('country')}: {row.geolocation.countryName}</Typography>
-                    <Typography variant="caption" display="block">{t('region')}: {row.geolocation.regionName}</Typography>
+                    {row.geolocation !== null && <>
+                        <Typography variant="caption" display="block">{t('continent')}: {row.geolocation.continentName}</Typography>
+                        <Typography variant="caption" display="block">{t('country')}: {row.geolocation.countryName}</Typography>
+                        <Typography variant="caption" display="block">{t('region')}: {row.geolocation.regionName}</Typography>
+                    </>}
                 </TableCell>
                 <TableCell>
                     <Typography variant="caption" display="block">{t('deviceType')}: {row.device}</Typography>
