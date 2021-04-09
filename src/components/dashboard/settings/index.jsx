@@ -19,6 +19,7 @@ const Settings = ({ user }) => {
     const [locations, setLocations] = useState(null)
     const [loading, setLoading] = useState(true)
 
+    // Get all values on page load
     useEffect(() => {
         const getSettings = async () => {
             const workingHrs = await axios.get(`${url}/settings/hours`, { withCredentials: true })
@@ -43,18 +44,22 @@ const Settings = ({ user }) => {
 
     }, [])
 
+    // Update book settings
     const handleUpdateBookSettings = (data) => {
         setBooks(data)
     }
 
+    // Update user settings
     const handleUpdateUserSettings = (data) => {
         setUsers(data)
     }
 
+    // Update categories settings
     const handleUpdateCategoriesSettings = (data) => {
         setCategories(data)
     }
 
+    // Update locations settings
     const handleUpdateLocationsSettings = (data) => {
         if (data.campus === 'rhill')
             setLocations({
@@ -68,6 +73,7 @@ const Settings = ({ user }) => {
             })
     }
 
+    // Redirect if user is not a librarian
     if (user.memberType !== 'Librarian') {
         navigate('/dashboard', { replace: true })
     }

@@ -37,6 +37,7 @@ const ReturnBook = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Return book
     const onSubmit = (data) => {
         axios.post(`${url}/books/return_book`, data, { withCredentials: true })
             .then(result => {
@@ -56,6 +57,7 @@ const ReturnBook = (props) => {
             })
     }
 
+    // Pay fine if book is overdue
     const handleFine = () => {
         setClick(true)
         axios.post(`${url}/users/payfine/${payment._id}`, {}, { withCredentials: true })
@@ -67,15 +69,18 @@ const ReturnBook = (props) => {
             })
     }
 
+    // Fine not paid, add to the payment due table
     const handleClick = () => {
         setClick(true)
         props.handleNewPayment(payment)
     }
 
+    // Open window to return book
     const handleClickOpen = () => {
         setOpen(true)
     }
 
+    // Close window to issue book and reset all data
     const handleClose = () => {
         setOpen(false)
         setClick(false)
@@ -85,6 +90,7 @@ const ReturnBook = (props) => {
         reset()
     }
 
+    // Reset all data without closing the window to return another book
     const handleReset = () => {
         setClick(false)
         setMessage()

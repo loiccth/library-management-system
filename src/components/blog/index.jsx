@@ -32,10 +32,12 @@ const Blog = (props) => {
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
 
+    // On page load get all posts
     useEffect(() => {
         axios.get(`${url}/posts`, { withCredentials: true })
             .then(result => {
                 setPosts(result.data)
+                // Create a subset for pagination
                 setPostsSubset(result.data.slice((page - 1) * 5, (page * 5)))
                 setLoading(false)
             })
@@ -43,6 +45,7 @@ const Blog = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // On page change in query string update post subset
     useEffect(() => {
         if (query.page && (query.page > Math.ceil(posts.length / 5) || query.page < 1 || isNaN(query.page))) {
             setPage(1)
@@ -64,6 +67,7 @@ const Blog = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [posts])
 
+    // Update page number and query string when pagination button is clicked
     const handlePagination = (e, value) => {
         setPage(value)
         query.page = value
@@ -71,14 +75,17 @@ const Blog = (props) => {
         navigate(`?${stringified}`)
     }
 
+    // Show snackbar message
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar message
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Add recently added post to the list of post and display snackbar
     const handleAddPost = (result) => {
         if (result.message) {
             setSnackbar({
@@ -104,6 +111,7 @@ const Blog = (props) => {
 
         }
         else
+            // Add post unsuccessful, display warning message
             setSnackbar({
                 type: 'warning',
                 msg: t(result.error)
@@ -111,6 +119,7 @@ const Blog = (props) => {
         handleClick()
     }
 
+    // Remove post from list of post and display snackbar feedback
     const handleDeletePost = (result) => {
         if (result.message) {
             setSnackbar({
@@ -120,6 +129,7 @@ const Blog = (props) => {
             setPosts(posts.filter(post => post._id !== result.id))
         }
         else
+            // Delete unsuccessful
             setSnackbar({
                 type: 'warning',
                 msg: t(result.error)
@@ -127,6 +137,7 @@ const Blog = (props) => {
         handleClick()
     }
 
+    // Update post and show snackbar
     const handleEditPost = (result) => {
         if (result.message) {
             setSnackbar({

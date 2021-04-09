@@ -35,6 +35,7 @@ const IssueBook = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Issue book
     const onSubmit = (data) => {
         axios.post(`${url}/books/issue`, data, { withCredentials: true })
             .then(result => {
@@ -59,10 +60,12 @@ const IssueBook = (props) => {
             })
     }
 
+    // Open window for issuing book
     const handleClickOpen = () => {
         setOpen(true)
     }
 
+    // Close window and reset all data inform
     const handleClose = () => {
         setOpen(false)
         setCheck(false)
@@ -70,6 +73,7 @@ const IssueBook = (props) => {
         reset()
     }
 
+    // Reset data to issue another book
     const handleReset = () => {
         setCheck(false)
         setMessage()

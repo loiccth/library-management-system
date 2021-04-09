@@ -22,15 +22,18 @@ const RequestBooks = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Open window to request a book
     const handleToggle = () => {
         setWindow(!window)
     }
 
+    // Close window and reset data
     const handleWindowClose = () => {
         setWindow(!window)
         reset()
     }
 
+    // Request a book
     const onSubmit = (data) => {
         axios.post(`${url}/books/request`, data, { withCredentials: true })
             .then(result => {

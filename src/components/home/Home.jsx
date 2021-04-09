@@ -40,6 +40,8 @@ const Home = (props) => {
     const { t } = useTranslation()
 
     const searchQuery = queryString.parse(search)
+
+    // When querystring updates, get search books if it has querystring value else get book
     useEffect(() => {
         if (!searchQuery.search && !searchQuery.category) {
             setValue('search', '')
@@ -62,6 +64,7 @@ const Home = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery.search, searchQuery.searchType, searchQuery.category])
 
+    // Get list of categories from database
     useEffect(() => {
         axios.get(`${url}/settings/categories`)
             .then(result => {
@@ -69,6 +72,7 @@ const Home = (props) => {
             })
     }, [])
 
+    // Search book, set page to 0 and redirect to query string
     const handleSearch = (data) => {
         const stringified = queryString.stringify({
             ...data,

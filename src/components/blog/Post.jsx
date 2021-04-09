@@ -31,10 +31,12 @@ const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
     const sanitizer = dompurify.sanitize
     const theme = useTheme()
 
+    // Close pop up window
     const handleToggle = () => {
         setWindow(!window)
     }
 
+    // Call api to delete post
     const handleDelete = (id) => {
         setWindow(!window)
         axios.delete(`${url}/posts/${id}`, { withCredentials: true })
@@ -46,10 +48,12 @@ const Post = ({ post, user, handleDeletePost, handleEditPost }) => {
             })
     }
 
+    // Open pop up window for editing post
     const handleEditToggle = () => {
         setEdit(!edit)
     }
 
+    // Submit edited post
     const handleEdit = (result) => {
         handleEditPost(result)
         setEdit(!edit)

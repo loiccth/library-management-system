@@ -18,11 +18,13 @@ const Books = (props) => {
     const [numPerPage, setNumPerPage] = useState(searchQuery.rowsperpage ? parseInt(searchQuery.rowsperpage) : 10)
     const { t } = useTranslation()
 
+    // On search query update, set page and set number of books per page
     useEffect(() => {
         setPage(searchQuery.page ? parseInt(searchQuery.page) : 0)
         setNumPerPage(searchQuery.rowsperpage ? parseInt(searchQuery.rowsperpage) : 10)
     }, [searchQuery])
 
+    // Update query string and redirect to query string
     const handlePagination = (value) => {
         setNumPerPage(value.pageSize)
         setPage(value.page)
@@ -32,6 +34,7 @@ const Books = (props) => {
         navigate(`?${stringified}`)
     }
 
+    // Set table headers using datagrid
     const columns = [
         {
             field: 'id',
@@ -125,6 +128,7 @@ const Books = (props) => {
                     return <></>
             },
             sortComparator: (v1, v2) => {
+                // Sort by high demand and recentlyadded
                 let count = 0
                 if (v2.highDemand)
                     count += 2
@@ -142,15 +146,18 @@ const Books = (props) => {
     const rows = []
     let count = 1
 
+    // Format book details to display in datagrid
     props.books.forEach(book => {
         let temp = ''
 
+        // Convert author array to string with , delimiter
         for (let i = 0; i < book.author.length; i++) {
             temp += book.author[i]
             if (book.author.length - 1 > i)
                 temp += ', '
         }
 
+        // Push object to book array
         rows.push({
             id: book._id,
             no: count,

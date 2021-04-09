@@ -9,8 +9,11 @@ const DevicesPie = ({ devices }) => {
     const theme = useTheme()
     const { t } = useTranslation()
 
+    // Set custom label from translator
+    // for multilingual support
     const customLabels = devices.labels.map((label, index) => `${t(label)}: ${devices.data[index]}`)
 
+    // Set data for piechart
     const data = {
         labels: customLabels,
         datasets: [{

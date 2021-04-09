@@ -24,14 +24,17 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
     const { register, handleSubmit, errors, reset } = useForm()
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Add category
     const onSubmit = (data) => {
         axios.post(`${url}/settings/add_categories`, data, { withCredentials: true })
             .then(result => {
@@ -53,6 +56,7 @@ const Categories = ({ categoriesSettings, handleUpdateCategoriesSettings }) => {
             })
     }
 
+    // Remove category
     const handleRemove = (e) => {
         e.preventDefault()
 

@@ -1,4 +1,4 @@
-function escapeRegExp(text) {
+const escapeRegExp = (text) => {
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
 

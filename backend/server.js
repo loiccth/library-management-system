@@ -1,10 +1,9 @@
 const app = require('./app')
 const mongoose = require('mongoose')
-require('dotenv').config()
 
 const port = process.env.PORT
-
 const uri = process.env.ATLAS_URI
+
 mongoose.connect(uri, {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -14,6 +13,8 @@ mongoose.connect(uri, {
 const connection = mongoose.connection
 connection.once('open', () => {
     console.log("MongoDB database connection established successfully")
+    // If connection is successful with MongoDB
+    // Run cronjobs
     require('./cronjob/expireReservations')
     require('./cronjob/highDemand')
     require('./cronjob/expiredContractsPT')

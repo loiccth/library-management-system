@@ -26,14 +26,17 @@ const SearchUsers = () => {
     const { register, handleSubmit, errors } = useForm()
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
+    // Search user
     const onSubmit = (data) => {
         axios.post(`${url}/users/search`, data, { withCredentials: true })
             .then(users => {
@@ -46,6 +49,7 @@ const SearchUsers = () => {
             })
     }
 
+    // Suspend/unsuspend user
     const toggleUser = (id) => {
         setUsers(users.filter(user => {
             if (user._id === id)

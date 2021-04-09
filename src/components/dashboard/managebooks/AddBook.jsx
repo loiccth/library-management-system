@@ -31,20 +31,24 @@ const AddBook = (props) => {
     })
     const { t } = useTranslation()
 
+    // Reset location value when campus is changed
     useEffect(() => {
         setValue('location', '')
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [watch('campus')])
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
+    // Add book
     const onSubmit = (data) => {
         axios.post(`${url}/books/add_single`, data, { withCredentials: true })
             .then(result => {

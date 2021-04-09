@@ -8,6 +8,7 @@ const baseOptions = {
     timestamps: true
 }
 
+// Base udm schema, other schemas will inherit from this one
 const baseUDMSchema = new Schema({
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },

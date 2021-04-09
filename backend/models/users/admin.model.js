@@ -9,9 +9,10 @@ const Student = require('../udm/student.model')
 const Staff = require('../udm/staff.model')
 const csv = require('csv-parser')
 const fs = require('fs')
-const twilio = require('twilio')
 const transporter = require('../../config/mail.config')
 const generator = require('generate-password')
+const borrowBook = require('../../function/borrowBook')
+const sendSMS = require('../../function/sendSMS')
 
 const Schema = mongoose.Schema
 
@@ -20,8 +21,10 @@ const adminSchema = new Schema()
 adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, archive: false })
 
-    if (bookBorrowed !== null) return res.status(400).json({ error: 'msgBorrowMultiple' })
+    // If already borrowed same book, return error
+    if (bookBorrowed) return res.status(400).json({ error: 'msgBorrowMultiple' })
     else {
+        // Get number of books borrowed this month and get book limit from settings
         const date = new Date()
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
@@ -29,126 +32,32 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
         const userSettings = await Setting.findOne({ setting: 'USER' })
         const bookLimit = userSettings.options.non_academic_borrow.value
 
+        // Check if book limit reached return error
         if (numOfBooksBorrowed >= bookLimit) return res.status(400).json({
             error: 'msgBorrowLibrarianLimit',
             limit: bookLimit
         })
-        else {
-
-            const numOfHighDemandBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active', isHighDemand: true })
-
-            if (numOfHighDemandBooksBorrowed <= 0) {
-                const now = new Date()
-                const bookReserved = await Reserve.findOne({ bookid, userid: this._id, status: 'active', expireAt: { $gte: now } })
-
-                Book.findById(bookid)
-                    .then(async book => {
-                        let dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                        if (book.isHighDemand === true) {
-                            const tomorrow = new Date()
-                            tomorrow.setDate(tomorrow.getDate() + 2)
-                            tomorrow.setHours(0, 0, 0, 0)
-
-                            if (libraryOpenTime === 0) return res.status(400).json({ error: 'msgBorrowHighDemand' })
-                            else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
-                        }
-
-                        if (bookReserved !== null) {
-                            bookReserved.status = 'archive'
-                            bookReserved.save().catch(err => console.log(err))
-
-                            for (let j = 0; j < book.reservation.length; j++) {
-                                if (book.reservation[j].userid.toString() === this._id.toString()) {
-                                    for (let i = 0; i < book.copies.length; i++) {
-                                        if (book.copies[i].availability === 'onhold') {
-                                            book.noOfBooksOnLoan++
-                                            book.noOfBooksOnHold++
-                                            book.copies[i].availability = 'onloan'
-                                            book.copies[i].borrower = {
-                                                userid: this._id,
-                                                borrowAt: Date(),
-                                                dueDate,
-                                                renews: 0
-                                            }
-                                            book.reservation.splice(j, 1)
-                                            await book.save().catch(err => console.log(err))
-
-                                            const newBorrow = new Borrow({
-                                                userid: this._id,
-                                                bookid,
-                                                copyid: book.copies[i]._id,
-                                                dueDate,
-                                                isHighDemand: book.isHighDemand
-                                            })
-                                            await newBorrow.save().then(() => {
-                                                return res.status(201).json({
-                                                    message: 'msgBorrowSuccess',
-                                                    title: book.title,
-                                                    dueDate: new Date(dueDate),
-                                                    reservationid: bookReserved._id
-                                                })
-                                            }).catch(err => console.log(err))
-                                            break
-                                        }
-                                    }
-                                    break
-                                }
-                                else res.status(400).json({ error: 'msgBorrowQueue' })
-                            }
-                        }
-                        else {
-                            if (book.copies.length > book.noOfBooksOnLoan + book.noOfBooksOnHold)
-                                for (let i = 0; i < book.copies.length; i++) {
-                                    if (book.copies[i].availability === 'available') {
-                                        book.noOfBooksOnLoan++
-                                        book.copies[i].availability = 'onloan'
-                                        book.copies[i].borrower = {
-                                            userid: this._id,
-                                            borrowAt: Date(),
-                                            dueDate,
-                                            renews: 0
-                                        }
-                                        await book.save().catch(err => console.log(err))
-
-                                        const newBorrow = new Borrow({
-                                            userid: this._id,
-                                            bookid,
-                                            copyid: book.copies[i]._id,
-                                            dueDate,
-                                            isHighDemand: book.isHighDemand
-                                        })
-                                        await newBorrow.save().then(() => {
-                                            return res.status(201).json({
-                                                message: 'msgBorrowSuccess',
-                                                title: book.title,
-                                                dueDate: new Date(dueDate)
-                                            })
-                                        }).catch(err => console.log(err))
-                                        break
-                                    }
-                                }
-                            else
-                                res.status(400).json({ error: 'msgBorrowNotAvailable' })
-                        }
-                    })
-            }
-            else
-                res.status(400).json({ error: 'msgBorrowMoreHighDemand' })
-        }
+        else
+            borrowBook(this._id, bookid, libraryOpenTime, res)
     }
 }
 
 adminSchema.methods.registerMember = function (email, res) {
     email = email.trim()
 
+    // Check if email is in simulated UDM database
     UDM.findOne({ email })
         .then(udm => {
             if (udm) {
                 User.findOne({ udmid: udm._id })
                     .then(user => {
+                        // Check if account is already linked to that email address
                         if (!user) {
+                            // Generate random string password
                             const password = generator.generate({ length: 10, numbers: true })
 
+                            // Generate userid if account is a staff
+                            // else use student's index number
                             let userid = null
                             if (udm.udmType === 'Student') {
                                 userid = udm.studentid
@@ -160,6 +69,7 @@ adminSchema.methods.registerMember = function (email, res) {
                                 else memberType = 'MemberNA'
                             }
 
+                            // Create a new user and save to database
                             const newMember = new User({
                                 memberType,
                                 udmid: udm._id,
@@ -172,24 +82,15 @@ adminSchema.methods.registerMember = function (email, res) {
                                     const mailRegister = {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
-                                        subject: 'Register password',
-                                        text: `Account credentials for https://udmlibrary.com \nMemberID: ${userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
+                                        subject: 'Account registration',
+                                        text: `Account credentials for https://udmlibrary.com/ \nMemberID: ${userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
                                     }
 
-                                    const accountSid = process.env.TWILIO_SID
-                                    const authToken = process.env.TWILIO_AUTH
+                                    // Send SMS notification with userid and temporary password
+                                    sendSMS(`Account credentials for https://udmlibrary.com/\nMemberID: ${userid}\nPassword: ${password}\nTemporary password is valid for 24 hours.`,
+                                        `+230${udm.phone}`)
 
-                                    const client = new twilio(accountSid, authToken)
-
-                                    client.messages.create({
-                                        body: `Account credentials for https://udmlibrary.com \nMemberID: ${userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`,
-                                        to: `+230${udm.phone}`,
-                                        from: process.env.TWILIO_PHONE
-                                    })
-                                        .catch(err => {
-                                            console.log(err)
-                                        })
-
+                                    // Send email notification with userid and temporary password
                                     transporter.sendMail(mailRegister, (err, info) => {
                                         if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
                                         else
@@ -201,9 +102,11 @@ adminSchema.methods.registerMember = function (email, res) {
                                 })
                                 .catch(err => console.log(err))
                         }
+                        // Account already exists
                         else return res.status(400).json({ error: 'msgUserRegistrationExist' })
                     })
             }
+            // Email not found in simulated udm database
             else return res.status(404).json({ error: 'msgUserRegistration404' })
         })
 }
@@ -214,25 +117,30 @@ adminSchema.methods.registerCSV = function (file, res) {
     let promises = []
     let temp = 2
 
+    // Read csv file row by row
     fs.createReadStream(file)
         .pipe(csv())
         .on('data', (user, count = (function () {
             return temp
         })()) => {
+            // Push each row in an array of promises
             promises.push(new Promise(async (resolve) => {
                 let { email } = user
 
+                // Check if email value is available in the row of the csv file
                 if (email) {
                     email = email.trim()
 
                     const udm = await UDM.findOne({ email })
-
+                    // Check if email is in udm's simulated database
                     if (udm) {
                         const user = await User.findOne({ udmid: udm._id })
-
+                        // If no account is found linked with that email
                         if (!user) {
+                            // Generate random password
                             const password = generator.generate({ length: 10, numbers: true })
                             let userid = null
+                            // Generate random userid for staffs and use index number for students
                             if (udm.udmType === 'Student') {
                                 userid = udm.studentid
                                 memberType = 'Member'
@@ -249,50 +157,46 @@ adminSchema.methods.registerCSV = function (file, res) {
                                 userid,
                                 password
                             })
-
+                            // Create new user and save to database
                             newMember.save()
                                 .then(member => {
                                     const mailRegister = {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
                                         subject: 'Register password',
-                                        text: `Account credentials for https://udmlibrary.com \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
+                                        text: `Account credentials for https://udmlibrary.com/ \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
                                     }
 
-                                    const accountSid = process.env.TWILIO_SID
-                                    const authToken = process.env.TWILIO_AUTH
+                                    // Send SMS notification
+                                    sendSMS(`Account credentials for https://udmlibrary.com/\nMemberID: ${member.userid}\nPassword: ${password}\nTemporary password is valid for 24 hours.`,
+                                        `+230${udm.phone}`)
 
-                                    const client = new twilio(accountSid, authToken)
-
-                                    client.messages.create({
-                                        body: `Account credentials for https://udmlibrary.com \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`,
-                                        to: `+230${udm.phone}`,
-                                        from: process.env.TWILIO_PHONE
-                                    })
-                                        .catch(err => {
-                                            console.log(err)
-                                        })
-
+                                    // Send email notification
                                     transporter.sendMail(mailRegister, (err, info) => {
                                         if (err) return resolve(fail.push(`Row ${count}: ${email} - Error sending email`))
                                         console.log(info)
+                                        // Email sent successfully
                                         resolve(success.push(`Row ${count}: ${email} registered with MemberID ${userid}`))
                                     })
                                 })
                                 .catch(err => console.log(err))
                         }
                         else
+                            // Email already linked to an account
                             resolve(fail.push(`Row ${count}: ${email} - Account already exist`))
                     }
                     else
+                        // Email not found in udm's simulated database
                         resolve(fail.push(`Row ${count}: ${email} - Email not found`))
                 }
                 else
+                    // Email missing in csv row
                     resolve(fail.push(`Row ${count}: No email address`))
             }))
             temp++
         })
         .on('end', () => {
+            // After all data is processed sort success and fail array and response to client
             Promise.all(promises)
                 .then(() => {
 
@@ -308,10 +212,13 @@ adminSchema.methods.registerCSV = function (file, res) {
 }
 
 adminSchema.methods.toggleStatus = function (userid, res) {
+    // Find user to toggle their account's status
     User.findById(userid)
         .then(user => {
+            // If user not found return error
             if (!user) res.status(404).json({ error: 'msgToggleUser404' })
             else {
+                // Change their status, save to database and send response to client
                 user.status = user.status === 'active' ? 'suspended' : 'active'
                 user.save()
                     .then(user => res.json({
@@ -328,10 +235,12 @@ adminSchema.methods.toggleStatus = function (userid, res) {
 }
 
 adminSchema.methods.getMembersReport = function (from, to, res) {
+    // Set date range to get data
     const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
 
+    // Get data within range and send response to the client
     User.find({ createdAt: { $gte: fromDate, $lt: toDate } })
         .select(['status', 'createdAt', 'userid'])
         .populate('udmid', ['firstName', 'lastName', 'email', 'phone', 'staffType', 'academic', 'faculty', 'contractEndDate', 'studentType'])

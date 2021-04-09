@@ -37,8 +37,6 @@ import ForcePasswordChange from './components/others/ForcePasswordChange'
 
 import NotFound from './components/NotFound'
 
-import './App.css'
-
 function App() {
     const [user, setUser] = useState(Cookies.get('user') === undefined ? { isLoggedIn: false } : JSON.parse(Cookies.get('user')))
     const [darkMode, setDarkMode] = useState(Cookies.get('darkMode') === undefined ? false : Cookies.get('darkMode') === 'true')
@@ -50,6 +48,7 @@ function App() {
     const { t } = useTranslation()
     const jss = create({ plugins: [...jssPreset().plugins, rtl({ enabled: getLocale() === 'arEG' ? true : false })] })
 
+    // Create theme
     const theme = createMuiTheme({
         palette: {
             custom: {
@@ -61,23 +60,28 @@ function App() {
         direction: getLocale() === 'arEG' ? 'rtl' : 'ltr'
     }, locales[locale])
 
+    // Toggle darktheme and set the value in a cookie
     const handleToggleTheme = () => {
         Cookies.set('darkMode', !darkMode, { sameSite: 'strict' })
         setDarkMode(!darkMode)
     }
 
+    // Update locale
     const handleLocale = (lang) => {
         setLocale(lang)
     }
 
+    // Open snackbar for feedbac
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Add to analytics queue on link update
     useEffect(() => {
         setQueue([
             ...queue,
@@ -87,6 +91,7 @@ function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location])
 
+    // Verify if cookie is not expired or tempered with on page load
     useEffect(() => {
         const verifyLogin = () => {
             axios.get(`${url}/users/account`, { withCredentials: true })
@@ -110,6 +115,7 @@ function App() {
         verifyLogin()
     }, [])
 
+    // Send analytics to the server from the queue
     useInterval(() => {
         if (queue.length > 0) {
             analytics(queue[0].type, queue[0].info)
@@ -117,6 +123,8 @@ function App() {
         }
     }, 1000)
 
+    // Login and save users information in state
+    // Change sessionid
     const handleLogin = (e) => {
         sessionStorage.removeItem('session_id')
         sessionStorage.setItem('session_id', uuidv4())
@@ -134,6 +142,7 @@ function App() {
         handleClick()
     }
 
+    // Logout and change sessionid
     const handleLogout = (message) => {
         setUser({ isLoggedIn: false })
         Cookies.remove('user', { path: '', domain: '.udmlibrary.com' })
@@ -143,6 +152,7 @@ function App() {
         handleClick()
     }
 
+    // Change password and set temp password to false
     const handlePasswordChange = (parent) => {
         setUser({
             ...user,

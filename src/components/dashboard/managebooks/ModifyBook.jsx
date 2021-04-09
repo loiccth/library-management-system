@@ -20,6 +20,7 @@ import { LocalizationProvider, DatePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 
+// Date locale
 const localeMap = {
     enUS: enGB,
     frFR: fr,
@@ -27,6 +28,7 @@ const localeMap = {
     arEG: arSA
 }
 
+// Date mask
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
@@ -48,20 +50,24 @@ const ModifyBook = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // On book update, set values to the react-hook-form
     useEffect(() => {
         Object.entries(props.book).map(([key, value]) => (
             setValue(key, value)
         ))
     }, [props.book, setValue])
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
+    // Send updated book details to the server
     const onSubmit = (data) => {
         axios.put(`${url}/books/edit`, data, { withCredentials: true })
             .then(result => {

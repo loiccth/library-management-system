@@ -16,6 +16,7 @@ import {
 } from '@material-ui/core'
 
 const EditPost = (props) => {
+    // Set default values in form from the post title and body
     const { register, handleSubmit, errors } = useForm({
         defaultValues: {
             title: props.post.title,
@@ -26,6 +27,7 @@ const EditPost = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Submit form call api to update post
     const onSubmit = (data) => {
         axios.put(`${url}/posts/${props.post._id}`, data, { withCredentials: true })
             .then(result => {

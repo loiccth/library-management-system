@@ -16,6 +16,7 @@ const MyBooks = (props) => {
     const [openSnack, setOpenSnack] = useState(false)
     const { t } = useTranslation()
 
+    // Get list of borrowed and reserved books on page load
     useEffect(() => {
         const fetchData = async () => {
             const tempBorrowed = await axios.get(`${url}/books/borrowed`, { withCredentials: true })
@@ -29,14 +30,17 @@ const MyBooks = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpenSnack(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpenSnack(false)
     }
 
+    // Renew book and update value in table
     const handleRenew = (id) => {
         axios.post(`${url}/books/renew/${id}`, {}, { withCredentials: true })
             .then(result => {
@@ -70,6 +74,7 @@ const MyBooks = (props) => {
             })
     }
 
+    // Cancel reservation and update table
     const handleCancel = (id) => {
         axios.patch(`${url}/books/cancel_reservation/${id}`, {}, { withCredentials: true })
             .then(result => {
@@ -82,6 +87,7 @@ const MyBooks = (props) => {
             })
     }
 
+    // Request a book for academic staffs
     const handleRequestBook = (result) => {
         if (result.message)
             setSnackbar({

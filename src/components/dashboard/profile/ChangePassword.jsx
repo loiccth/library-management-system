@@ -36,6 +36,7 @@ const ChangePassword = (props) => {
 
     // TODO: Add form validation to check new pwd = old pwd
 
+    // Change password
     const onSubmit = (data) => {
         axios.patch(`${url}/users`, data, { withCredentials: true })
             .then(result => {
@@ -66,6 +67,7 @@ const ChangePassword = (props) => {
         reset()
     }
 
+    // Show old password
     const handleClickShowOldPassword = () => {
         setShowPassword({
             ...showPasswords,
@@ -73,6 +75,7 @@ const ChangePassword = (props) => {
         })
     }
 
+    // Show new password
     const handleClickShowNewPassword = () => {
         setShowPassword({
             ...showPasswords,
@@ -80,6 +83,7 @@ const ChangePassword = (props) => {
         })
     }
 
+    // Show confirm password
     const handleClickShowConfirmPassword = () => {
         setShowPassword({
             ...showPasswords,
@@ -87,16 +91,18 @@ const ChangePassword = (props) => {
         })
     }
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
     const handleMouseDownPassword = (e) => {
-        e.preventDefault();
+        e.preventDefault()
     }
 
     return (

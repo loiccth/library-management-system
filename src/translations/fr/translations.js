@@ -344,7 +344,6 @@ export const TRANSLATIONS_FR = {
     msgBorrowMoreHighDemand: "Impossible d'emprunter plus d'un livre à forte demande.",
     msgBorrowSuccess: 'Livre intitulé {{title}} délivré à {{userid}} et dû le {{date}}',
     msgBorrowMemberLimit: "Impossible d'emprunter plus de {{limit}} livres en même temps.",
-    msgPosts404: 'Messages non trouvés',
     msgPost404: 'Message introuvable',
     msgPostAdd: 'Publication ajouté avec succès',
     msgPostUpdate: 'Message mis à jour avec succès',
@@ -357,5 +356,7 @@ export const TRANSLATIONS_FR = {
     msgRequestDeleteSuccess: 'Demande de livre supprimée',
     msgRequest404: 'Demande de livre introuvable',
     msgThumbnail404: 'Vignette introuvable',
-    msgGoogleAPI404Params: "Détails du livre manquants dans l'API Google"
+    msgGoogleAPI404Params: "Détails du livre manquants dans l'API Google",
+    msgBookAlreadyRequested: 'Réservez déjà demandé',
+    msgLibraryClosedTomorrow: 'La bibliothèque est fermée demain'
 }

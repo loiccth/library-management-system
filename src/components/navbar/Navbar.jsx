@@ -30,22 +30,27 @@ const Navbar = (props) => {
     const [anchorE2, setAnchorE2] = useState(null)
     const { t } = useTranslation()
 
+    // Open user menu
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget)
     }
 
+    // Open language menu
     const handleLanguage = (event) => {
         setAnchorE2(event.currentTarget)
     }
 
+    // Close user menu
     const handleClose = () => {
         setAnchorEl(null)
     }
 
+    // Close language menu
     const handleCloseLanguage = () => {
         setAnchorE2(null)
     }
 
+    // Set locale when languauge is changed
     const handleMenuItemClick = (lang) => {
         let temp = ''
         if (lang === 'en')
@@ -57,11 +62,15 @@ const Navbar = (props) => {
         else if (lang === 'ar')
             temp = 'arEG'
 
+        // Close language menu
         setAnchorE2(null)
+        // Change language
         i18n.changeLanguage(lang)
+        // Change locale
         props.handleLocale(temp)
     }
 
+    // Logout button click, send logout request
     const handleLogout = () => {
         analytics('action', 'logout success')
         axios.get(`${url}/users/logout`, { withCredentials: true })

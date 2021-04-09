@@ -7,6 +7,7 @@ import AdminReports from './admin'
 const Reports = ({ user, locale }) => {
     const navigate = useNavigate()
 
+    // Redirect if user is not a librarian or admin
     if (user.memberType !== 'Librarian' && user.memberType !== 'Admin') {
         navigate('/dashboard', { replace: true })
     }

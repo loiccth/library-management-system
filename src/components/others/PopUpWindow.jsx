@@ -12,6 +12,9 @@ import {
     useTheme
 } from '@material-ui/core'
 
+// Popup window when using csv files
+// This will display the result of the csv file
+// the number of success and failed attempt
 const PopUpWindow = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()

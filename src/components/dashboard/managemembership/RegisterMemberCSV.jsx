@@ -24,10 +24,12 @@ const RegisterMemberCSV = () => {
     const { handleSubmit, errors, reset, control } = useForm()
     const { t } = useTranslation()
 
+    // Open window to display result
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close window
     const handleClose = () => {
         setOpen(false)
         setResult({
@@ -36,6 +38,7 @@ const RegisterMemberCSV = () => {
         })
     }
 
+    // Upload csv file to register members
     const onSubmit = (data) => {
         const dataForm = new FormData()
         dataForm.append('csv', data.csv[0])

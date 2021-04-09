@@ -41,6 +41,7 @@ const ManageBooks = ({ user, locale }) => {
     const [openSnack, setOpenSnack] = useState(false)
     const { t } = useTranslation()
 
+    // On page load, get list of locations, categories and requested books
     useEffect(() => {
         axios.get(`${url}/settings/locations`, { withCredentials: true })
             .then(locations => {
@@ -59,14 +60,17 @@ const ManageBooks = ({ user, locale }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpenSnack(true)
     }
 
+    // Close snackbar
     const handleClose = () => {
         setOpenSnack(false)
     }
 
+    // Update state when switch is clicked
     const handleChange = (e) => {
         setOptions({
             ...options,
@@ -74,6 +78,7 @@ const ManageBooks = ({ user, locale }) => {
         })
     }
 
+    // Remove requested book
     const handleRemove = (id) => {
         axios.delete(`${url}/books/request/${id}`, { withCredentials: true })
             .then(result => {
@@ -90,10 +95,12 @@ const ManageBooks = ({ user, locale }) => {
                 })
             })
             .finally(() => {
+                // Show snackbar
                 handleClick()
             })
     }
 
+    // If user is not a librarian redirect to main dashboard page
     if (user.memberType !== 'Librarian') {
         navigate('/dashboard', { replace: true })
     }

@@ -19,6 +19,7 @@ Configure your settings
 
 ## Run dev server
 
+Install development dependencies
 Run dev server using Concurrently
 
 ```bash
@@ -30,3 +31,4 @@ npm run dev
 1. NodeJS
 2. MongoDB Server
 3. SMTP Server
+4. Twilio API

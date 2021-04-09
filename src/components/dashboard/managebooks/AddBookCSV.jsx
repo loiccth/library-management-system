@@ -24,10 +24,12 @@ const AddBookCSV = () => {
     const { handleSubmit, errors, reset, control } = useForm()
     const { t } = useTranslation()
 
+    // Open window to display result
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close window
     const handleClose = () => {
         setOpen(false)
         setResult({
@@ -36,6 +38,7 @@ const AddBookCSV = () => {
         })
     }
 
+    // Send csv file to the server
     const onSubmit = (data) => {
         const dataForm = new FormData()
         dataForm.append('csv', data.csv[0])

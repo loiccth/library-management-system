@@ -24,20 +24,24 @@ const Login = (props) => {
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true);
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false);
     }
 
+    // Login button pressed send userid and password to server
     const onSubmit = (data) => {
         axios.post(`${url}/users/login`, data, { withCredentials: true })
             .then(result => {
                 props.handleLogin(result.data)
             })
             .catch(err => {
+                // Incorrct credentials
                 analytics('action', `login attempt failed - memberid: ${data.userid}`)
                 setSnackbar(t(err.response.data.error))
                 handleClick()

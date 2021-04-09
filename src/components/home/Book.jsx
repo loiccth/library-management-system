@@ -44,21 +44,26 @@ const Book = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Open snackbar message for feedback
     const handleClick = () => {
         setOpenSnack(true)
     }
 
+    // Close snackbar message
     const handleClose = () => {
         setOpenSnack(false)
     }
 
+    // Open confirmation window
     const handleToggle = () => {
         setOpen(!open)
     }
 
+    // Confirm window
     const handleConfirm = () => {
         setOpen(false)
 
+        // If there is no transaction, reserve book
         if (transaction === null) {
             axios.post(`${url}/books/reserve/${id}`, {}, { withCredentials: true })
                 .then(result => {
@@ -71,14 +76,14 @@ const Book = (props) => {
                 })
                 .catch(err => {
                     if (err.response.data.error === 'msgReserveMax') {
-                        analytics('action', { message: 'book reservation fail, max reservation', book: id })
+                        analytics('action', `book reservation failed, max reservation - id :${id}`)
                         setSnackbar({
                             type: 'warning',
                             msg: t(err.response.data.error, { max: err.response.data.max })
                         })
                     }
                     else {
-                        analytics('action', { message: 'book reservation fail', book: id })
+                        analytics('action', `book reservation failed - id :${id}`)
                         setSnackbar({
                             type: 'warning',
                             msg: t(err.response.data.error)
@@ -91,6 +96,7 @@ const Book = (props) => {
                 })
         }
 
+        // If book has a reservation, cancel reservation
         else if (transaction === 'Reserve') {
             axios.patch(`${url}/books/cancel_reservation/${id}`, {}, { withCredentials: true })
                 .then(result => {
@@ -113,6 +119,7 @@ const Book = (props) => {
         }
     }
 
+    // Get book details
     const getBook = useCallback((id) => {
         axios.get(`${url}/books/${id}`, { withCredentials: true })
             .then(book => {
@@ -123,10 +130,12 @@ const Book = (props) => {
                     setTransaction(book.data.transaction)
             })
             .catch(err => {
+                // Book not found, redirect to home page
                 if (err.response.status === 404) navigate('/', { replace: true })
             })
     }, [navigate])
 
+    // Get book details when id is set
     useEffect(() => {
         getBook(id)
     }, [getBook, id])

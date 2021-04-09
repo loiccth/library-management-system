@@ -8,6 +8,7 @@ const baseOptions = {
     timestamps: true
 }
 
+// Base transaction schema, other schemas will inherit from this one
 const baseTransactionSchema = new Schema({
     userid: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     bookid: { type: Schema.Types.ObjectId, ref: 'Book', required: true },

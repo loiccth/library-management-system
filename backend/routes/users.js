@@ -22,17 +22,14 @@ const secret = process.env.JWT_SECRET
 // Login for users
 router.post('/login', (req, res) => {
     if (!req.body.userid || !req.body.password) {
-        return res.status(400).json({
-            error: 'msgLoginMissingParams'
-        })
+        return res.status(400).json({ error: 'msgLoginMissingParams' })
     }
 
     User.findOne({ 'userid': req.body.userid }).populate('udmid')
         .then(user => {
-            if (user === null) {
-                return res.status(401).json({
-                    error: 'msgLoginInvalidCred'
-                })
+            if (!user) {
+                // User not found
+                return res.status(401).json({ error: 'msgLoginInvalidCred' })
             }
             else {
                 const { email, phone } = user.udmid
@@ -47,7 +44,7 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else if (!req.body.email) return res.sendStatus(400)
     else {
-        Admin.findOne({ _id: req.user._id })
+        Admin.findById(req.user._id)
             .then(admin => {
                 admin.registerMember(req.body.email, res)
             })
@@ -55,16 +52,18 @@ router.post('/register', jwt({ secret, credentialsRequired: true, getToken: (req
     }
 })
 
+// Register members by csv file
 router.post('/register_csv', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), upload.single('csv'), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else {
-        Admin.findOne({ _id: req.user._id })
+        Admin.findById(req.user._id)
             .then(admin => {
                 admin.registerCSV(req.file.path, res)
             })
     }
 })
 
+// Suspend/unsuspend user account
 router.post('/togglestatus', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else if (!req.body.userid) return res.status(400).json({ error: 'msgMissingParams' })
@@ -93,7 +92,7 @@ router.get('/account', jwt({ secret, credentialsRequired: false, getToken: (req)
 // Logout and remove cookie
 router.get('/logout', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user._id)
-        User.findOne({ _id: req.user._id })
+        User.findById(req.user._id)
             .then(user => {
                 if (user)
                     user.logout(res)
@@ -109,11 +108,10 @@ router.get('/logout', jwt({ secret, credentialsRequired: false, getToken: (req) 
 
 // Update password
 router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (!req.body.confirmpassword || !req.body.newpassword || !req.body.oldpassword)
-        return res.status(400).json({ error: 'msgMissingParams' })
+    if (!req.body.confirmpassword || !req.body.newpassword || !req.body.oldpassword) return res.status(400).json({ error: 'msgMissingParams' })
     else if (req.body.newpassword !== req.body.confirmpassword) return res.status(400).json({ error: 'msgPasswordChangeNewPassNotMatch' })
     else if (req.body.newpassword === req.body.oldpassword || req.body.confirmpassword === req.body.oldpassword) return res.status(400).json({ error: 'msgPasswordChangeOldNew' })
-    User.findOne({ _id: req.user._id })
+    User.findById(req.user._id)
         .then(user => user.changePassword(req.body.oldpassword, req.body.newpassword, res))
         .catch(err => console.log(err))
 })
@@ -121,6 +119,7 @@ router.patch('/', jwt({ secret, credentialsRequired: true, getToken: (req) => { 
 // Forgot my password
 router.patch('/reset', (req, res) => {
     if (!req.body.userid) return res.status(400).json({ error: 'msgMissingParams' })
+    // Validate recapcha challenge
     axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SITEKEY}&response=${req.body.reCaptcha}`)
         .then(result => {
             if (result.data.success) {
@@ -135,6 +134,7 @@ router.patch('/reset', (req, res) => {
                     .catch(err => console.log(err))
             }
             else {
+                // Validation failed
                 res.status(400).json({ error: 'msgResetPwdReCaptchaFail' })
             }
         })
@@ -143,21 +143,19 @@ router.patch('/reset', (req, res) => {
 // Delete account - need admin priviledge
 router.delete('/:userid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
-
-    Member.findOneAndDelete({ 'userid': req.params.userid })
-        .then(() => res.json({
-            'success': true,
-            'userid': req.params.userid
-        }))
+    Member.findOneAndDelete({ userid: req.params.userid })
+        .then(() => res.json({ userid: req.params.userid }))
         .catch(err => console.log(err))
 })
 
+// User paid fine
 router.post('/payfine/:fineid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
 
     Payment.findById(req.params.fineid)
         .then(payment => {
             if (payment) {
+                // Check if fine already paid
                 if (!payment.paid) {
                     payment.paid = true
 
@@ -166,14 +164,17 @@ router.post('/payfine/:fineid', jwt({ secret, credentialsRequired: true, getToke
                     })
                 }
                 else
+                    // Already paid
                     res.status(400).json({ error: 'msgPaymentAlreadyPaid' })
             }
             else
+                // Fine record not found
                 res.status(404).json({ error: 'msgPayment404' })
         })
         .catch(err => console.log(err))
 })
 
+// Send notification to users with due/overdue books
 router.post('/notify', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else if (!req.body.books || !req.body.type) return res.status(400).json({ error: 'msgMissingParams' })
@@ -186,10 +187,12 @@ router.post('/notify', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
+// Search users
 router.post('/search', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else if (!req.body.userid) return res.json({ error: 'msgUserSearchEmpty' })
     else {
+        // Create regex to fuzzy search users
         const regex = new RegExp(escapeRegExp(req.body.userid), 'gi')
         User.find({ userid: regex }).select(['_id', 'userid', 'status'])
             .then(users => {
@@ -200,6 +203,7 @@ router.post('/search', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
+// Get list of fines
 router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
@@ -215,10 +219,12 @@ router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => 
     }
 })
 
+// Generate members report
 router.post('/membersreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Admin.findOne({ _id: req.user._id })
+        Admin.findById(req.user._id)
             .then(admin => {
                 admin.getMembersReport(req.body.from, req.body.to, res)
             })

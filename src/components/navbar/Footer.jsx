@@ -22,10 +22,12 @@ const Footer = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Open pop up window for rules and regulations
     const handleOpen = () => {
         setOpen(true)
     }
 
+    // Close pop up window for rules and regulations
     const handleClose = () => {
         setOpen(false)
     }

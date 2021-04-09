@@ -23,7 +23,7 @@ const AdminReports = ({ locale }) => {
             setMembers(getMembers)
             setFilteredMembers(getMembers)
 
-            getAnalyticsReport(firstDay, new Date())
+            getAnalyticsReport(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), new Date())
 
             setLoading(false)
         }
@@ -32,6 +32,7 @@ const AdminReports = ({ locale }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Set filter type for member report
     const handleMembersChange = (e) => {
         setFilterMembers({
             [e.target.name]: e.target.value
@@ -39,6 +40,7 @@ const AdminReports = ({ locale }) => {
         handleFilterMembers(e.target.value)
     }
 
+    // Filter members
     const handleFilterMembers = (value) => {
         if (value === 'All')
             setFilteredMembers([...members])
@@ -46,6 +48,7 @@ const AdminReports = ({ locale }) => {
             setFilteredMembers(members.filter(record => record.Status === value))
     }
 
+    // Get new data when date range is updated
     const getNewMembersReport = async (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             const getMembers = await getMembersReport(date[0], date[1])
@@ -58,6 +61,7 @@ const AdminReports = ({ locale }) => {
         }
     }
 
+    // Function to get data
     const getMembersReport = async (from, to) => {
         const getMembers = await axios.post(`${url}/users/membersreport`, { from, to }, { withCredentials: true })
 
@@ -83,6 +87,7 @@ const AdminReports = ({ locale }) => {
         return temp
     }
 
+    // Get analytics report within range
     const getAnalyticsReport = (from, to) => {
         axios.post(`${url}/analytics/report`, { from, to }, { withCredentials: true })
             .then(result => {
@@ -91,6 +96,7 @@ const AdminReports = ({ locale }) => {
             })
     }
 
+    // Get new data for analytics when date range is updated
     const getNewAnalyticsReport = (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             getAnalyticsReport(date[0], date[1])

@@ -10,6 +10,7 @@ const LoginPage = (props) => {
     const classes = useStyles()
     const navigate = useNavigate()
 
+    // If user is already logged in, redirect to their dashboard on login page load
     if (props.user.isLoggedIn) {
         navigate('/dashboard', { replace: true })
     }

@@ -36,6 +36,8 @@ const Copies = (props) => {
         setOpen(false);
     }
 
+    // When remove copies form is submit check if any copies is checked before
+    // sending data to the backend server
     const onSubmit = (data) => {
         let isChecked = false
         data.copies.map(copy => {
@@ -44,6 +46,7 @@ const Copies = (props) => {
             return copy
         })
 
+        // If no copy is checked display error
         if (!isChecked) {
             setSnackbar({
                 type: 'warning',
@@ -52,6 +55,7 @@ const Copies = (props) => {
             handleClick()
         }
         else {
+            // Else remove copy
             axios.post(`${url}/books/remove`, data, { withCredentials: true })
                 .then(result => {
                     setSnackbar({
@@ -69,6 +73,7 @@ const Copies = (props) => {
                 .finally(() => {
                     handleClick()
                 })
+            // Call deleteCopies function to remove from table
             props.deleteCopies(data)
             reset()
         }

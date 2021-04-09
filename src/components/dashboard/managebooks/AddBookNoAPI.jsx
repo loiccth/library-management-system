@@ -20,6 +20,7 @@ import { LocalizationProvider, DatePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 
+// Date locale
 const localeMap = {
     enUS: enGB,
     frFR: fr,
@@ -27,6 +28,7 @@ const localeMap = {
     arEG: arSA
 }
 
+// Date mask
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
@@ -57,14 +59,17 @@ const AddBookNoAPI = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [watch('campus')])
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true);
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false);
     }
 
+    // Add book to database
     const onSubmit = (data) => {
         console.log(data)
         axios.post(`${url}/books/add_single`, data, { withCredentials: true })

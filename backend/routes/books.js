@@ -19,24 +19,30 @@ const escapeRegExp = require('../function/escapeRegExp')
 const axios = require('axios')
 const secret = process.env.JWT_SECRET
 
-// Add a single book
+// Add a single book to the database
+// It can validate using GoogleAPI or not use GoogleAPI
 router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     const { title, authors, isbn, publisher, publishedDate, category, description, noOfPages, location, campus, noOfCopies } = req.body
+    // Check if requires API validation
     const APIValidation = req.body.APIValidation === 'true'
 
+    // Check if user is a librarian
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else if (APIValidation) {
+        // Validate user inputs for api validation
         if (!location || !campus || !isbn || !noOfCopies || !category) return res.status(400).json({
             error: 'msgMissingParams'
         })
     }
     else if (!APIValidation) {
+        // Validate user inputs for maunal adding of book
         if (!title || !authors || !isbn || !publisher || !publishedDate || !category ||
             !description || !noOfPages || !location || !campus || !noOfCopies) return res.status(400).json({
                 error: 'msgMissingParams'
             })
     }
-    Librarian.findOne({ _id: req.user._id })
+    // If everything is good, call function addBook from librarian model
+    Librarian.findById(req.user._id)
         .then(librarian => {
             librarian.addBook(req.body, APIValidation, res)
         })
@@ -44,20 +50,25 @@ router.post('/add_single', jwt({ secret, credentialsRequired: true, getToken: (r
 
 // Add multiple book from csv file
 router.post('/add', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), upload.single('csv'), (req, res) => {
+    // Check if account is a librarian
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
-        Librarian.findOne({ _id: req.user._id })
+        // Call addBookCSV function from librarian model
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.addBookCSV(req.file.path, res)
             })
     }
 })
 
+// Edit book details
 router.put('/edit', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    // Check if isbn is supplied
     else if (!req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Librarian.findOne({ _id: req.user._id })
+        // Call edit book function
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.editBook(req.body, res)
             })
@@ -66,7 +77,7 @@ router.put('/edit', jwt({ secret, credentialsRequired: true, getToken: (req) => 
 
 // Reserve a book
 router.post('/reserve/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ _id: req.user._id })
+    User.findById(req.user._id)
         .then(user => {
             user.reserveBook(req.params.bookid, res)
         })
@@ -74,7 +85,7 @@ router.post('/reserve/:bookid', jwt({ secret, credentialsRequired: true, getToke
 
 // Cancel a book reservation
 router.patch('/cancel_reservation/:bookid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ _id: req.user._id })
+    User.findById(req.user._id)
         .then(user => {
             user.cancelReservation(req.params.bookid, res)
         })
@@ -82,7 +93,7 @@ router.patch('/cancel_reservation/:bookid', jwt({ secret, credentialsRequired: t
 
 // Renew a borrowed book
 router.post('/renew/:borrowid', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ _id: req.user._id })
+    User.findById(req.user._id)
         .then(user => {
             user.renewBook(req.params.borrowid, res)
         })
@@ -93,7 +104,7 @@ router.post('/return_book', jwt({ secret, credentialsRequired: true, getToken: (
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else if (!req.body.userid || !req.body.isbn || !req.body.campus) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.returnBook(req.body.isbn, req.body.userid, req.body.campus, res)
             })
@@ -102,7 +113,7 @@ router.post('/return_book', jwt({ secret, credentialsRequired: true, getToken: (
 
 // Get all reserved books for a user
 router.get('/reserved', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ _id: req.user._id })
+    User.findById(req.user._id)
         .then(user => {
             user.getReservedBooks(res)
         })
@@ -110,7 +121,7 @@ router.get('/reserved', jwt({ secret, credentialsRequired: true, getToken: (req)
 
 // Get all borrowed books for a user
 router.get('/borrowed', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    User.findOne({ _id: req.user._id })
+    User.findById(req.user._id)
         .then(user => {
             user.getBorrowedBooks(res)
         })
@@ -130,8 +141,9 @@ router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) =
 
 // Search book
 router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (req.body.search === undefined) return res.json({ 'error': 'Empty search query' })
+    if (!req.body.search) return res.json({ 'error': 'Empty search query' })
     else {
+        // Create a regex to do fuzzy search
         const regex = new RegExp(escapeRegExp(req.body.search), 'gi')
         if (!req.body.category || req.body.category === 'All')
             Book.find({ [req.body.searchType]: regex, 'copies.0': { $exists: true } })
@@ -148,7 +160,7 @@ router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req)
 router.get('/overdue', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.getOverdueBooks(res)
             })
@@ -156,10 +168,12 @@ router.get('/overdue', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
+// Get transactions report within date range
 router.post('/transactionsreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.getTransactionsReport(req.body.from, req.body.to, res)
             })
@@ -167,10 +181,12 @@ router.post('/transactionsreport', jwt({ secret, credentialsRequired: true, getT
     }
 })
 
+// Get payment report within date range
 router.post('/paymentssreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.getPaymentsReport(req.body.from, req.body.to, res)
             })
@@ -178,10 +194,12 @@ router.post('/paymentssreport', jwt({ secret, credentialsRequired: true, getToke
     }
 })
 
+// Get book reports within date range
 router.post('/booksreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.getBooksReport(req.body.from, req.body.to, res)
             })
@@ -192,9 +210,9 @@ router.post('/booksreport', jwt({ secret, credentialsRequired: true, getToken: (
 // Get list of books due
 router.post('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (req.body.from === undefined || req.body.to === undefined) return res.status(400).json({ 'error': 'Missing date param.' })
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.getDueBooks(req.body.from, req.body.to, res)
             })
@@ -206,7 +224,7 @@ router.post('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => 
 router.get('/reservation', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
-        Librarian.findOne({ _id: req.user._id })
+        Librarian.findById(req.user._id)
             .then(librarian => {
                 librarian.getReservations(res)
             })
@@ -217,7 +235,7 @@ router.get('/reservation', jwt({ secret, credentialsRequired: true, getToken: (r
 // Remove book
 router.post('/remove', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
-    else if (req.body.copies || req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
+    else if (!req.body.copies || !req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
     else {
         Librarian.findById(req.user._id)
             .then(librarian => {
@@ -236,9 +254,11 @@ router.get('/', (req, res) => {
         .catch(err => console.log(err))
 })
 
+// Get list of requested books by academic staffs
 router.get('/request', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
+        // Get their faculty, first name and last name
         Request.find()
             .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['faculty', 'firstName', 'lastName'] } })
             .then(requests => res.json(requests))
@@ -246,6 +266,7 @@ router.get('/request', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
+// Remove requested book
 router.delete('/request/:id', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
@@ -265,63 +286,32 @@ router.delete('/request/:id', jwt({ secret, credentialsRequired: true, getToken:
     }
 })
 
+// Request a book for academic staff
 router.post('/request', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'MemberA') return res.sendStatus(403)
     else if (!req.body.isbn) return res.status(400).json({ error: 'msgMissingParams' })
     else {
-        Book.findOne({ isbn: req.body.isbn })
-            .then(book => {
-                if (!book) {
-                    axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${req.body.isbn}`)
-                        .then(result => {
-                            if (result.data.totalItems === 0) return res.status(404).json({ error: 'msgGoogleAPI404' })
-                            else {
-                                const newRequest = new Request({
-                                    userid: req.user._id,
-                                    isbn: req.body.isbn,
-                                    title: result.data.items[0].volumeInfo.title,
-                                    author: result.data.items[0].volumeInfo.authors,
-                                    publisher: result.data.items[0].volumeInfo.publisher,
-                                    publishedDate: result.data.items[0].volumeInfo.publishedDate
-                                })
-
-                                newRequest.save()
-                                    .then(request => {
-                                        res.json({
-                                            message: 'msgRequestSuccess',
-                                            request
-                                        })
-                                    })
-                                    .catch(err => {
-                                        res.json({
-                                            error: 'msgUnexpectedError'
-                                        })
-                                        console.log(err)
-                                    })
-                            }
-                        })
-                }
-                else
-                    res.status(400).json({
-                        error: 'msgBookAlreadyAvailable'
-                    })
-            })
+        MemberA.findById(req.user._id)
+            .then(user => user.requestBook(req.body.isbn, res))
             .catch(err => console.log(err))
     }
 })
 
 // Get an individual book by id
 router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    // Check if the id supplied is a valid ObjectID from mongoose
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.sendStatus(404)
     else {
         Book.findById(req.params.id)
             .then(async book => {
-                if (book === null) return res.sendStatus(404)
+                // Book not found
+                if (!book) return res.sendStatus(404)
                 else {
                     let response = {
                         book
                     }
                     if (req.user) {
+                        // Find if this user has a transaction with that particular book
                         const transaction = await Transaction.findOne({ userid: req.user._id, bookid: req.params.id, status: 'active' })
 
                         if (transaction !== null) {
@@ -333,6 +323,7 @@ router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => 
                             if (transaction.transactionType === 'Reserve') {
                                 let position
 
+                                // Find the position in reservation queue if user has a reservation
                                 for (let i = 0; i < book.reservation.length; i++) {
                                     if (req.user._id === String(book.reservation[i].userid)) {
                                         position = i + 1
@@ -347,6 +338,7 @@ router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => 
                             }
                         }
                     }
+                    // Send response to the client
                     res.json(response)
                 }
             })

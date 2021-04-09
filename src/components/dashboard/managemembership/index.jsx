@@ -20,10 +20,12 @@ const ManageMembership = (props) => {
     const [csv, setCsv] = useState(true)
     const { t } = useTranslation()
 
+    // Toggle between manual or csv
     const handleChange = () => {
         setCsv(!csv)
     }
 
+    // Redirect if user is not an admin
     if (props.user.memberType !== 'Admin') {
         navigate('/dashboard', { replace: true })
     }

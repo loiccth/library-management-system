@@ -9,6 +9,8 @@ const SessionsChart = ({ sessions }) => {
     const theme = useTheme()
     const { t } = useTranslation()
 
+    // Set data for barchart
+    // Use translators for labels for multilingual support
     const data = {
         labels: sessions.labels,
         datasets: [

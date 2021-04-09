@@ -10,8 +10,9 @@ const Setting = require('../setting.model')
 const csv = require('csv-parser')
 const fs = require('fs')
 const transporter = require('../../config/mail.config')
-const twilio = require('twilio')
 const checkHolidays = require('../../function/checkHolidays')
+const borrowBook = require('../../function/borrowBook')
+const sendSMS = require('../../function/sendSMS')
 
 const Schema = mongoose.Schema
 
@@ -20,8 +21,10 @@ const librarianSchema = new Schema()
 librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
     const bookBorrowed = await Borrow.findOne({ bookid, userid: this._id, status: 'active' })
 
+    // If already borrowed same book, return error
     if (bookBorrowed !== null) return res.status(400).json({ error: 'msgBorrowMultiple' })
     else {
+        // Get number of books borrowed this month and get book limit from settings
         const date = new Date()
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
@@ -29,117 +32,18 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
         const userSettings = await Setting.findOne({ setting: 'USER' })
         const bookLimit = userSettings.options.non_academic_borrow.value
 
+        // Check if book limit reached return error
         if (numOfBooksBorrowed >= bookLimit) return res.status(400).json({
             error: 'msgBorrowLibrarianLimit',
             limit: bookLimit
         })
-        else {
-
-            const numOfHighDemandBooksBorrowed = await Borrow.countDocuments({ userid: this._id, status: 'active', isHighDemand: true })
-
-            if (numOfHighDemandBooksBorrowed <= 0) {
-                const now = new Date()
-                const bookReserved = await Reserve.findOne({ bookid, userid: this._id, status: 'active', expireAt: { $gte: now } })
-
-                Book.findById(bookid)
-                    .then(async book => {
-                        let dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                        if (book.isHighDemand === true) {
-                            const tomorrow = new Date()
-                            tomorrow.setDate(tomorrow.getDate() + 2)
-                            tomorrow.setHours(0, 0, 0, 0)
-
-                            // TODO check this
-                            if (libraryOpenTime === 0) return res.status(400).json({ error: 'msgBorrowHighDemand' })
-                            else dueDate = tomorrow.setSeconds(libraryOpenTime + 1800)
-                        }
-
-                        if (bookReserved !== null) {
-                            bookReserved.status = 'archive'
-                            bookReserved.save().catch(err => console.log(err))
-
-                            for (let j = 0; j < book.reservation.length; j++) {
-                                if (book.reservation[j].userid.toString() === this._id.toString()) {
-                                    for (let i = 0; i < book.copies.length; i++) {
-                                        if (book.copies[i].availability === 'onhold') {
-                                            book.noOfBooksOnLoan++
-                                            book.noOfBooksOnHold++
-                                            book.copies[i].availability = 'onloan'
-                                            book.copies[i].borrower = {
-                                                userid: this._id,
-                                                borrowAt: Date(),
-                                                dueDate,
-                                                renews: 0
-                                            }
-                                            book.reservation.splice(j, 1)
-                                            await book.save().catch(err => console.log(err))
-
-                                            const newBorrow = new Borrow({
-                                                userid: this._id,
-                                                bookid,
-                                                copyid: book.copies[i]._id,
-                                                dueDate,
-                                                isHighDemand: book.isHighDemand
-                                            })
-                                            await newBorrow.save().then(() => {
-                                                return res.status(201).json({
-                                                    message: 'msgBorrowSuccess',
-                                                    title: book.title,
-                                                    dueDate: new Date(dueDate),
-                                                    reservationid: bookReserved._id
-                                                })
-                                            }).catch(err => console.log(err))
-                                            break
-                                        }
-                                    }
-                                    break
-                                }
-                                else res.status(400).json({ error: 'msgBorrowQueue' })
-                            }
-                        }
-                        else {
-                            if (book.copies.length > book.noOfBooksOnLoan + book.noOfBooksOnHold)
-                                for (let i = 0; i < book.copies.length; i++) {
-                                    if (book.copies[i].availability === 'available') {
-                                        book.noOfBooksOnLoan++
-                                        book.copies[i].availability = 'onloan'
-                                        book.copies[i].borrower = {
-                                            userid: this._id,
-                                            borrowAt: Date(),
-                                            dueDate,
-                                            renews: 0
-                                        }
-                                        await book.save().catch(err => console.log(err))
-
-                                        const newBorrow = new Borrow({
-                                            userid: this._id,
-                                            bookid,
-                                            copyid: book.copies[i]._id,
-                                            dueDate,
-                                            isHighDemand: book.isHighDemand
-                                        })
-                                        await newBorrow.save().then(() => {
-                                            return res.status(201).json({
-                                                message: 'msgBorrowSuccess',
-                                                title: book.title,
-                                                dueDate: new Date(dueDate)
-                                            })
-                                        }).catch(err => console.log(err))
-                                        break
-                                    }
-                                }
-                            else
-                                res.status(400).json({ error: 'msgBorrowNotAvailable' })
-                        }
-                    })
-            }
-            else
-                res.status(400).json({ error: 'msgBorrowMoreHighDemand' })
-        }
+        else
+            borrowBook(this._id, bookid, libraryOpenTime, res)
     }
 }
 
 librarianSchema.methods.addBook = async function (book, APIValidation, res) {
+    // Get list of locations and categories from database
     let pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
     let rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
     let categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
@@ -152,6 +56,7 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
 
     let googleBookAPI
 
+    // Validate user inputs
     if (isbn.length !== 10 && isbn.length !== 13)
         return res.status(400).json({ error: 'msgInvalidISBNLength' })
     else if (campus !== 'pam' && campus !== 'rhill')
@@ -163,29 +68,35 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
     else if (noOfCopies < 1)
         return res.status(400).json({ error: 'msgInvalidCopies' })
     else if (APIValidation) {
+        // Check if book is found on GoogleAPI
         googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
         if (googleBookAPI.data.totalItems === 0) return res.status(404).json({ error: 'msgGoogleAPI404' })
     }
     Book.findOne({ isbn })
         .then(result => {
+            // Trim user input
             isbn = isbn.trim()
             category = category.trim()
             campus = campus.trim()
             location = location.trim()
 
+            // If book is not already in database
             if (!result) {
                 let image, secureImg
 
                 if (APIValidation) {
                     try {
+                        // Get thumbnail from GoogleAPI
                         image = googleBookAPI.data.items[0].volumeInfo.imageLinks.thumbnail
                         secureImg = image.replace('http:', 'https:')
                     }
                     catch (e) {
+                        // Catch undefined error
                         return res.status(400).json({ error: 'msgThumbnail404' })
                     }
                 }
 
+                // Create a new book
                 const newBook = new Book({
                     title: APIValidation ? googleBookAPI.data.items[0].volumeInfo.title : book.title,
                     author: APIValidation ? googleBookAPI.data.items[0].volumeInfo.authors : book.authors,
@@ -200,9 +111,12 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                     campus,
                     copies: []
                 })
+                // Add number of copies the librarian specified
                 for (let i = 0; i < noOfCopies; i++)
                     newBook.copies.push({})
 
+                // Save the book to database
+                // Catch error if some params are missing from GoogleAPI
                 try {
                     newBook.save()
                         .then(() => res.status(201).json({
@@ -220,6 +134,8 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
                     res.status(400).json({ error: 'msgGoogleAPI404Params' })
                 }
             }
+            // If book is already in database, add copies
+            // save to database and send response
             else {
                 for (let i = 0; i < noOfCopies; i++)
                     result.copies.push({})
@@ -235,6 +151,7 @@ librarianSchema.methods.addBook = async function (book, APIValidation, res) {
 }
 
 librarianSchema.methods.addBookCSV = async function (file, res) {
+    // Get list of locations and categories from database
     let pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
     let rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
     let categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
@@ -258,6 +175,7 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
 
                 const googleBookAPI = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
 
+                // Validate user inputs
                 if (!isbn || (isbn.length !== 10 && isbn.length !== 13))
                     resolve(fail.push(`Row ${count}: ${isbn} - Invalid ISBN`))
                 else if (!campus || (campus !== 'pam' && campus !== 'rhill'))
@@ -271,38 +189,48 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
                 else if (googleBookAPI.data.totalItems === 0)
                     resolve(fail.push(`Row ${count}: ${isbn} - Invalid ISBN`))
                 else {
+                    // Trim user inputs
                     isbn = isbn.trim()
                     category = category.trim()
                     campus = campus.trim()
                     location = location.trim()
 
-                    await Book.findOne({ isbn })
+                    Book.findOne({ isbn })
                         .then(async (book) => {
-                            const { title, authors, publisher, publishedDate, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
-                            if (book === null) {
-                                let image = imageLinks.thumbnail
-                                let secureImg = image.replace('http:', 'https:')
+                            if (!book) {
+                                // Try catch any error caused by GoogleAPI missing params
+                                try {
+                                    const { title, authors, publisher, publishedDate, description, pageCount, imageLinks } = googleBookAPI.data.items[0].volumeInfo
+                                    let image = imageLinks.thumbnail
+                                    let secureImg = image.replace('http:', 'https:')
 
-                                const newBook = new Book({
-                                    title,
-                                    author: authors,
-                                    isbn,
-                                    publisher,
-                                    publishedDate,
-                                    category,
-                                    description,
-                                    noOfPages: pageCount,
-                                    thumbnail: secureImg,
-                                    location,
-                                    campus,
-                                    copies: []
-                                })
-                                for (let i = 0; i < noOfCopies; i++)
-                                    newBook.copies.push({})
-                                newBook.save()
-                                    .then(() => resolve(success.push(`Row ${count}: ${isbn} - ${title}`)))
-                                    .catch(err => resolve(fail.push(`Row ${count}: ${isbn} - ${err.message}`)))
+                                    // Create new book and add number of copies specified in csv file
+                                    const newBook = new Book({
+                                        title,
+                                        author: authors,
+                                        isbn,
+                                        publisher,
+                                        publishedDate,
+                                        category,
+                                        description,
+                                        noOfPages: pageCount,
+                                        thumbnail: secureImg,
+                                        location,
+                                        campus,
+                                        copies: []
+                                    })
+                                    for (let i = 0; i < noOfCopies; i++)
+                                        newBook.copies.push({})
+                                    newBook.save()
+                                        .then(() => resolve(success.push(`Row ${count}: ${isbn} - ${title}`)))
+                                        .catch(err => resolve(fail.push(`Row ${count}: ${isbn} - ${err.message}`)))
+                                }
+                                catch (e) {
+                                    resolve(fail.push(`Row ${count}: ${isbn} - Missing params in GoogleAPI`))
+                                }
                             }
+                            // Book already available in database, add copies
+                            // save to database
                             else {
                                 for (let i = 0; i < noOfCopies; i++)
                                     book.copies.push({})
@@ -317,6 +245,7 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
             temp++
         })
         .on('end', () => {
+            // After all data is processed sort success and fail array and response to client
             Promise.all(promises)
                 .then(() => {
 
@@ -332,6 +261,7 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
 }
 
 librarianSchema.methods.editBook = async function (bookDetails, res) {
+    // Get list of locations and categories from database
     let pamLocation = await Setting.findOne({ 'setting': 'PAM_LOCATIONS' }).select('options')
     let rhillLocation = await Setting.findOne({ 'setting': 'RHILL_LOCATIONS' }).select('options')
     let categories = await Setting.findOne({ 'setting': 'CATEGORIES' }).select('options')
@@ -342,15 +272,18 @@ librarianSchema.methods.editBook = async function (bookDetails, res) {
 
     const { isbn } = bookDetails
 
+    // Find book in database
     Book.findOne({ isbn })
         .then(book => {
-            if (book === null) return res.sendStatus(404)
+            // Book not found
+            if (!book) return res.sendStatus(404)
             else {
                 const { title, publisher, publishedDate, description, noOfPages, location, campus, category } = bookDetails
                 const author = bookDetails.author.split(',').map(item => {
                     return item.trim()
                 })
 
+                // Validate campus, location and category
                 if (campus !== 'pam' && campus !== 'rhill')
                     return res.status(404).json({ error: 'msgInvalidCampus' })
                 else if (!pamLocation.includes(location) && !rhillLocation.includes(location))
@@ -358,6 +291,7 @@ librarianSchema.methods.editBook = async function (bookDetails, res) {
                 else if (!categories.includes(category))
                     return res.status(404).json({ error: 'msgInvalidCategory' })
 
+                // Update book details
                 book.title = title
                 book.publisher = publisher
                 book.publishedDate = publishedDate
@@ -368,13 +302,20 @@ librarianSchema.methods.editBook = async function (bookDetails, res) {
                 book.author = author
                 book.category = category
 
-                book.save().then(() => res.json({ message: 'msgEditBookSuccess' }))
+                // Save book to database and send response
+                try {
+                    book.save().then(() => res.json({ message: 'msgEditBookSuccess' }))
+                }
+                catch (err) {
+                    res.status(400).json({ error: 'msgMissingParams' })
+                }
             }
         })
         .catch(err => console.log(err))
 }
 
 librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) {
+    // Get opening and closing hours of the library from database
     let today = new Date()
     today.setHours(0, 0, 0, 0)
     let dayOfWeek = today.getDay()
@@ -389,28 +330,36 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
     const libraryOpenTime = openSettings.options[dayOfWeek].time
     const libraryCloseTime = closeSettings.options[dayOfWeek].time
 
+    // Calculate opening and closing hours
     const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
     const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
 
+    // Check if library is closed or not
     if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.status(400).json({ error: 'msgLibraryClosed' })
     else if (new Date() <= openTime || new Date() >= closeTime) return res.status(400).json({ error: 'msgLibraryClosed' })
     else {
         User.findOne({ userid })
             .then(user => {
+                // Find user
                 if (user) {
                     Book.findOne({ isbn })
+                        // Find book
                         .then(async book => {
                             if (book) {
+                                // Find borrow transaction
                                 Borrow.findOne({ bookid: book._id, userid: user._id, status: 'active' })
                                     .then(async borrow => {
                                         if (borrow) {
+                                            // Validates the campus of the book
                                             if (book.campus === campus) {
+                                                // Get fine per day from database
                                                 const bookSettings = await Setting.findOne({ setting: 'BOOK' })
                                                 let numOfDays
                                                 const finePerDay = bookSettings.options.fine_per_day.value
                                                 const timeOnHold = bookSettings.options.time_onhold.value
                                                 let payment
 
+                                                // Set returned date in database and mark transaction as archive
                                                 borrow.returnedOn = Date()
                                                 borrow.status = 'archive'
 
@@ -418,11 +367,13 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                 const borrowDate = new Date(borrow.dueDate.toDateString())
                                                 numOfDays = ((now.getTime() - borrowDate.getTime()) / (24 * 60 * 60 * 1000))
 
+                                                // Calculate fine for high demand
                                                 if (borrow.isHighDemand) {
                                                     if (new Date() > new Date(borrow.dueDate))
                                                         numOfDays++
                                                 }
 
+                                                // If book is overdue, create a payment record
                                                 if (numOfDays > 0) {
 
                                                     const newPayment = new Payment({
@@ -448,6 +399,8 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                 for (let i = 0; i < book.copies.length; i++) {
                                                     if (book.copies[i].borrower.userid) {
                                                         if (book.copies[i].borrower.userid.toString() === borrow.userid.toString()) {
+                                                            // If book has reservation
+                                                            // mark book as onhold, inform next member in queue and set expiry date
                                                             if (book.reservation.length - book.noOfBooksOnHold > 0) {
                                                                 book.copies[i].availability = 'onhold'
                                                                 book.copies[i].borrower = null
@@ -455,6 +408,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                                 for (let j = 0; j < book.reservation.length; j++) {
                                                                     if (book.reservation[j].expireAt === null) {
                                                                         let dueDate = new Date(new Date().getTime() + (timeOnHold * 1000))
+                                                                        // Check if due date is a public holiday or Sunday
                                                                         dueDate = await checkHolidays(dueDate)
 
                                                                         book.reservation[j].expireAt = dueDate
@@ -474,29 +428,21 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                                                             text: `Your reservation for book titled ${book.title} is now available.`
                                                                                         }
 
+                                                                                        // Send email notification
                                                                                         transporter.sendMail(mailNotification, (err, info) => {
                                                                                             if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
                                                                                         })
 
-                                                                                        const accountSid = process.env.TWILIO_SID
-                                                                                        const authToken = process.env.TWILIO_AUTH
-
-                                                                                        const client = new twilio(accountSid, authToken)
-
-                                                                                        client.messages.create({
-                                                                                            body: `Your reservation for book titled ${book.title} is now available.`,
-                                                                                            to: `+230${user.udmid.phone}`,
-                                                                                            from: process.env.TWILIO_PHONE
-                                                                                        })
-                                                                                            .catch(err => {
-                                                                                                console.log(err)
-                                                                                            })
+                                                                                        // Send SMS notification
+                                                                                        sendSMS(`Your reservation for book titled ${book.title} is now available.`,
+                                                                                            `+230${user.udmid.phone}`)
                                                                                     })
                                                                             })
                                                                         break
                                                                     }
                                                                 }
                                                             }
+                                                            // If there no is reservation, mark book as available
                                                             else {
                                                                 book.copies[i].availability = 'available'
                                                                 book.copies[i].borrower = null
@@ -506,6 +452,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                     }
                                                 }
 
+                                                // Save book to database and send response
                                                 book.save()
                                                     .then(() => {
                                                         res.json({
@@ -519,19 +466,23 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                     .catch(err => console.log(err))
                                             }
                                             else
+                                                // Returning book to the wrong campus
                                                 res.status(400).json({ error: 'msgReturnWrongCampus' })
                                         }
                                         else
+                                            // Borrow record not found
                                             res.status(404).json({ error: 'msgReturn404' })
                                     })
                                     .catch(err => console.log(err))
                             }
                             else
+                                // Book not found
                                 res.status(404).json({ error: 'msgReturnBook404' })
                         })
                         .catch(err => console.log(err))
                 }
                 else
+                    // Member not found
                     res.status(404).json({ error: 'msgReturnMember404' })
             })
     }
@@ -539,6 +490,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
 }
 
 librarianSchema.methods.getOverdueBooks = function (res) {
+    // Get list of overdue books
     const now = new Date(new Date().toDateString())
 
     Borrow.find({ status: 'active', dueDate: { $lt: now } })
@@ -549,6 +501,7 @@ librarianSchema.methods.getOverdueBooks = function (res) {
 }
 
 librarianSchema.methods.getDueBooks = function (from, to, res) {
+    // Get list of due books within a range
     const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
@@ -561,6 +514,7 @@ librarianSchema.methods.getDueBooks = function (from, to, res) {
 }
 
 librarianSchema.methods.getReservations = function (res) {
+    // Get list of reservations that needs to be issue in the next 2 days
     const now = new Date()
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2)
 
@@ -572,8 +526,10 @@ librarianSchema.methods.getReservations = function (res) {
 }
 
 librarianSchema.methods.issueBook = async function (isbn, userid, campus, res) {
+    // Get book info
     const book = await Book.findOne({ isbn }).select(['_id', 'isHighDemand', 'campus'])
 
+    // Get opening and closing hours from database
     let today = new Date()
     today.setHours(0, 0, 0, 0)
     let dayOfWeek = today.getDay()
@@ -588,29 +544,38 @@ librarianSchema.methods.issueBook = async function (isbn, userid, campus, res) {
     const libraryOpenTime = openSettings.options[dayOfWeek].time
     const libraryCloseTime = closeSettings.options[dayOfWeek].time
 
+    const tomorrowOpenTime = openSettings.options[dayOfWeek === 6 ? 0 : dayOfWeek + 1].time
+
+    // Set opening and closing hours
     const openTime = new Date(today.getTime() + (libraryOpenTime * 1000))
     const closeTime = new Date(today.getTime() + (libraryCloseTime * 1000))
 
+    // Verify if the library is closed
     if (libraryOpenTime === 0 && libraryCloseTime === 0) return res.status(400).json({ error: 'msgLibraryClosed' })
     else if (new Date() <= openTime || new Date() >= closeTime) return res.status(400).json({ error: 'msgLibraryClosed' })
     else {
         User.findOne({ userid })
             .then(user => {
                 if (!user)
+                    // User not found
                     res.status(404).json({ error: 'msgIssueMember404' })
                 else
                     if (book) {
                         if (book.campus === campus) {
+                            // If book is high demand, check if it is in time range to issue book
                             if (book.isHighDemand) {
                                 today.setSeconds(libraryCloseTime - 1800)
                                 if (today > new Date()) return res.status(400).json({ error: 'msgIssueHighDemand' })
                             }
-                            user.borrow(book._id, libraryOpenTime, res)
+                            // Call borrow function
+                            user.borrow(book._id, tomorrowOpenTime, res)
                         }
                         else
+                            // Wrong campus selected
                             res.status(400).json({ error: 'msgIssueWrongCampus' })
                     }
                     else
+                        // Book not found
                         res.status(404).json({ error: 'msgIssueBook404' })
             })
             .catch(err => console.log(err))
@@ -621,9 +586,11 @@ librarianSchema.methods.issueBook = async function (isbn, userid, campus, res) {
 librarianSchema.methods.removeBook = function (bookCopies, res) {
     const { copies } = bookCopies
     let count = 0
+    // Remove book copies and insert the reason they were removed
     Book.findOne({ isbn: bookCopies.isbn })
         .then(book => {
 
+            // Find the copy selected and remove from copies array and add them to the removed array
             for (let i = 0; i < copies.length; i++) {
                 if (!copies[i].checked)
                     continue
@@ -640,6 +607,7 @@ librarianSchema.methods.removeBook = function (bookCopies, res) {
                 }
             }
 
+            // Saved to database and send response
             book.save()
                 .then(() => {
                     res.json({
@@ -654,8 +622,6 @@ librarianSchema.methods.removeBook = function (bookCopies, res) {
 librarianSchema.methods.notify = async function (books, type, res) {
     let emailSent = []
 
-    console.log(books)
-
     for (let i = 0; i < books.length; i++) {
         if (books[i].checked) {
             const mailRegister = {
@@ -665,21 +631,12 @@ librarianSchema.methods.notify = async function (books, type, res) {
                 text: type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`
             }
 
-            const accountSid = process.env.TWILIO_SID
-            const authToken = process.env.TWILIO_AUTH
-
-            const client = new twilio(accountSid, authToken)
-
-            client.messages.create({
-                body: type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`,
-                to: `+230${books[i].phone}`,
-                from: process.env.TWILIO_PHONE
-            })
-                .catch(err => {
-                    console.log(err)
-                })
+            // Send SMS notification
+            sendSMS(type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`,
+                `+230${books[i].phone}`)
 
             try {
+                // Send email notification
                 await transporter.sendMail(mailRegister)
                 emailSent.push(books[i].userid)
             }
@@ -688,6 +645,7 @@ librarianSchema.methods.notify = async function (books, type, res) {
             }
         }
     }
+    // Send response
     if (emailSent.length === 0) res.status(400).json({ error: 'msgNotifyNoUsers' })
     else res.json({
         message: 'msgNotifySuccess',
@@ -696,6 +654,7 @@ librarianSchema.methods.notify = async function (books, type, res) {
 }
 
 librarianSchema.methods.getTransactionsReport = function (from, to, res) {
+    // Get all transactions within the range
     const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
@@ -711,6 +670,7 @@ librarianSchema.methods.getTransactionsReport = function (from, to, res) {
 }
 
 librarianSchema.methods.getPaymentsReport = function (from, to, res) {
+    // Get all payment records within the range
     const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)
@@ -726,6 +686,7 @@ librarianSchema.methods.getPaymentsReport = function (from, to, res) {
 }
 
 librarianSchema.methods.getBooksReport = function (from, to, res) {
+    // Get all book records within the range
     const fromDate = new Date(new Date(from).toDateString())
     const toDate = new Date(new Date(to).toDateString())
     toDate.setDate(toDate.getDate() + 1)

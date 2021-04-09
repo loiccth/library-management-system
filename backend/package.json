@@ -1,7 +1,7 @@
 {
   "name": "backend",
-  "version": "1.0.0",
-  "description": "",
+  "version": "3.5.12",
+  "description": "Backend server for UDM Library System",
   "main": "server.js",
   "scripts": {
     "test": "jest --detectOpenHandles",
@@ -15,7 +15,7 @@
     ]
   },
   "keywords": [],
-  "author": "",
+  "author": "Loic Cth",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.0",

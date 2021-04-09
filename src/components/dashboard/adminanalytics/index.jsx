@@ -25,14 +25,19 @@ const AdminAnalytics = () => {
     const [devices, setDevices] = useState()
     const { t } = useTranslation()
 
+    // Fetch data on page load
     useEffect(() => {
         const fetchData = async () => {
+            // Get sessions details for barchart
             const tempSession = await axios.get(`${url}/analytics/sessions`, { withCredentials: true })
             setSessions(tempSession.data)
+            // Get device types for piechart
             const tempDevices = await axios.get(`${url}/analytics/devices`, { withCredentials: true })
             setDevices(tempDevices.data)
+            // Get statistics
             const getStats = await axios.get(`${url}/analytics/stats`, { withCredentials: true })
             setStats(getStats.data)
+            // Get latest 10 logins
             const getLatest = await axios.get(`${url}/analytics/latest`, { withCredentials: true })
             setLatest(getLatest.data)
 

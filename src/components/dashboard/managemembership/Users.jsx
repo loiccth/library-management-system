@@ -23,14 +23,17 @@ const Users = (props) => {
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
+    // Toggle users status
     const handleToggle = (e) => {
         axios.post(`${url}/users/togglestatus`, { userid: e }, { withCredentials: true })
             .then(result => {

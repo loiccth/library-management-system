@@ -18,10 +18,13 @@ const LibrarianMain = (props) => {
     const [duePayments, setDuePayments] = useState([])
     const [reservations, setReservations] = useState([])
 
+    // Get data on page load
     useEffect(() => {
         const fetchData = async () => {
+            // Get overdue books and set data in state
             const getOverdue = await axios.get(`${url}/books/overdue`, { withCredentials: true })
             setOverdueBooks(
+                // Format data
                 getOverdue.data.map(borrow => {
                     return {
                         checked: false,
@@ -38,8 +41,10 @@ const LibrarianMain = (props) => {
                     }
                 })
             )
+            // Get due books and set data in state
             const getDue = await getDueBooks(new Date(), new Date())
             setDueBooks(
+                // Format data
                 getDue.data.map(borrow => {
                     return {
                         checked: false,
@@ -56,8 +61,10 @@ const LibrarianMain = (props) => {
                     }
                 })
             )
+            // Get reservation and set data in state
             const getReserve = await axios.get(`${url}/books/reservation`, { withCredentials: true })
             setReservations(
+                // Format data
                 getReserve.data.map(reserve => {
                     return {
                         _id: reserve._id,
@@ -70,8 +77,10 @@ const LibrarianMain = (props) => {
                     }
                 })
             )
+            // Get payments due and set data in state
             const getDuePayments = await axios.get(`${url}/users/fine`, { withCredentials: true })
             setDuePayments(
+                // Format data
                 getDuePayments.data.map(payment => {
                     return {
                         _id: payment._id,
@@ -97,10 +106,12 @@ const LibrarianMain = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Get due books function
     const getDueBooks = (from, to) => {
         return axios.post(`${url}/books/due`, { from, to }, { withCredentials: true })
     }
 
+    // Get new due books when date range is changed
     const getNewDueBooks = async (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             const getDue = await getDueBooks(date[0], date[1])
@@ -123,6 +134,7 @@ const LibrarianMain = (props) => {
         }
     }
 
+    // Check checkbox for overdue
     const handleCheck = (e) => {
         setOverdueBooks(
             overdueBooks.map(borrow => {
@@ -134,6 +146,7 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Check all checkboxes
     const handleCheckAll = (e) => {
         setOverdueBooks(
             overdueBooks.map(borrow => {
@@ -143,6 +156,7 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Uncheck all checkboxes
     const handleUncheckAll = () => {
         setOverdueBooks(
             overdueBooks.map(borrow => {
@@ -152,6 +166,7 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Check checkbox for due books
     const handleCheckDue = (e) => {
         setDueBooks(
             dueBooks.map(borrow => {
@@ -163,6 +178,7 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Check all checkboxes for due books
     const handleCheckAllDue = (e) => {
         setDueBooks(
             dueBooks.map(borrow => {
@@ -172,6 +188,7 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Uncheck all checkboxes for due books
     const handleUncheckAllDue = () => {
         setDueBooks(
             dueBooks.map(borrow => {
@@ -181,14 +198,17 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Remove from table after fine is paid
     const handleFinePayment = (payment) => {
         setDuePayments(duePayments.filter(due => due._id !== payment._id))
     }
 
+    // Remove from reservation when book is issued
     const handleIssueBook = (id) => {
         setReservations(reservations.filter(reserve => reserve._id !== id))
     }
 
+    // Remove from due/overdue when book is returned
     const handleReturnBook = (id, dueCount) => {
         if (dueCount <= 0)
             setDueBooks(dueBooks.filter(book => book._id !== id))
@@ -196,6 +216,7 @@ const LibrarianMain = (props) => {
             setOverdueBooks(overdueBooks.filter(book => book._id !== id))
     }
 
+    // Add to payment when a book is overdued and fine is not paid
     const handleNewPayment = (payment) => {
         setDuePayments([
             ...duePayments,

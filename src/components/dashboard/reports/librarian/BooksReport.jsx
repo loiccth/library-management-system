@@ -48,15 +48,18 @@ const BooksReport = (props) => {
     const [page, setPage] = useState(1)
     const rowPerPage = 5
 
+    // Get new data on date range update
     const handleDateUpdate = (date) => {
         setDate(date)
         props.getNewBooksReport(date)
     }
 
+    // Download csv file
     const handleDownloadCSV = () => {
         csvlink.current.link.click()
     }
 
+    // Change page
     const handlePagination = (e, value) => {
         setPage(value)
     }

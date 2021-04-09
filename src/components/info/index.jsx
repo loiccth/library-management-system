@@ -24,6 +24,7 @@ const Info = (props) => {
     const [loading, setLoading] = useState(true)
     const { t } = useTranslation()
 
+    // Get information on page load and display the information
     useEffect(() => {
         axios.get(`${url}/settings/info`)
             .then((result) => {

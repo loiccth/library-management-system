@@ -31,6 +31,7 @@ import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
+// Set date locale
 const localeMap = {
     enUS: enGB,
     frFR: fr,
@@ -38,6 +39,7 @@ const localeMap = {
     arEG: arSA
 }
 
+// Set date mask
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
@@ -56,19 +58,23 @@ const DueBooks = (props) => {
     const [page, setPage] = useState(1)
     const rowPerPage = 5
 
+    // On date update, get new data from new date range
     const handleDateUpdate = (date) => {
         setDate(date)
         props.getNewDueBooks(date)
     }
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true);
     }
 
+    // Close snackbar for feedbar
     const handleClose = () => {
         setOpen(false);
     }
 
+    // Send notifications to selected due book records
     const handleOnClick = () => {
         axios.post(`${url}/users/notify`, { type: 'due', books: props.dueBooks }, { withCredentials: true })
             .then(result => {
@@ -84,17 +90,20 @@ const DueBooks = (props) => {
                 })
             })
             .finally(() => {
+                // Uncheck all and show snackbar feedback
                 handleClick()
                 props.handleUncheckAllDue()
                 setCheck(false)
             })
     }
 
+    // Uncheck all checkboxes
     const handleCheckAll = (e) => {
         setCheck(e.target.checked)
         props.handleCheckAllDue(e)
     }
 
+    // Change page
     const handlePagination = (e, value) => {
         setPage(value)
     }

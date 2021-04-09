@@ -3,6 +3,8 @@ const Transaction = require('./transaction.base')
 
 const Schema = mongoose.Schema
 
+// Borrow transaction schema
+// This schema inherits attribute of the base transaction
 const borrowSchema = new Schema({
     copyid: { type: Schema.Types.ObjectId, required: true },
     renews: { type: Number, required: true, default: 0 },

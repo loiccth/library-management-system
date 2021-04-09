@@ -20,14 +20,17 @@ const RegisterMember = () => {
     const { register, handleSubmit, errors, reset } = useForm()
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
+    // Register member
     const onSubmit = (data) => {
         console.log(data)
         axios.post(`${url}/users/register`, data, { withCredentials: true })

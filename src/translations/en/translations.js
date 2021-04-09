@@ -344,7 +344,6 @@ export const TRANSLATIONS_EN = {
     msgBorrowMoreHighDemand: 'Cannot borrow more than one high demand book.',
     msgBorrowSuccess: 'Book titled {{title}} issued to {{userid}} and is due on {{date}}',
     msgBorrowMemberLimit: 'Cannot borrow more than {{limit}} books at the same time.',
-    msgPosts404: 'Posts not found',
     msgPost404: 'Post not found',
     msgPostAdd: 'Post successfully added',
     msgPostUpdate: 'Post successfully updated',
@@ -357,5 +356,7 @@ export const TRANSLATIONS_EN = {
     msgRequestDeleteSuccess: 'Book request deleted',
     msgRequest404: 'Book request not found',
     msgThumbnail404: 'Thumbnail not found',
-    msgGoogleAPI404Params: 'Missing book details in GoogleAPI'
+    msgGoogleAPI404Params: 'Missing book details in GoogleAPI',
+    msgBookAlreadyRequested: 'Book already requested',
+    msgLibraryClosedTomorrow: 'Library is closed tomorrow'
 }

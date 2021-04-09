@@ -25,15 +25,19 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
     const { register, handleSubmit, errors, reset } = useForm()
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Add location
     const onSubmit = (data) => {
+        // No campus selected
         if (campus === '') {
             setSnackbar({
                 type: 'error',
@@ -66,9 +70,11 @@ const Locations = ({ locationSettings, handleUpdateLocationsSettings }) => {
         }
     }
 
+    // Remove location
     const handleRemove = (e) => {
         e.preventDefault()
 
+        // No campus selected
         if (campus === '') {
             setSnackbar({
                 type: 'error',

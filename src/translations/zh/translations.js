@@ -344,7 +344,6 @@ export const TRANSLATIONS_ZH = {
     msgBorrowMoreHighDemand: '不能借用一本以上的高需求书',
     msgBorrowSuccess: '已发行给{{userid}}的书名为{{title}}的书，应于{{date}}到期',
     msgBorrowMemberLimit: '不能同时借阅超过{{limit}}本书',
-    msgPosts404: '未找到帖子',
     msgPost404: '找不到帖子',
     msgPostAdd: '帖子添加成功',
     msgPostUpdate: '发布成功更新',
@@ -357,5 +356,7 @@ export const TRANSLATIONS_ZH = {
     msgRequestDeleteSuccess: '预订请求已删除',
     msgRequest404: '找不到预订请求',
     msgThumbnail404: '找不到缩略图',
-    msgGoogleAPI404Params: 'Google API中缺少书籍详细信息'
+    msgGoogleAPI404Params: 'Google API中缺少书籍详细信息',
+    msgBookAlreadyRequested: '已预订的书',
+    msgLibraryClosedTomorrow: '图书馆明天关闭'
 }

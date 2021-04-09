@@ -26,6 +26,7 @@ import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 import Row from './Row'
 
+// Date locale
 const localeMap = {
     enUS: enGB,
     frFR: fr,
@@ -33,6 +34,7 @@ const localeMap = {
     arEG: arSA
 }
 
+// Date mask
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
@@ -49,15 +51,18 @@ const AnalyticsReport = (props) => {
     const [page, setPage] = useState(1)
     const rowPerPage = 5
 
+    // Change date range
     const handleDateUpdate = (date) => {
         setDate(date)
         props.getNewAnalyticsReport(date)
     }
 
+    // Download csv file
     const handleDownloadCSV = () => {
         csvlink.current.link.click()
     }
 
+    // Change page
     const handlePagination = (e, value) => {
         setPage(value)
     }

@@ -1,51 +1,44 @@
 const { CronJob } = require('cron')
-const Reserve = require('../models/transactions/reserve.model')
-const Book = require('../models/book.model')
-const Setting = require('../models/setting.model')
 const User = require('../models/users/user.base')
-const twilio = require('twilio')
+const Book = require('../models/book.model')
+const Reserve = require('../models/transactions/reserve.model')
+const Setting = require('../models/setting.model')
 const transporter = require('../config/mail.config')
+const sendSMS = require('../function/sendSMS')
 const checkHolidays = require('../function/checkHolidays')
 
+// This function will check every 15 minutes if a reservation expired
+// It will will then mark it as expired, then notify the next reservation in queue if any
 const expireReservations = new CronJob('*/15 * * * *', () => {
     const now = new Date()
 
+    // Finds all reservation that are expired
     Reserve.find({ status: 'active', expireAt: { $lt: now } })
         .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['email', 'phone'] } })
         .populate('bookid', ['title'])
         .then(reserves => {
-            if (reserves.length !== 0) {
-                for (let i = 0; i < reserves.length; i++) {
-                    reserves[i].status = 'expired'
-                    reserves[i].save().catch(err => { throw err })
+            // Loop through the araray of expired reservation, mark them as expired and save to database
+            for (let i = 0; i < reserves.length; i++) {
+                reserves[i].status = 'expired'
+                reserves[i].save().catch(err => console.log(err))
 
-                    const mailRegister = {
-                        from: 'no-reply@udmlibrary.com',
-                        to: reserves[i].userid.udmid.email,
-                        subject: 'Account shutdown',
-                        text: `Your reservation for book titled ${reserves[i].bookid.title} has expired.`
-                    }
-
-                    transporter.sendMail(mailRegister, (err, info) => {
-                        if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
-                    })
-
-                    const accountSid = process.env.TWILIO_SID
-                    const authToken = process.env.TWILIO_AUTH
-
-                    const client = new twilio(accountSid, authToken)
-
-                    client.messages.create({
-                        body: `Your reservation for book titled ${reserves[i].bookid.title} has expired.`,
-                        to: `+230${reserves[i].userid.udmid.phone}`,
-                        from: process.env.TWILIO_PHONE
-                    })
-                        .catch(err => {
-                            console.log(err)
-                        })
+                const mailRegister = {
+                    from: 'no-reply@udmlibrary.com',
+                    to: reserves[i].userid.udmid.email,
+                    subject: 'Book reservation expired',
+                    text: `Your reservation for book titled ${reserves[i].bookid.title} has expired.`
                 }
+
+                // Send email notification
+                transporter.sendMail(mailRegister, (err, info) => {
+                    if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
+                })
+
+                // Send SMS nofitication
+                sendSMS(`Your reservation for book titled ${reserves[i].bookid.title} has expired.`, `+230${reserves[i].userid.udmid.phone}`)
             }
         })
+
 
     Book.find({ 'reservation.expireAt': { $lt: now } })
         .then(async books => {
@@ -109,7 +102,7 @@ const expireReservations = new CronJob('*/15 * * * *', () => {
                                     const mailRegister = {
                                         from: 'no-reply@udmlibrary.com',
                                         to: user.udmid.email,
-                                        subject: 'Account shutdown',
+                                        subject: 'Reserved book available',
                                         text: `Your reservation for book titled ${books[i].title} is now available.`
                                     }
 
@@ -117,19 +110,7 @@ const expireReservations = new CronJob('*/15 * * * *', () => {
                                         if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
                                     })
 
-                                    const accountSid = process.env.TWILIO_SID
-                                    const authToken = process.env.TWILIO_AUTH
-
-                                    const client = new twilio(accountSid, authToken)
-
-                                    client.messages.create({
-                                        body: `Your reservation for book titled ${books[i].title} is now available.`,
-                                        to: `+230${user.udmid.phone}`,
-                                        from: process.env.TWILIO_PHONE
-                                    })
-                                        .catch(err => {
-                                            console.log(err)
-                                        })
+                                    sendSMS(`Your reservation for book titled ${books[i].title} is now available.`, `+230${user.udmid.phone}`)
                                 })
                         }
 

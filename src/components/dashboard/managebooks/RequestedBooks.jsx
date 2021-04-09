@@ -31,10 +31,12 @@ const RequestedBooks = (props) => {
     const theme = useTheme()
     const rowPerPage = 5
 
+    // Change page
     const handlePagination = (e, value) => {
         setPage(value)
     }
 
+    // Open/close window pop up
     const handleToggle = () => {
         setOpen(!open)
     }

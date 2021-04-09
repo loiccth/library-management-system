@@ -34,14 +34,17 @@ const SearchBook = (props) => {
     })
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
+    // Search book to edit
     const onSubmit = (data) => {
         axios.post(`${url}/books/search`, data)
             .then(book => {
@@ -70,6 +73,7 @@ const SearchBook = (props) => {
             })
     }
 
+    // Remove copies from table after removing from database
     const deleteCopies = (data) => {
         for (let i = 0; i < data.copies.length; i++) {
             if (!data.copies[i].checked)

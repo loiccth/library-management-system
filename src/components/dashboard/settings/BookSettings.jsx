@@ -22,6 +22,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
     const { register, handleSubmit, errors, setValue } = useForm()
     const { t } = useTranslation()
 
+    // Set data in react-hook-form
     useEffect(() => {
         Object.entries(bookSettings).map(([key, value]) => (
             setValue(`settings[${key}].value`, value.value)
@@ -30,17 +31,21 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Update book settings
     const onSubmit = (data) => {
         let updated = false
 
+        // Check if changes were made
         for (let i = 0; i < bookSettings.length; i++) {
             if (parseInt(bookSettings[i].value) !== parseInt(data.settings[i].value)) {
                 updated = true
@@ -48,7 +53,9 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
             }
         }
 
+        // Changes made
         if (updated)
+            // Update settings
             axios.put(`${url}/settings/books`, { bookSettings: data.settings }, { withCredentials: true })
                 .then(result => {
                     setSnackbar({
@@ -59,6 +66,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
                     handleClick()
                 })
         else {
+            // No changes made
             setSnackbar({
                 type: 'warning',
                 msg: t('msgBookSettingsNotChange')

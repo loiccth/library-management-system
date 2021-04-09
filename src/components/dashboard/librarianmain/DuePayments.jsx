@@ -37,18 +37,22 @@ const DuePayments = (props) => {
     const theme = useTheme()
     const rowPerPage = 5
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Open/close confirmation window to remove payment due
     const handleToggle = () => {
         setOpenDialog(!openDialog)
     }
 
+    // Fine paid
     const handleFine = (id) => {
         axios.post(`${url}/users/payfine/${id}`, {}, { withCredentials: true })
             .then(result => {
@@ -59,16 +63,19 @@ const DuePayments = (props) => {
                 props.handleFinePayment(result.data.payment)
             })
             .catch(err => {
+                // Update fine failed
                 setSnackbar({
                     type: 'warning',
                     msg: t(err.response.data.error)
                 })
             })
             .finally(() => {
+                // Show feedback
                 handleClick()
             })
     }
 
+    // Change page
     const handlePagination = (e, value) => {
         setPage(value)
     }

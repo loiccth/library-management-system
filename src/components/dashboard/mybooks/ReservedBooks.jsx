@@ -30,10 +30,12 @@ const ReservedBooks = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Open confirmation box to cancel reservation
     const handleToggle = () => {
         setOpen(!open)
     }
 
+    // Close confirmation box
     const handleCancel = (id) => {
         setOpen(false)
         props.handleCancel(id)

@@ -30,10 +30,12 @@ const BorrowedBooks = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Open/close window confirmation dialog
     const handleToggle = () => {
         setOpen(!open)
     }
 
+    // Renew book
     const handleRenew = (id) => {
         setOpen(false)
         props.handleRenew(id)

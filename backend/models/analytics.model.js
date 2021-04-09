@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 
+// Schema for analytics
 const analyticsSchema = new Schema({
     sessionid: { type: String, required: true },
     sessionDate: { type: Date, required: true },

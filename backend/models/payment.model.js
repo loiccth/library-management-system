@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 
+// Schema for payment
 const paymentSchema = new Schema({
     borrowid: { type: Schema.Types.ObjectId, ref: 'Borrow', required: true },
     userid: { type: Schema.Types.ObjectId, ref: 'User', required: true },

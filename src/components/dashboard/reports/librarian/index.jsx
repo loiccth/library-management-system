@@ -23,6 +23,7 @@ const LibrarianReports = ({ locale }) => {
     const [books, setBooks] = useState()
     const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
 
+    // Get data on page load
     useEffect(() => {
         const fetchData = async () => {
             const getTransactions = await getTransactionsReport(firstDay, new Date())
@@ -43,6 +44,7 @@ const LibrarianReports = ({ locale }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Change filter type
     const handleTransactionChange = (e) => {
         setFilterTransactions({
             ...filterTransactions,
@@ -51,6 +53,7 @@ const LibrarianReports = ({ locale }) => {
         handleFilterTransactions(e.target.name, e.target.value)
     }
 
+    // Function to get transactions data
     const getTransactionsReport = async (from, to) => {
         const getBooks = await axios.post(`${url}/books/transactionsreport`, { from, to }, { withCredentials: true })
 
@@ -75,6 +78,7 @@ const LibrarianReports = ({ locale }) => {
         return temp
     }
 
+    // Get new transactons report when date range is updated
     const getNewTransactionsReport = async (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             const getBooks = await getTransactionsReport(date[0], date[1])
@@ -89,6 +93,7 @@ const LibrarianReports = ({ locale }) => {
         }
     }
 
+    // Filter data depending on filters
     const handleFilterTransactions = (key, value) => {
         if (key === 'type') {
             if (value !== 'All' && filterTransactions.status !== 'All')
@@ -113,6 +118,7 @@ const LibrarianReports = ({ locale }) => {
         }
     }
 
+    // Function to get payments data
     const getPaymentsReport = async (from, to) => {
         const getPayments = await axios.post(`${url}/books/paymentssreport`, { from, to }, { withCredentials: true })
 
@@ -132,6 +138,7 @@ const LibrarianReports = ({ locale }) => {
         return temp
     }
 
+    // Get new payments report when date range is updated
     const getNewPaymentsReport = async (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             const getPayments = await getPaymentsReport(date[0], date[1])
@@ -144,6 +151,7 @@ const LibrarianReports = ({ locale }) => {
         }
     }
 
+    // Payment report filter change
     const handlePayChange = (e) => {
         setFilterPayment({
             ...filterPayment,
@@ -152,6 +160,7 @@ const LibrarianReports = ({ locale }) => {
         handleFilterPayments(e.target.value)
     }
 
+    // Filter data for payments report
     const handleFilterPayments = (value) => {
         if (value === 'All')
             setFilteredPayments([...payements])
@@ -162,6 +171,7 @@ const LibrarianReports = ({ locale }) => {
                 setFilteredPayments(payements.filter(record => !record.Paid))
     }
 
+    // Function to get books data
     const getBooksReport = async (from, to) => {
         const getBooks = await axios.post(`${url}/books/booksreport`, { from, to }, { withCredentials: true })
 
@@ -191,6 +201,7 @@ const LibrarianReports = ({ locale }) => {
         return temp
     }
 
+    // Get new books data on date range change
     const getNewBooksReport = async (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
             const getBooks = await getBooksReport(date[0], date[1])

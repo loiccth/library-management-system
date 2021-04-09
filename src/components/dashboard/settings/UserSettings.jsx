@@ -22,23 +22,28 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
     const { register, handleSubmit, errors, setValue } = useForm()
     const { t } = useTranslation()
 
+    // Set value on page load in react-hook-form
     useEffect(() => {
         Object.entries(userSettings).map(([key, value]) => (
             setValue(`settings[${key}].value`, value.value)
         ))
     }, [userSettings, setValue])
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Update settings
     const onSubmit = (data) => {
         let updated = false
 
+        // Check if settings updated
         for (let i = 0; i < userSettings.length; i++) {
             if (parseInt(userSettings[i].value) !== parseInt(data.settings[i].value)) {
                 updated = true
@@ -46,6 +51,7 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
             }
         }
 
+        // Updated
         if (updated)
             axios.put(`${url}/settings/users`, { userSettings: data.settings }, { withCredentials: true })
                 .then(result => {
@@ -57,6 +63,7 @@ const UserSettings = ({ userSettings, handleUpdateUserSettings }) => {
                     handleClick()
                 })
         else {
+            // Not updated
             setSnackbar({
                 type: 'warning',
                 msg: t('msgUserSettingsNotChange')

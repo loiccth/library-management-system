@@ -26,6 +26,7 @@ import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
 
+// Date locale
 const localeMap = {
     enUS: enGB,
     frFR: fr,
@@ -33,6 +34,7 @@ const localeMap = {
     arEG: arSA
 }
 
+// Date mask
 const maskMap = {
     enUS: '__/__/____',
     frFR: '__/__/____',
@@ -49,15 +51,18 @@ const MembersReport = (props) => {
     const [page, setPage] = useState(1)
     const rowPerPage = 5
 
+    // Date range updated
     const handleDateUpdate = (date) => {
         setDate(date)
         props.getNewMembersReport(date)
     }
 
+    // Download csv file
     const handleDownloadCSV = () => {
         csvlink.current.link.click()
     }
 
+    // Page change
     const handlePagination = (e, value) => {
         setPage(value)
     }

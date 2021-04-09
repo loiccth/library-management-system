@@ -5,6 +5,7 @@ import { Box, Typography } from '@material-ui/core'
 import logo from '../img/logo.png'
 import whitelogo from '../img/logo_white.png'
 
+// Page not found
 const NotFound = ({ darkMode }) => {
     return (
         <>

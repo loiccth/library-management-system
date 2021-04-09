@@ -25,18 +25,22 @@ const Reset = (props) => {
     const recaptchaRef = useRef()
     const { t } = useTranslation()
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true);
     }
 
+    // Close snackbar
     const handleClose = () => {
         setOpen(false);
     }
 
+    // Validate recaptcha challenge
     const handleReCaptcha = (e) => {
         setValue('reCaptcha', e, { shouldValidate: true })
     }
 
+    // Reset password request
     const onSubmit = (data) => {
         axios.patch(`${url}/users/reset`, data)
             .then(result => {
@@ -47,6 +51,7 @@ const Reset = (props) => {
                 })
             })
             .catch(err => {
+                // Password reset failed
                 analytics('action', `password reset success - memberid: ${data.userid}`)
                 setSnackbar({
                     type: 'warning',
@@ -56,6 +61,7 @@ const Reset = (props) => {
             .finally(() => {
                 handleClick()
             })
+        // Reset form and recaptcha
         recaptchaRef.current.reset()
         reset()
     }

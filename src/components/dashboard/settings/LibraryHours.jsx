@@ -26,6 +26,7 @@ const LibraryHours = ({ hours }) => {
     const { register, handleSubmit, errors, control, setValue, getValues, trigger } = useForm()
     const { t } = useTranslation()
 
+    // On page load set time in react-hook-form
     useEffect(() => {
         Object.entries(hours).map(([key, value]) => (
             setValue(key, value)
@@ -34,14 +35,17 @@ const LibraryHours = ({ hours }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // Open snackbar feedback
     const handleClick = () => {
         setOpen(true)
     }
 
+    // Close snackbar feedback
     const handleClose = () => {
         setOpen(false)
     }
 
+    // Update settings
     const onSubmit = (data) => {
         axios.put(`${url}/settings/hours`, data, { withCredentials: true })
             .then(result => {

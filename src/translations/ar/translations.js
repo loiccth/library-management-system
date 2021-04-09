@@ -344,7 +344,6 @@ export const TRANSLATIONS_AR = {
     msgBorrowMoreHighDemand: 'لا يمكن استعارة أكثر من كتاب طلب مرتفع.',
     msgBorrowSuccess: 'تم إصدار كتاب بعنوان {{title}} لـ {{userid}} وهو واجب التسليم في {{date}}',
     msgBorrowMemberLimit: 'لا يمكن استعارة أكثر من {{limit}} من الكتب في نفس الوقت.',
-    msgPosts404: 'المشاركات غير موجودة',
     msgPost404: 'لم يتم العثور على المشاركة',
     msgPostAdd: 'تمت إضافة المشاركة بنجاح',
     msgPostUpdate: 'تم تحديث النشر بنجاح',
@@ -357,5 +356,7 @@ export const TRANSLATIONS_AR = {
     msgRequestDeleteSuccess: 'تم حذف طلب الكتاب',
     msgRequest404: 'لم يتم العثور على طلب الكتاب',
     msgThumbnail404: 'لم يتم العثور على الصورة المصغرة',
-    msgGoogleAPI404Params: 'تفاصيل الكتاب مفقودة في Google API'
+    msgGoogleAPI404Params: 'تفاصيل الكتاب مفقودة في Google API',
+    msgBookAlreadyRequested: 'الكتاب مطلوب بالفعل',
+    msgLibraryClosedTomorrow: 'المكتبة مغلقة غدا'
 }

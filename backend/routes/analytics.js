@@ -6,6 +6,7 @@ const User = require('../models/users/user.base')
 const axios = require('axios')
 const secret = process.env.JWT_SECRET
 
+// Records every page visit and action that a client does
 router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     const { sessionid, device, userAgent, event } = req.body
     if (!sessionid || !device || !userAgent || !event) return res.status(400).json({ error: 'msgMissingParams' })
@@ -13,27 +14,34 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
     else {
         let ip
 
+        // Get the client's ip address if the env is set to prod
         if (process.env.NODE_ENV === 'production') {
             ip = req.headers['x-forwarded-for']
             ip = ip.split(', ')
             ip = ip[0]
         }
+        // Set random ip address if dev/staging env
         else
-            ip = '102.100.100.1'
+            ip = '175.45.176.0'
 
+        // Remove ipv6
         if (ip.substr(0, 7) == "::ffff:") {
             ip = ip.substr(7)
         }
 
+        // Add record to database
         Analytics.find({ sessionid: sessionid })
             .then(async session => {
+                // Check if session already exist, else create new session
                 sessionDate = session.length > 0 ? session[0].sessionDate : new Date()
 
+                // Get ip geolocation details
                 if (session.length === 0 || event.info === 'login success' || (session.length > 0 && req.user && String(session[0].userid) !== req.user._id)) {
                     const geolocationDetails = await axios.post(`http://api.ipstack.com/${ip}?access_key=${process.env.IPSTACK_API}`)
 
                     const { continent_code, continent_name, country_code, country_name, region_code, region_name, city } = geolocationDetails.data
 
+                    // Create new analytic record
                     const newAnalytics = new Analytics({
                         sessionid,
                         sessionDate,
@@ -54,6 +62,7 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
                     })
                     newAnalytics.save().then(() => res.sendStatus(200))
                 }
+                // If session already exist, no need to get ip geolocation
                 else {
                     const newAnalytics = new Analytics({
                         sessionid,
@@ -65,12 +74,14 @@ router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { 
                         event
                     })
 
+                    // Save to database
                     newAnalytics.save().then(() => res.sendStatus(200))
                 }
             })
     }
 })
 
+// Get the list of total users, guests and logged in users in the past 7 days
 router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else {
@@ -78,6 +89,7 @@ router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req)
         sevenDaysAgo.setHours(0, 0, 0, 0)
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
 
+        // Get the number of total users within the date range and group by the createdAt date
         const total = await Analytics.aggregate([
             {
                 $match: {
@@ -100,6 +112,7 @@ router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req)
             }
         ])
 
+        // Get the number of users within the date range and group by the createdAt date
         const users = await Analytics.aggregate([
             {
                 $match: {
@@ -125,6 +138,7 @@ router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req)
             }
         ])
 
+        // Get the number of guests within the date range and group by the createdAt date
         const guests = await Analytics.aggregate([
             {
                 $match: {
@@ -151,6 +165,7 @@ router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req)
         ])
 
 
+        // Format the data so that the frontend can display it appropriately
         const labels = []
         const totalData = [0, 0, 0, 0, 0, 0, 0]
         const usersData = [0, 0, 0, 0, 0, 0, 0]
@@ -183,6 +198,7 @@ router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req)
             labels.push(sevenDaysAgo.toLocaleDateString('en-GB'))
         }
 
+        // Send response to the client
         res.json({
             labels,
             totalData,
@@ -192,13 +208,18 @@ router.get('/sessions', jwt({ secret, credentialsRequired: true, getToken: (req)
     }
 })
 
+// Get the list of devices used in the past 7 days
 router.get('/devices', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else {
+        // Set date range
         const sevenDaysAgo = new Date()
         sevenDaysAgo.setHours(0, 0, 0, 0)
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6)
 
+        // Get list of users who entered the website
+        // and group by their device type
+        // and count the number of occurance
         Analytics.aggregate([
             {
                 $match: {
@@ -216,6 +237,7 @@ router.get('/devices', jwt({ secret, credentialsRequired: true, getToken: (req) 
             },
         ])
             .then(result => {
+                // Format the data for the frontend to display it
                 let labels = ['Desktop', 'Tablet', 'Mobile']
                 let data = [0, 0, 0]
 
@@ -229,6 +251,7 @@ router.get('/devices', jwt({ secret, credentialsRequired: true, getToken: (req) 
 
                 }
 
+                // Send response to the client
                 res.json({
                     labels,
                     data
@@ -237,13 +260,20 @@ router.get('/devices', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
+// Get website statistics for administrators
+// It will get number of users logged in, guests, failed login attemps and password resets
+// for the past 24 hours
 router.get('/stats', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else {
+        // Set date range
         const yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000))
 
-        const failedLogin = await Analytics.find({ 'event.type': 'action', 'event.info': 'login failed', createdAt: { $gte: yesterday } })
-        const passwordReset = await Analytics.find({ 'event.type': 'action', 'event.info': 'password reset success', createdAt: { $gte: yesterday } })
+        // Get failed login count and password reset count
+        const failedLogin = await Analytics.countDocuments({ 'event.type': 'action', 'event.info': 'login failed', createdAt: { $gte: yesterday } })
+        const passwordReset = await Analytics.countDocuments({ 'event.type': 'action', 'event.info': 'password reset success', createdAt: { $gte: yesterday } })
+
+        // Get the number of users
         const users = await Analytics.aggregate([
             {
                 $match: {
@@ -259,14 +289,10 @@ router.get('/stats', jwt({ secret, credentialsRequired: true, getToken: (req) =>
                 $group: {
                     _id: { sessionid: "$sessionid" }
                 }
-            },
-            {
-                $sort: {
-                    _id: 1
-                }
             }
         ])
 
+        // Get the number of guests
         const guests = await Analytics.aggregate([
             {
                 $match: {
@@ -280,20 +306,15 @@ router.get('/stats', jwt({ secret, credentialsRequired: true, getToken: (req) =>
             },
             {
                 $group: {
-                    _id: { sessionid: "$sessionid" },
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $sort: {
-                    _id: 1
+                    _id: { sessionid: "$sessionid" }
                 }
             }
         ])
 
+        // Send response to the client
         res.json({
-            failedLogin: failedLogin.length,
-            passwordReset: passwordReset.length,
+            failedLogin,
+            passwordReset,
             users: users.length,
             guests: guests.length
         })
@@ -301,9 +322,11 @@ router.get('/stats', jwt({ secret, credentialsRequired: true, getToken: (req) =>
     }
 })
 
+// Get the last 10 users that logged in
 router.get('/latest', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else {
+        // Find the last 10 users that logged in and sort by decending order
         Analytics.find({ 'event.info': 'login success' })
             .populate('userid', ['userid'])
             .sort({ createdAt: -1 }).limit(10)
@@ -313,14 +336,20 @@ router.get('/latest', jwt({ secret, credentialsRequired: true, getToken: (req) =
     }
 })
 
+// Generate analytics report within the date range specified
 router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    // Check if user is an admin and if from and to date is available
     else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
+        // Set date range
         const fromDate = new Date(new Date(req.body.from).toDateString())
         const toDate = new Date(new Date(req.body.to).toDateString())
         toDate.setDate(toDate.getDate() + 1)
 
+        // Get data from database
+        // Group data by userid, session, sessiondate
+        // Sort by ascending order
         Analytics.aggregate([
             {
                 $match: {
@@ -354,12 +383,14 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
             { $sort: { '_id.sessionDate': 1 } },
         ])
             .then(analytics => {
+                // Populate the users details in the analytics records
                 User.populate(analytics, { path: '_id.userid', select: ['userid'] })
                     .then(analytics => {
                         const anal = []
                         const csv = []
                         let events = []
 
+                        // Format the data for frontend to display
                         for (let i = 0; i < analytics.length; i++) {
                             events = []
                             for (let j = 0; j < analytics[i].events.length; j++) {
@@ -369,6 +400,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                                     date: analytics[i].events[j].date
                                 })
 
+                                // Format data to output in a csv file
                                 csv.push({
                                     user: j === 0 ? analytics[i]._id.userid === null ? 'Guest' : analytics[i]._id.userid.userid : null,
                                     sessionid: j === 0 ? analytics[i]._id.sessionid : null,
@@ -382,6 +414,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                                 })
                             }
 
+                            // Format for table on frontend
                             anal.push({
                                 sessionid: analytics[i]._id.sessionid,
                                 sessionDate: analytics[i]._id.sessionDate,
@@ -394,6 +427,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                             })
                         }
 
+                        // Response with both formatted data
                         res.json({
                             analytics: anal,
                             csv

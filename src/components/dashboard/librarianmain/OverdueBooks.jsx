@@ -34,14 +34,17 @@ const OverdueBooks = (props) => {
     const [page, setPage] = useState(1)
     const rowPerPage = 5
 
+    // Open snackbar to display feedback
     const handleClick = () => {
         setOpen(true);
     }
 
+    // Close snackbar
     const handleClose = () => {
         setOpen(false);
     }
 
+    // Send notifications to all checkboxes checked
     const handleOnClick = () => {
         axios.post(`${url}/users/notify`, { type: 'overdue', books: props.overdueBooks }, { withCredentials: true })
             .then(result => {
@@ -63,11 +66,13 @@ const OverdueBooks = (props) => {
             })
     }
 
+    // Uncheck all checkboxes
     const handleCheckAll = (e) => {
         setCheck(e.target.checked)
         props.handleCheckAll(e)
     }
 
+    // Change page
     const handlePagination = (e, value) => {
         setPage(value)
     }

@@ -42,24 +42,29 @@ const Dashboard = (props) => {
         setMobileOpen(!mobileOpen)
     }
 
+    // Open user menu
     const [anchorEl, setAnchorEl] = useState(null)
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget)
     }
 
+    // Close user menu
     const handleClose = () => {
         setAnchorEl(null)
     }
 
     const [anchorE2, setAnchorE2] = useState(null)
+    // Open language menu
     const handleLanguage = (event) => {
         setAnchorE2(event.currentTarget)
     }
 
+    // Close language menu
     const handleCloseLanguage = () => {
         setAnchorE2(null)
     }
 
+    // Set locale when languauge is changed
     const handleMenuItemClick = (lang) => {
         let temp = ''
         if (lang === 'en')
@@ -71,11 +76,15 @@ const Dashboard = (props) => {
         else if (lang === 'ar')
             temp = 'arEG'
 
+        // Close language menu
         setAnchorE2(null)
+        // Change language
         i18n.changeLanguage(lang)
+        // Change locale
         props.handleLocale(temp)
     }
 
+    // List of sidebar links
     const [sidebar] = useState([
         {
             sidebarMenu: 'dashboard',
@@ -117,6 +126,7 @@ const Dashboard = (props) => {
         }
     ])
 
+    // Logout button click, send logout request
     const handleLogout = () => {
         analytics('action', 'logout success')
         axios.get(`${url}/users/logout`, { withCredentials: true })
@@ -125,6 +135,7 @@ const Dashboard = (props) => {
             })
     }
 
+    // Redirect to login if not logged in
     if (!props.user.isLoggedIn) {
         return <Navigate to='/login' />
     }

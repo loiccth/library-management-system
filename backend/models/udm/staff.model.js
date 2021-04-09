@@ -3,6 +3,8 @@ const UDM = require('./udm.base')
 
 const Schema = mongoose.Schema
 
+// Staff schema
+// This schema inherits attribute of the base udm schema
 const staffSchema = new Schema({
     staffType: { type: String, required: true, enum: ['ft', 'pt'] },
     academic: { type: Boolean, required: true },

@@ -22,15 +22,18 @@ const AddPost = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
+    // Open pop up window
     const handleToggle = () => {
         setWindow(!window)
     }
 
+    // Close pop up window and reset all data in fields
     const handleWindowClose = () => {
         setWindow(!window)
         reset()
     }
 
+    // Submit form call api to add post
     const onSubmit = (data) => {
         axios.post(`${url}/posts`, data, { withCredentials: true })
             .then(result => {
