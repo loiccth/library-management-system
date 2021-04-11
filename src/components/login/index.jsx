@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import { Grid, makeStyles } from '@material-ui/core'
+import { Box, Grid, Hidden, makeStyles } from '@material-ui/core'
 import Navbar from '../navbar/Navbar'
 import Login from './Login'
 import Reset from './Reset'
@@ -23,6 +23,11 @@ const LoginPage = (props) => {
                     <Grid item xs={12} md={6}>
                         <Login handleLogin={props.handleLogin} />
                     </Grid>
+                    <Hidden mdUp>
+                        <Grid item xs={12}>
+                            <Box sx={{ my: 3 }} />
+                        </Grid>
+                    </Hidden>
                     <Grid item xs={12} md={6}>
                         <Reset darkMode={props.darkMode} />
                     </Grid>

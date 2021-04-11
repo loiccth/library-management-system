@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../settings/api'
 import {
+    Alert,
     Button,
     Box,
     Container,
@@ -13,6 +16,7 @@ import {
     makeStyles,
     Pagination,
     Paper,
+    Snackbar,
     Table,
     TableBody,
     TableCell,
@@ -26,10 +30,28 @@ import {
 const RequestedBooks = (props) => {
     const classes = useStyles()
     const { t } = useTranslation()
+    const [books, setBooks] = useState([])
     const [page, setPage] = useState(1)
     const [open, setOpen] = useState(false)
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [openSnack, setOpenSnack] = useState(false)
     const theme = useTheme()
     const rowPerPage = 5
+
+    // On page load, get list of requested books
+    useEffect(() => {
+        axios.get(`${url}/books/request`, { withCredentials: true })
+            .then(books => {
+                setBooks(books.data)
+            })
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Toggle snackbar feedback
+    const handleSnackbar = () => {
+        setOpenSnack(!openSnack)
+    }
 
     // Change page
     const handlePagination = (e, value) => {
@@ -41,8 +63,35 @@ const RequestedBooks = (props) => {
         setOpen(!open)
     }
 
+    // Remove requested book
+    const handleRemove = (id) => {
+        axios.delete(`${url}/books/request/${id}`, { withCredentials: true })
+            .then(result => {
+                setBooks(books.filter(book => book._id !== id))
+                setSnackbar({
+                    type: 'success',
+                    msg: t(result.data.message)
+                })
+            })
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: t(err.response.data.message)
+                })
+            })
+            .finally(() => {
+                // Show snackbar
+                handleSnackbar()
+            })
+    }
+
     return (
         <>
+            <Snackbar open={openSnack} autoHideDuration={6000} onClose={() => setOpenSnack(false)}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={() => setOpenSnack(false)}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
             <Container>
                 <Toolbar>
                     <Typography variant="h6">{t('requestedBooks')}</Typography>
@@ -63,12 +112,12 @@ const RequestedBooks = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.books.length === 0 &&
+                                    {books.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
+                                    {books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 <Typography variant="caption" display="block">{t('memberid')}: {row.userid.userid}</Typography>
@@ -107,7 +156,7 @@ const RequestedBooks = (props) => {
                                                         </Button>
                                                         <Button variant="contained" onClick={() => {
                                                             setOpen(false)
-                                                            props.handleRemove(row._id)
+                                                            handleRemove(row._id)
                                                         }}
                                                             autoFocus
                                                         >
@@ -124,7 +173,7 @@ const RequestedBooks = (props) => {
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.books.length / rowPerPage)}
+                                                        count={Math.ceil(books.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />

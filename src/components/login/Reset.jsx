@@ -89,7 +89,7 @@ const Reset = (props) => {
                             error={!!errors.userid}
                             id="userid"
                             name="userid"
-                            label="MemberID"
+                            label={t('memberid')}
                             inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.userid ? errors.userid.message : " "}
                         />
@@ -126,7 +126,8 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        height: '100%'
+        height: '100%',
+        padding: 10,
     },
     form: {
         width: '100%',

@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../../settings/api'
 import { CSVLink } from 'react-csv'
 import {
     Box,
@@ -49,12 +51,40 @@ const AnalyticsReport = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
     const [page, setPage] = useState(1)
+    const [analytics, setAnalytics] = useState([])
+    const [csv, setCsv] = useState([])
     const rowPerPage = 5
 
     // Change date range
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewAnalyticsReport(date)
+        getNewAnalyticsReport(date)
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            getAnalyticsReport(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()), new Date())
+
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Get analytics report within range
+    const getAnalyticsReport = (from, to) => {
+        axios.post(`${url}/analytics/report`, { from, to }, { withCredentials: true })
+            .then(result => {
+                setAnalytics(result.data.analytics)
+                setCsv(result.data.csv)
+            })
+    }
+
+    // Get new data for analytics when date range is updated
+    const getNewAnalyticsReport = (date) => {
+        if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
+            getAnalyticsReport(date[0], date[1])
+        }
     }
 
     // Download csv file
@@ -131,7 +161,7 @@ const AnalyticsReport = (props) => {
                             <Grid item xs={12} sm={5} md={3} lg={2}>
                                 <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                 <CSVLink
-                                    data={props.analytics.length === 0 ? 'No records found' : props.csv}
+                                    data={analytics.length === 0 ? 'No records found' : csv}
                                     filename={`Analytics_Report_${new Date().toLocaleDateString()}.csv`}
                                     ref={csvlink}
                                 />
@@ -154,12 +184,12 @@ const AnalyticsReport = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.analytics.length === 0 &&
+                                    {analytics.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.analytics.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map((row, index) => (
+                                    {analytics.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map((row, index) => (
                                         <Row key={index} row={row} />
                                     ))}
                                     <TableRow>
@@ -168,7 +198,7 @@ const AnalyticsReport = (props) => {
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.analytics.length / rowPerPage)}
+                                                        count={Math.ceil(analytics.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />

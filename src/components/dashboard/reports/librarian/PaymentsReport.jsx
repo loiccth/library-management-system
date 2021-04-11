@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../../settings/api'
 import { CSVLink } from 'react-csv'
 import {
     Box,
@@ -45,16 +47,87 @@ const maskMap = {
 const PaymentsReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
+    const [payements, setPayments] = useState([])
+    const [filteredPayments, setFilteredPayments] = useState([])
+    const [filterPayment, setFilterPayment] = useState({
+        paid: 'All'
+    })
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
     const [page, setPage] = useState(1)
     const rowPerPage = 5
+    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+
+    // Get data on page load
+    useEffect(() => {
+        const fetchData = async () => {
+            const getPayments = await getPaymentsReport(firstDay, new Date())
+            setPayments(getPayments)
+            setFilteredPayments(getPayments)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Get new data when date range is updated
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewPaymentsReport(date)
+        getNewPaymentsReport(date)
+    }
+
+    // Function to get payments data
+    const getPaymentsReport = async (from, to) => {
+        const getPayments = await axios.post(`${url}/books/paymentssreport`, { from, to }, { withCredentials: true })
+
+        const temp = getPayments.data.map(payment => {
+            return {
+                PaymentID: payment._id,
+                Created: payment.createdAt,
+                Paid: payment.paid,
+                MemberID: payment.userid.userid,
+                BookTitle: payment.bookid.title,
+                BookISBN: payment.bookid.isbn,
+                BookCopyID: payment.copyid,
+                NumberOfDays: payment.numOfDays,
+                PricePerDay: payment.pricePerDay
+            }
+        })
+        return temp
+    }
+
+    // Get new payments report when date range is updated
+    const getNewPaymentsReport = async (date) => {
+        if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
+            const getPayments = await getPaymentsReport(date[0], date[1])
+            setPayments(getPayments)
+
+            if (filterPayment.paid !== 'All')
+                handleFilterPayments(filterPayment.paid)
+            else
+                setFilteredPayments(getPayments)
+        }
+    }
+
+    // Payment report filter change
+    const handlePayChange = (e) => {
+        setFilterPayment({
+            ...filterPayment,
+            [e.target.name]: e.target.value
+        })
+        handleFilterPayments(e.target.value)
+    }
+
+    // Filter data for payments report
+    const handleFilterPayments = (value) => {
+        if (value === 'All')
+            setFilteredPayments([...payements])
+        else
+            if (value === 'Paid')
+                setFilteredPayments(payements.filter(record => record.Paid))
+            else if (value === 'Unpaid')
+                setFilteredPayments(payements.filter(record => !record.Paid))
     }
 
     // Download csv file
@@ -136,7 +209,7 @@ const PaymentsReport = (props) => {
                                 >
                                     <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                     <CSVLink
-                                        data={props.filteredPayments.length === 0 ? 'No records found' : props.filteredPayments}
+                                        data={filteredPayments.length === 0 ? 'No records found' : filteredPayments}
                                         filename={`Payments_Report_${new Date().toLocaleDateString()}.csv`}
                                         ref={csvlink}
                                     />
@@ -149,8 +222,8 @@ const PaymentsReport = (props) => {
                                     variant="standard"
                                     label={t('paid')}
                                     select
-                                    value={props.filterPayment.paid}
-                                    onChange={props.handlePayChange}
+                                    value={filterPayment.paid}
+                                    onChange={handlePayChange}
                                 >
                                     <MenuItem value="All">{t('all')}</MenuItem>
                                     <MenuItem value="Paid">{t('paid')}</MenuItem>
@@ -175,12 +248,12 @@ const PaymentsReport = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredPayments.length === 0 &&
+                                    {filteredPayments.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredPayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
+                                    {filteredPayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
                                         <TableRow key={record.PaymentID}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('id')}: {record.PaymentID}</Typography>
@@ -206,7 +279,7 @@ const PaymentsReport = (props) => {
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.filteredPayments.length / rowPerPage)}
+                                                        count={Math.ceil(filteredPayments.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />
@@ -248,10 +321,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 PaymentsReport.propTypes = {
-    filteredPayments: PropTypes.array.isRequired,
-    filterPayment: PropTypes.object.isRequired,
-    getNewPaymentsReport: PropTypes.func.isRequired,
-    handlePayChange: PropTypes.func.isRequired,
     locale: PropTypes.string.isRequired
 }
 

@@ -1,6 +1,7 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../settings/api'
 import {
     Box,
     Container,
@@ -16,9 +17,23 @@ import {
     Typography,
 } from '@material-ui/core'
 
-const LatestLogins = (props) => {
+const LatestLogins = () => {
     const classes = useStyles()
+    const [latest, setLatest] = useState([])
     const { t } = useTranslation()
+
+    // Fetch data on page load
+    useEffect(() => {
+        const fetchData = async () => {
+            // Get latest 10 logins
+            const getLatest = await axios.get(`${url}/analytics/latest`, { withCredentials: true })
+            setLatest(getLatest.data)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
 
     return (
         <>
@@ -41,12 +56,12 @@ const LatestLogins = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.latest.length === 0 &&
+                                    {latest.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.latest.map(row => (
+                                    {latest.map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 <Typography variant="caption" display="block">{t('MemberID')}: {row.userid.userid}</Typography>
@@ -98,9 +113,5 @@ const useStyles = makeStyles(theme => ({
         color: 'red'
     }
 }))
-
-LatestLogins.propTypes = {
-    latest: PropTypes.array.isRequired
-}
 
 export default LatestLogins

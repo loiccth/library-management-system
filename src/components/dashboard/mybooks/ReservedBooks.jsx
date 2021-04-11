@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../settings/api'
 import {
+    Alert,
     Button,
     Box,
     Container,
@@ -12,6 +14,7 @@ import {
     Grid,
     makeStyles,
     Paper,
+    Snackbar,
     Table,
     TableBody,
     TableCell,
@@ -24,25 +27,60 @@ import {
 } from '@material-ui/core'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
-const ReservedBooks = (props) => {
+const ReservedBooks = () => {
     const classes = useStyles()
+    const [reserved, setReserved] = useState({ booksReserved: [], position: [] })
     const [open, setOpen] = useState(false)
+    const [openSnack, setOpenSnack] = useState(false)
+    const [snackbar, setSnackbar] = useState({ type: null })
     const { t } = useTranslation()
     const theme = useTheme()
+
+    // Get list of reserved books on page load
+    useEffect(() => {
+        const fetchData = async () => {
+            const tempReserved = await axios.get(`${url}/books/reserved`, { withCredentials: true })
+            setReserved(tempReserved.data)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Toggle snackbar feedback
+    const handleSnackbar = () => {
+        setOpenSnack(!openSnack)
+    }
 
     // Open confirmation box to cancel reservation
     const handleToggle = () => {
         setOpen(!open)
     }
 
-    // Close confirmation box
-    const handleCancel = (id) => {
+    // Cancel reservation and update table
+    const handleCancel = (id, index) => {
         setOpen(false)
-        props.handleCancel(id)
+        axios.patch(`${url}/books/cancel_reservation/${id}`, {}, { withCredentials: true })
+            .then(result => {
+                setReserved({
+                    booksReserved: reserved.booksReserved.filter((reserve) => reserve.bookid._id !== id),
+                    position: reserved.position.filter((pos, loc) => loc !== index)
+                })
+                setSnackbar({
+                    type: 'success',
+                    msg: t(result.data.message)
+                })
+                handleSnackbar()
+            })
     }
 
     return (
         <>
+            <Snackbar open={openSnack} autoHideDuration={6000} onClose={() => setOpenSnack(false)}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={() => setOpenSnack(false)}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
             <Container>
                 <Toolbar>
                     <Typography variant="h6">{t('reservation')}</Typography>
@@ -63,12 +101,12 @@ const ReservedBooks = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.reserved.booksReserved.length === 0 &&
+                                    {reserved.booksReserved.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.reserved.booksReserved.map((row, index) => (
+                                    {reserved.booksReserved.map((row, index) => (
                                         <TableRow key={row._id}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('reservedDate')}: {new Date(row.createdAt).toLocaleString()}</Typography>
@@ -83,7 +121,7 @@ const ReservedBooks = (props) => {
                                                 <Typography variant="caption" display="block">{t('onloan')}: {row.bookid.noOfBooksOnLoan}</Typography>
                                                 <Typography variant="caption" display="block">{t('hold')}: {row.bookid.noOfBooksOnHold}</Typography>
                                                 <Typography variant="caption" display="block">{t('reservation')}: {row.bookid.reservation.length}</Typography>
-                                                <Typography variant="caption" display="block">{t('queuePosition')}: {props.reserved.position[index]}</Typography>
+                                                <Typography variant="caption" display="block">{t('queuePosition')}: {reserved.position[index]}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 {row.bookid.isHighDemand &&
@@ -110,7 +148,7 @@ const ReservedBooks = (props) => {
                                                         <Button onClick={handleToggle} variant="contained" color="secondary">
                                                             {t('cancel')}
                                                         </Button>
-                                                        <Button onClick={() => handleCancel(row.bookid._id)} variant="contained" autoFocus>
+                                                        <Button onClick={() => handleCancel(row.bookid._id, index)} variant="contained" autoFocus>
                                                             {t('confirm')}
                                                         </Button>
                                                     </DialogActions>
@@ -143,10 +181,5 @@ const useStyles = makeStyles(() => ({
         color: 'red'
     }
 }))
-
-ReservedBooks.propTypes = {
-    reserved: PropTypes.object.isRequired,
-    handleCancel: PropTypes.func.isRequired
-}
 
 export default ReservedBooks

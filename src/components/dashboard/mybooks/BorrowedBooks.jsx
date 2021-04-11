@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../settings/api'
 import {
+    Alert,
     Button,
     Box,
     Container,
@@ -12,6 +14,7 @@ import {
     Grid,
     makeStyles,
     Paper,
+    Snackbar,
     Table,
     TableBody,
     TableCell,
@@ -24,25 +27,78 @@ import {
 } from '@material-ui/core'
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh'
 
-const BorrowedBooks = (props) => {
+const BorrowedBooks = () => {
     const classes = useStyles()
+    const [borrowed, setBorrowed] = useState([])
+    const [snackbar, setSnackbar] = useState({ type: null })
+    const [openSnack, setOpenSnack] = useState(false)
     const [open, setOpen] = useState(false)
     const { t } = useTranslation()
     const theme = useTheme()
+
+    // Get list of borrowed books on page load
+    useEffect(() => {
+        const fetchData = async () => {
+            const tempBorrowed = await axios.get(`${url}/books/borrowed`, { withCredentials: true })
+            setBorrowed(tempBorrowed.data)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Toggle snackbar feedback
+    const handleSnackbar = () => {
+        setOpenSnack(!openSnack)
+    }
 
     // Open/close window confirmation dialog
     const handleToggle = () => {
         setOpen(!open)
     }
 
-    // Renew book
+    // Renew book and update value in table
     const handleRenew = (id) => {
         setOpen(false)
-        props.handleRenew(id)
+        axios.post(`${url}/books/renew/${id}`, {}, { withCredentials: true })
+            .then(result => {
+                setBorrowed(borrowed.map(book => {
+                    if (book._id === result.data.borrow._id) {
+                        book.renews = result.data.borrow.renews
+                        book.dueDate = result.data.borrow.dueDate
+                        book.renewedOn = result.data.borrow.renewedOn
+                    }
+                    return book
+                }))
+                setSnackbar({
+                    type: 'success',
+                    msg: t(result.data.message)
+                })
+            })
+            .catch(err => {
+                if (err.response.data.error === 'msgRenewOverdue')
+                    setSnackbar({
+                        type: 'warning',
+                        msg: t(err.response.data.error, { days: err.response.data.days })
+                    })
+                else
+                    setSnackbar({
+                        type: 'warning',
+                        msg: t(err.response.data.error)
+                    })
+            })
+            .finally(() => {
+                handleSnackbar()
+            })
     }
 
     return (
         <>
+            <Snackbar open={openSnack} autoHideDuration={6000} onClose={() => setOpenSnack(false)}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={() => setOpenSnack(false)}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
             <Container>
                 <Toolbar>
                     <Typography variant="h6">{t('onloan')}</Typography>
@@ -63,12 +119,12 @@ const BorrowedBooks = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.borrowed.length === 0 &&
+                                    {borrowed.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.borrowed.map(row => (
+                                    {borrowed.map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {row.bookid.title}</Typography>
@@ -76,7 +132,7 @@ const BorrowedBooks = (props) => {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('loanDate')}: {new Date(row.createdAt).toLocaleDateString()}</Typography>
-                                                <Typography variant="caption" display="block">{t('renewedDate')}: {row.renewedOn ? new Date(row.renewedOn).toLocaleDateString() : 'N/A'}</Typography>
+                                                <Typography variant="caption" display="block">{t('renewedDate')}: {row.renewedOn.length !== 0 ? new Date(row.renewedOn[row.renewedOn.length - 1]).toLocaleDateString() : 'N/A'}</Typography>
                                                 <Typography variant="caption" display="block">{t('due')}: {row.isHighDemand ? new Date(row.dueDate).toLocaleString() : new Date(row.dueDate).toLocaleDateString()}</Typography>
                                                 <Typography variant="caption" display="block">{t('renews')}: {row.renews}</Typography>
                                             </TableCell>
@@ -144,10 +200,5 @@ const useStyles = makeStyles(() => ({
         color: 'red'
     }
 }))
-
-BorrowedBooks.propTypes = {
-    borrowed: PropTypes.array.isRequired,
-    handleRenew: PropTypes.func.isRequired
-}
 
 export default BorrowedBooks

@@ -257,6 +257,10 @@ export const TRANSLATIONS_FR = {
     borrowDate: "Date d'emprunt",
     returnDate: 'Date de retour',
     dueDate: "Date d'échéance",
+    toggleDarkMode: 'Basculer entre le mode sombre / clair',
+    changeLanguage: 'Changer de langue',
+    home: 'Maison',
+    userMenu: 'Menu utilisateur',
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',

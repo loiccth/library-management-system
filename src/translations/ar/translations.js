@@ -257,6 +257,10 @@ export const TRANSLATIONS_AR = {
     borrowDate: 'تاريخ الاقتراض',
     returnDate: 'تاريخ العودة',
     dueDate: 'تاريخ الاستحقاق',
+    toggleDarkMode: 'تبديل الوضع الداكن / الفاتح',
+    changeLanguage: 'تغيير اللغة',
+    home: 'منزل، بيت',
+    userMenu: 'قائمة المستخدم',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',

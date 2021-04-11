@@ -10,7 +10,7 @@ const borrowSchema = new Schema({
     renews: { type: Number, required: true, default: 0 },
     isHighDemand: { type: Boolean, required: true },
     dueDate: { type: Date, required: true },
-    renewedOn: { type: Date },
+    renewedOn: { type: [Date], required: true },
     returnedOn: { type: Date }
 })
 

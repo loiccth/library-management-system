@@ -111,7 +111,7 @@ const borrowBook = async (userid, bookid, libraryOpenTime, res, academic = false
                             return res.status(201).json({
                                 message: 'msgBorrowSuccess',
                                 title: book.title,
-                                dueDate: new Date(dueDate)
+                                dueDate
                             })
                         }
                     }

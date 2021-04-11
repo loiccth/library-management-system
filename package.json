@@ -1,6 +1,6 @@
 {
   "name": "librarysystem",
-  "version": "0.1.0",
+  "version": "4.2.0",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^1.3.13",

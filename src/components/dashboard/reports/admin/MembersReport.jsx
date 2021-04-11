@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../../settings/api'
 import { CSVLink } from 'react-csv'
 import {
     Box,
@@ -48,13 +50,86 @@ const MembersReport = (props) => {
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
+    const [members, setMembers] = useState([])
+    const [filteredMembers, setFilteredMembers] = useState([])
+    const [filterMembers, setFilterMembers] = useState({
+        status: 'All'
+    })
     const [page, setPage] = useState(1)
     const rowPerPage = 5
+    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const getMembers = await getMembersReport(firstDay, new Date())
+            setMembers(getMembers)
+            setFilteredMembers(getMembers)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
 
     // Date range updated
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewMembersReport(date)
+        getNewMembersReport(date)
+    }
+
+    // Set filter type for member report
+    const handleMembersChange = (e) => {
+        setFilterMembers({
+            [e.target.name]: e.target.value
+        })
+        handleFilterMembers(e.target.value)
+    }
+
+    // Filter members
+    const handleFilterMembers = (value) => {
+        if (value === 'All')
+            setFilteredMembers([...members])
+        else
+            setFilteredMembers(members.filter(record => record.Status === value))
+    }
+
+    // Get new data when date range is updated
+    const getNewMembersReport = async (date) => {
+        if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
+            const getMembers = await getMembersReport(date[0], date[1])
+            setMembers(getMembers)
+
+            if (filterMembers.status !== 'All')
+                handleFilterMembers(filterMembers.status)
+            else
+                setFilteredMembers(getMembers)
+        }
+    }
+
+    // Function to get data
+    const getMembersReport = async (from, to) => {
+        const getMembers = await axios.post(`${url}/users/membersreport`, { from, to }, { withCredentials: true })
+
+        const temp = getMembers.data.map(member => {
+            return {
+                RegistrationID: member._id,
+                Date: member.createdAt,
+                Status: member.status,
+                MemberID: member.userid,
+                MemberType: member.memberType,
+                FirstName: member.udmid.firstName,
+                LastName: member.udmid.lastName,
+                Email: member.udmid.email,
+                Phone: member.udmid.phone,
+                udmType: member.udmid.udmType,
+                staffType: member.udmid.udmType === 'Staff' ? member.udmid.staffType : null,
+                studentType: member.udmid.udmType === 'Student' ? member.udmid.studentType : null,
+                academic: member.udmid.academic === true ? 'Yes' : 'No',
+                faculty: member.udmid.faculty,
+                contractEndDate: (member.udmid.udmType === 'Staff' && member.udmid.staffType === 'pt') ? member.udmid.contractEndDate : null
+            }
+        })
+        return temp
     }
 
     // Download csv file
@@ -66,7 +141,6 @@ const MembersReport = (props) => {
     const handlePagination = (e, value) => {
         setPage(value)
     }
-
 
     return (
         <>
@@ -138,7 +212,7 @@ const MembersReport = (props) => {
                                 >
                                     <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                     <CSVLink
-                                        data={props.filteredMembers.length === 0 ? 'No records found' : props.filteredMembers}
+                                        data={filteredMembers.length === 0 ? 'No records found' : filteredMembers}
                                         filename={`Members_Report_${new Date().toLocaleDateString()}.csv`}
                                         ref={csvlink}
                                     />
@@ -151,8 +225,8 @@ const MembersReport = (props) => {
                                     variant="standard"
                                     label={t('status')}
                                     select
-                                    value={props.filterMembers.status}
-                                    onChange={props.handleMembersChange}
+                                    value={filterMembers.status}
+                                    onChange={handleMembersChange}
                                 >
                                     <MenuItem value="All">{t('all')}</MenuItem>
                                     <MenuItem value="active">{t('active')}</MenuItem>
@@ -176,12 +250,12 @@ const MembersReport = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredMembers.length === 0 &&
+                                    {filteredMembers.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={3} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredMembers.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
+                                    {filteredMembers.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
                                         <TableRow key={record.RegistrationID}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('registrationId')}: {record.RegistrationID}</Typography>
@@ -212,7 +286,7 @@ const MembersReport = (props) => {
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.filteredMembers.length / rowPerPage)}
+                                                        count={Math.ceil(filteredMembers.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />
@@ -254,10 +328,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 MembersReport.propTypes = {
-    filteredMembers: PropTypes.array.isRequired,
-    getNewMembersReport: PropTypes.func.isRequired,
-    handleMembersChange: PropTypes.func.isRequired,
-    filterMembers: PropTypes.object.isRequired,
     locale: PropTypes.string.isRequired
 }
 

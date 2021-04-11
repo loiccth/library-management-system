@@ -19,9 +19,7 @@ const Reports = ({ user, locale }) => {
     }
     else if (user.memberType === 'Admin') {
         return (
-            <>
-                <AdminReports locale={locale} />
-            </>
+            <AdminReports locale={locale} />
         )
     }
 }

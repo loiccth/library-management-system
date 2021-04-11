@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../../settings/api'
 import { CSVLink } from 'react-csv'
 import {
     Box,
@@ -45,16 +47,109 @@ const maskMap = {
 const TransactionsReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
+    const [transactions, setTransactions] = useState([])
+    const [filteredTransactions, setFilteredTransactions] = useState([])
+    const [filterTransactions, setFilterTransactions] = useState({
+        type: 'All',
+        status: 'All'
+    })
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
     const [page, setPage] = useState(1)
     const rowPerPage = 5
+    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+
+    // Get data on page load
+    useEffect(() => {
+        const fetchData = async () => {
+            const getTransactions = await getTransactionsReport(firstDay, new Date())
+            setTransactions(getTransactions)
+            setFilteredTransactions(getTransactions)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Change filter type
+    const handleTransactionChange = (e) => {
+        setFilterTransactions({
+            ...filterTransactions,
+            [e.target.name]: e.target.value
+        })
+        handleFilterTransactions(e.target.name, e.target.value)
+    }
 
     // Get new data on date range update
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewTransactionsReport(date)
+        getNewTransactionsReport(date)
+    }
+
+    // Function to get transactions data
+    const getTransactionsReport = async (from, to) => {
+        const getBooks = await axios.post(`${url}/books/transactionsreport`, { from, to }, { withCredentials: true })
+
+        const temp = getBooks.data.map(transaction => {
+            return {
+                Transaction: transaction.transactionType,
+                TransactionID: transaction._id,
+                Created: new Date(transaction.createdAt).toLocaleString(),
+                Status: transaction.status,
+                MemberID: transaction.userid.userid,
+                BookTitle: transaction.bookid.title,
+                BookISBN: transaction.bookid.isbn,
+                BookCopyID: transaction.transactionType === 'Reserve' ? 'null' : transaction.copyid,
+                ReservationExpire: transaction.transactionType === 'Reserve' ? new Date(transaction.expireAt).toLocaleString() : 'null',
+                ReservationCancelled: transaction.transactionType === 'Reserve' ? transaction.isCancel : 'null',
+                HighDemand: transaction.transactionType === 'Reserve' ? 'null' : transaction.isHighDemand,
+                Renews: transaction.transactionType === 'Reserve' ? 'null' : transaction.renews,
+                Due: transaction.transactionType === 'Reserve' ? 'null' : new Date(transaction.dueDate).toLocaleString(),
+                Returned: transaction.transactionType === 'Reserve' ? 'null' : transaction.returnedOn && new Date(transaction.returnedOn).toLocaleString()
+            }
+        })
+        return temp
+    }
+
+    // Get new transactons report when date range is updated
+    const getNewTransactionsReport = async (date) => {
+        if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
+            const getBooks = await getTransactionsReport(date[0], date[1])
+            setTransactions(getBooks)
+
+            if (filterTransactions.type !== 'All')
+                handleFilterTransactions('type', filterTransactions.type)
+            else if (filterTransactions.status !== 'All')
+                handleFilterTransactions('status', filterTransactions.status)
+            else
+                setFilteredTransactions(getBooks)
+        }
+    }
+
+    // Filter data depending on filters
+    const handleFilterTransactions = (key, value) => {
+        if (key === 'type') {
+            if (value !== 'All' && filterTransactions.status !== 'All')
+                setFilteredTransactions(transactions.filter((record) => record.Transaction === value && record.Status === filterTransactions.status))
+            else if (filterTransactions.status !== 'All')
+                setFilteredTransactions(transactions.filter((record) => record.Status === filterTransactions.status))
+            else if (value !== 'All')
+                setFilteredTransactions(transactions.filter((record) => record.Transaction === value))
+            else
+                setFilteredTransactions([...transactions])
+        }
+        if (key === 'status') {
+            if (value !== 'All' && filterTransactions.type !== 'All') {
+                setFilteredTransactions(transactions.filter((record) => record.Status === value && record.Transaction === filterTransactions.type))
+            }
+            else if (filterTransactions.type !== 'All')
+                setFilteredTransactions(transactions.filter((record) => record.Transaction === filterTransactions.type))
+            else if (value !== 'All')
+                setFilteredTransactions(transactions.filter((record) => record.Status === value))
+            else
+                setFilteredTransactions([...transactions])
+        }
     }
 
     // Download csv
@@ -136,7 +231,7 @@ const TransactionsReport = (props) => {
                                 >
                                     <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                     <CSVLink
-                                        data={props.filteredTransactions.length === 0 ? 'No records found' : props.filteredTransactions}
+                                        data={filteredTransactions.length === 0 ? 'No records found' : filteredTransactions}
                                         filename={`Book_Transactions_Report_${new Date().toLocaleDateString()}.csv`}
                                         ref={csvlink}
                                     />
@@ -149,8 +244,8 @@ const TransactionsReport = (props) => {
                                     variant="standard"
                                     label={t('type')}
                                     select
-                                    value={props.filterTransactions.type}
-                                    onChange={props.handleTransactionChange}
+                                    value={filterTransactions.type}
+                                    onChange={handleTransactionChange}
                                 >
                                     <MenuItem value="All">{t('all')}</MenuItem>
                                     <MenuItem value="Reserve">{t('reserve')}</MenuItem>
@@ -164,13 +259,13 @@ const TransactionsReport = (props) => {
                                     variant="standard"
                                     label={t('status')}
                                     select
-                                    value={props.filterTransactions.status}
-                                    onChange={props.handleTransactionChange}
+                                    value={filterTransactions.status}
+                                    onChange={handleTransactionChange}
                                 >
                                     <MenuItem value="All">{t('all')}</MenuItem>
                                     <MenuItem value="active">{t('active')}</MenuItem>
                                     <MenuItem value="archive">{t('archived')}</MenuItem>
-                                    {props.filterTransactions.type === 'Reserve' && <MenuItem value="expired">{t('expired')}</MenuItem>}
+                                    {filterTransactions.type === 'Reserve' && <MenuItem value="expired">{t('expired')}</MenuItem>}
                                 </TextField>
                             </Grid>
                         </Grid>
@@ -194,12 +289,12 @@ const TransactionsReport = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.filteredTransactions.length === 0 &&
+                                    {filteredTransactions.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.filteredTransactions.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
+                                    {filteredTransactions.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
                                         <TableRow key={record.TransactionID}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('type')}: {record.Transaction}</Typography>
@@ -239,7 +334,7 @@ const TransactionsReport = (props) => {
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.filteredTransactions.length / rowPerPage)}
+                                                        count={Math.ceil(filteredTransactions.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />
@@ -281,10 +376,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 TransactionsReport.propTypes = {
-    filteredTransactions: PropTypes.array.isRequired,
-    filterTransactions: PropTypes.object.isRequired,
-    getNewTransactionsReport: PropTypes.func.isRequired,
-    handleTransactionChange: PropTypes.func.isRequired,
     locale: PropTypes.string.isRequired
 }
 

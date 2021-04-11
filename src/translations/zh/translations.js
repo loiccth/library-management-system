@@ -257,6 +257,10 @@ export const TRANSLATIONS_ZH = {
     borrowDate: '借阅日期',
     returnDate: '归期',
     dueDate: '截止日期',
+    toggleDarkMode: '切换暗/亮模式',
+    changeLanguage: '改变语言',
+    home: '家',
+    userMenu: '用户菜单',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

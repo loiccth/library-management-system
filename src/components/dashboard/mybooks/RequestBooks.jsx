@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
 import {
+    Alert,
     Button,
     Container,
     Dialog,
@@ -12,23 +12,26 @@ import {
     DialogContent,
     DialogTitle,
     Grid,
+    Snackbar,
     TextField,
     useTheme
 } from '@material-ui/core'
 
-const RequestBooks = (props) => {
+const RequestBooks = () => {
     const [window, setWindow] = useState(false)
     const { register, handleSubmit, errors, reset } = useForm()
     const { t } = useTranslation()
+    const [openSnack, setOpenSnack] = useState(false)
+    const [snackbar, setSnackbar] = useState({ type: null })
     const theme = useTheme()
 
-    // Open window to request a book
-    const handleToggle = () => {
-        setWindow(!window)
+    // Toggle snackbar feedback
+    const handleSnackbar = () => {
+        setOpenSnack(!openSnack)
     }
 
-    // Close window and reset data
-    const handleWindowClose = () => {
+    // Toggle window to request a book
+    const handleToggle = () => {
         setWindow(!window)
         reset()
     }
@@ -37,12 +40,19 @@ const RequestBooks = (props) => {
     const onSubmit = (data) => {
         axios.post(`${url}/books/request`, data, { withCredentials: true })
             .then(result => {
-                props.handleRequestBook(result.data)
+                setSnackbar({
+                    type: 'success',
+                    msg: t(result.data.message)
+                })
             })
             .catch(err => {
-                props.handleRequestBook(err.response.data)
+                setSnackbar({
+                    type: 'warning',
+                    msg: t(err.response.data.error)
+                })
             })
             .finally(() => {
+                handleSnackbar()
                 setWindow(false)
                 reset()
             })
@@ -50,6 +60,11 @@ const RequestBooks = (props) => {
 
     return (
         <>
+            <Snackbar open={openSnack} autoHideDuration={6000} onClose={() => setOpenSnack(false)}>
+                <Alert elevation={6} severity={snackbar.type === 'success' ? 'success' : 'warning'} onClose={() => setOpenSnack(false)}>
+                    {snackbar.msg}
+                </Alert>
+            </Snackbar>
             <Container>
                 <Button variant="contained" onClick={handleToggle}>{t('requestBook')}</Button>
             </Container>
@@ -59,7 +74,7 @@ const RequestBooks = (props) => {
                         maxWidth="sm"
                         fullWidth
                         open={window}
-                        onClose={handleWindowClose}
+                        onClose={handleToggle}
                         style={{ direction: theme.direction }}
                     >
                         <DialogTitle>
@@ -87,7 +102,7 @@ const RequestBooks = (props) => {
                             </form>
                         </DialogContent>
                         <DialogActions>
-                            <Button variant="contained" onClick={handleWindowClose} color="secondary">
+                            <Button variant="contained" onClick={handleToggle} color="secondary">
                                 {t('close')}
                             </Button>
                             <Button
@@ -103,10 +118,6 @@ const RequestBooks = (props) => {
             </Grid>
         </>
     )
-}
-
-RequestBooks.propTypes = {
-    handleRequestBook: PropTypes.func.isRequired
 }
 
 export default RequestBooks

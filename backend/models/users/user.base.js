@@ -427,7 +427,7 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                     // Update borrow and book details
                     borrow.renews++
                     borrow.dueDate = newDueDate
-                    borrow.renewedOn = Date()
+                    borrow.renewedOn.push(Date())
 
                     Book.findOne({ _id: borrow.bookid })
                         .then(book => {

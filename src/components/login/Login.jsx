@@ -73,9 +73,9 @@ const Login = (props) => {
                             error={!!errors.userid}
                             id="userid"
                             name="userid"
-                            label="MemberID"
+                            label={t('memberid')}
                             autoFocus
-                            inputRef={register({ required: "Empty MemberID field." })}
+                            inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.userid ? errors.userid.message : " "}
                         />
                         <TextField
@@ -88,7 +88,7 @@ const Login = (props) => {
                             id="password"
                             name="password"
                             label={t('password')}
-                            inputRef={register({ required: "Empty Password field." })}
+                            inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.password ? errors.password.message : " "}
                         />
                         <FormControlLabel
@@ -113,6 +113,7 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        padding: 10,
     },
     form: {
         width: '100%',

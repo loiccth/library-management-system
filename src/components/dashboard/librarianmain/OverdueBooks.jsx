@@ -66,7 +66,7 @@ const OverdueBooks = (props) => {
             })
     }
 
-    // Uncheck all checkboxes
+    // Toggle all checkboxes
     const handleCheckAll = (e) => {
         setCheck(e.target.checked)
         props.handleCheckAll(e)

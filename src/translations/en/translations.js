@@ -257,6 +257,10 @@ export const TRANSLATIONS_EN = {
     borrowDate: 'Borrow date',
     returnDate: 'Return date',
     dueDate: 'Due date',
+    toggleDarkMode: 'Toggle dark/light mode',
+    changeLanguage: 'Change language',
+    home: 'Home',
+    userMenu: 'User menu',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',

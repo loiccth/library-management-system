@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
+import axios from 'axios'
+import url from '../../../../settings/api'
 import { CSVLink } from 'react-csv'
 import {
     Box,
@@ -42,16 +44,67 @@ const maskMap = {
 const BooksReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
+    const [books, setBooks] = useState([])
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
     const [page, setPage] = useState(1)
     const rowPerPage = 5
+    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+
+    // Get data on page load
+    useEffect(() => {
+        const fetchData = async () => {
+            const getBooks = await getBooksReport(firstDay, new Date())
+            setBooks(getBooks)
+        }
+        fetchData()
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Get new data on date range update
     const handleDateUpdate = (date) => {
         setDate(date)
-        props.getNewBooksReport(date)
+        getNewBooksReport(date)
+    }
+
+    // Function to get books data
+    const getBooksReport = async (from, to) => {
+        const getBooks = await axios.post(`${url}/books/booksreport`, { from, to }, { withCredentials: true })
+
+        const temp = getBooks.data.map(book => {
+            let temp = ''
+
+            for (let i = 0; i < book.author.length; i++) {
+                temp += book.author[i]
+                if (book.author.length - 1 > i)
+                    temp += '; '
+            }
+
+            return {
+                BookID: book._id,
+                ISBN: book.isbn,
+                Title: book.title.replace(/,/g, '; '),
+                Author: temp,
+                Publisher: book.publisher.replace(/,/g, '; '),
+                PublishedDate: new Date(book.publishedDate).toLocaleDateString(),
+                Category: book.category.replace(/,/g, '; '),
+                Campus: book.campus === 'rhill' ? 'Rose-Hill Campus' : 'Swami Dayanand Campus',
+                Location: book.location.replace(/,/g, '; '),
+                NumOfCopies: book.copies.length,
+                DateAdded: new Date(book.createdAt).toLocaleDateString(),
+            }
+        })
+        return temp
+    }
+
+    // Get new books data on date range change
+    const getNewBooksReport = async (date) => {
+        if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
+            const getBooks = await getBooksReport(date[0], date[1])
+            setBooks(getBooks)
+        }
     }
 
     // Download csv file
@@ -128,7 +181,7 @@ const BooksReport = (props) => {
                             <Grid item xs={12} sm={5} md={3} lg={2}>
                                 <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                 <CSVLink
-                                    data={props.books.length === 0 ? 'No records found' : props.books}
+                                    data={books.length === 0 ? 'No records found' : books}
                                     filename={`Books_Report_${new Date().toLocaleDateString()}.csv`}
                                     ref={csvlink}
                                 />
@@ -152,12 +205,12 @@ const BooksReport = (props) => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {props.books.length === 0 &&
+                                    {books.length === 0 &&
                                         <TableRow>
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {props.books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
+                                    {books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
                                         <TableRow key={record.BookID}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {record.Title}</Typography>
@@ -186,7 +239,7 @@ const BooksReport = (props) => {
                                                 <Grid item xs={12}>
                                                     <Pagination
                                                         className={classes.pagination}
-                                                        count={Math.ceil(props.books.length / rowPerPage)}
+                                                        count={Math.ceil(books.length / rowPerPage)}
                                                         page={page}
                                                         onChange={handlePagination}
                                                     />
@@ -228,8 +281,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 BooksReport.propTypes = {
-    books: PropTypes.array.isRequired,
-    getNewBooksReport: PropTypes.func.isRequired,
     locale: PropTypes.string.isRequired
 }
 

@@ -12,7 +12,6 @@ import Reservations from './Reservations'
 
 const LibrarianMain = (props) => {
     const classes = useStyles()
-    const [loading, setLoading] = useState(true)
     const [overdueBooks, setOverdueBooks] = useState([])
     const [dueBooks, setDueBooks] = useState([])
     const [duePayments, setDuePayments] = useState([])
@@ -98,8 +97,6 @@ const LibrarianMain = (props) => {
                     }
                 })
             )
-
-            setLoading(false)
         }
         fetchData()
 
@@ -236,34 +233,32 @@ const LibrarianMain = (props) => {
 
     return (
         <>
-            {loading ? null :
-                <Box sx={{ my: 5 }}>
-                    <Grid container justifyContent="space-evenly">
-                        <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <IssueBook handleIssueBook={handleIssueBook} />
-                        </Grid>
-                        <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
-                            <ReturnBook handleReturnBook={handleReturnBook} handleNewPayment={handleNewPayment} />
-                        </Grid>
+            <Box sx={{ my: 5 }}>
+                <Grid container justifyContent="space-evenly">
+                    <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
+                        <IssueBook handleIssueBook={handleIssueBook} />
                     </Grid>
-                    <Box sx={{ my: 3 }}>
-                        <Divider />
-                    </Box>
-                    <OverdueBooks overdueBooks={overdueBooks} handleCheck={handleCheck} handleCheckAll={handleCheckAll} handleUncheckAll={handleUncheckAll} />
-                    <Box sx={{ my: 3 }}>
-                        <Divider />
-                    </Box>
-                    <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} locale={props.locale} />
-                    <Box sx={{ my: 3 }}>
-                        <Divider />
-                    </Box>
-                    <DuePayments duePayments={duePayments} handleFinePayment={handleFinePayment} />
-                    <Box sx={{ my: 3 }}>
-                        <Divider />
-                    </Box>
-                    <Reservations reservations={reservations} />
+                    <Grid item xs={5} sm={3} md={2} lg={2} xl={1} className={classes.button}>
+                        <ReturnBook handleReturnBook={handleReturnBook} handleNewPayment={handleNewPayment} />
+                    </Grid>
+                </Grid>
+                <Box sx={{ my: 3 }}>
+                    <Divider />
                 </Box>
-            }
+                <OverdueBooks overdueBooks={overdueBooks} handleCheck={handleCheck} handleCheckAll={handleCheckAll} handleUncheckAll={handleUncheckAll} />
+                <Box sx={{ my: 3 }}>
+                    <Divider />
+                </Box>
+                <DueBooks dueBooks={dueBooks} getNewDueBooks={getNewDueBooks} handleCheckDue={handleCheckDue} handleCheckAllDue={handleCheckAllDue} handleUncheckAllDue={handleUncheckAllDue} locale={props.locale} />
+                <Box sx={{ my: 3 }}>
+                    <Divider />
+                </Box>
+                <DuePayments duePayments={duePayments} handleFinePayment={handleFinePayment} />
+                <Box sx={{ my: 3 }}>
+                    <Divider />
+                </Box>
+                <Reservations reservations={reservations} />
+            </Box>
         </>
     )
 }

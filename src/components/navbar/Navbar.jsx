@@ -13,7 +13,8 @@ import {
     IconButton,
     Menu,
     MenuItem,
-    Toolbar
+    Toolbar,
+    Tooltip
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
@@ -91,32 +92,36 @@ const Navbar = (props) => {
                             </Link>
                         </Hidden>
                     </div>
-                    {props.darkMode ?
+                    <Tooltip title={t('toggleDarkMode')} arrow>
+                        {props.darkMode ?
+                            <IconButton
+                                aria-haspopup="false"
+                                color="inherit"
+                                onClick={() => props.handleToggleTheme()}
+                            >
+                                <BrightnessHighIcon />
+                            </IconButton>
+                            :
+                            <IconButton
+                                aria-haspopup="false"
+                                color="inherit"
+                                onClick={() => props.handleToggleTheme()}
+                            >
+                                <Brightness3Icon />
+                            </IconButton>
+                        }
+                    </Tooltip>
+                    <Tooltip title={t('changeLanguage')} arrow>
                         <IconButton
-                            aria-haspopup="false"
+                            aria-label="change language"
+                            aria-controls="menu-language"
+                            aria-haspopup="true"
+                            onClick={handleLanguage}
                             color="inherit"
-                            onClick={() => props.handleToggleTheme()}
                         >
-                            <BrightnessHighIcon />
+                            <TranslateIcon />
                         </IconButton>
-                        :
-                        <IconButton
-                            aria-haspopup="false"
-                            color="inherit"
-                            onClick={() => props.handleToggleTheme()}
-                        >
-                            <Brightness3Icon />
-                        </IconButton>
-                    }
-                    <IconButton
-                        aria-label="change language"
-                        aria-controls="menu-language"
-                        aria-haspopup="true"
-                        onClick={handleLanguage}
-                        color="inherit"
-                    >
-                        <TranslateIcon />
-                    </IconButton>
+                    </Tooltip>
                     <Menu
                         id="menu-language"
                         anchorEl={anchorE2}
@@ -153,25 +158,29 @@ const Navbar = (props) => {
                             عربي
                         </MenuItem>
                     </Menu>
-                    <IconButton
-                        aria-haspopup="false"
-                        color="inherit"
-                        component={Link}
-                        to="/"
-                    >
-                        <HomeIcon />
-                    </IconButton>
+                    <Tooltip title={t('home')} arrow>
+                        <IconButton
+                            aria-haspopup="false"
+                            color="inherit"
+                            component={Link}
+                            to="/"
+                        >
+                            <HomeIcon />
+                        </IconButton>
+                    </Tooltip>
                     {props.user.isLoggedIn ?
                         <div>
-                            <IconButton
-                                aria-label="account of current user"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
-                                onClick={handleMenu}
-                                color="inherit"
-                            >
-                                <AccountCircleIcon />
-                            </IconButton>
+                            <Tooltip title={t('userMenu')} arrow>
+                                <IconButton
+                                    aria-label="user menu"
+                                    aria-controls="menu-appbar"
+                                    aria-haspopup="true"
+                                    onClick={handleMenu}
+                                    color="inherit"
+                                >
+                                    <AccountCircleIcon />
+                                </IconButton>
+                            </Tooltip>
                             <Menu
                                 id="menu-appbar"
                                 anchorEl={anchorEl}
