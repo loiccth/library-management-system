@@ -261,6 +261,12 @@ export const TRANSLATIONS_ZH = {
     changeLanguage: '改变语言',
     home: '家',
     userMenu: '用户菜单',
+    flags: '标志',
+    transactionHistory: '交易记录',
+    transactionType: '交易类型',
+    paymentHistory: '支付历史',
+    reserveDate: '预约日期',
+    cancelDate: '取消日期',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

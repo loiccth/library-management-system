@@ -261,6 +261,12 @@ export const TRANSLATIONS_AR = {
     changeLanguage: 'تغيير اللغة',
     home: 'منزل، بيت',
     userMenu: 'قائمة المستخدم',
+    flags: 'أعلام',
+    transactionHistory: 'تاريخ المعاملات',
+    transactionType: 'نوع المعاملة',
+    paymentHistory: 'تاريخ الدفع',
+    reserveDate: 'تاريخ الحجز',
+    cancelDate: 'تاريخ الإلغاء',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',

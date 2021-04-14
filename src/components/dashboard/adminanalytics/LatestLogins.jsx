@@ -15,12 +15,15 @@ import {
     TableRow,
     Toolbar,
     Typography,
+    Pagination
 } from '@material-ui/core'
 
 const LatestLogins = () => {
     const classes = useStyles()
     const [latest, setLatest] = useState([])
+    const [page, setPage] = useState(1)
     const { t } = useTranslation()
+    const rowPerPage = 5
 
     // Fetch data on page load
     useEffect(() => {
@@ -33,6 +36,11 @@ const LatestLogins = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    // Change page
+    const handlePagination = (e, value) => {
+        setPage(value)
+    }
 
 
     return (
@@ -61,7 +69,7 @@ const LatestLogins = () => {
                                             <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {latest.map(row => (
+                                    {latest.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
                                                 <Typography variant="caption" display="block">{t('MemberID')}: {row.userid.userid}</Typography>
@@ -85,6 +93,20 @@ const LatestLogins = () => {
                                             </TableCell>
                                         </TableRow>
                                     ))}
+                                    <TableRow>
+                                        <TableCell colSpan={5}>
+                                            <Grid container justifyContent="center">
+                                                <Grid item xs={12}>
+                                                    <Pagination
+                                                        className={classes.pagination}
+                                                        count={Math.ceil(latest.length / rowPerPage)}
+                                                        page={page}
+                                                        onChange={handlePagination}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Paper>
@@ -111,6 +133,10 @@ const useStyles = makeStyles(theme => ({
     },
     highpriority: {
         color: 'red'
+    },
+    pagination: {
+        display: 'flex',
+        justifyContent: 'center'
     }
 }))
 

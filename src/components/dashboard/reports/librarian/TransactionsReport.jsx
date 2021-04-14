@@ -105,6 +105,7 @@ const TransactionsReport = (props) => {
                 ReservationCancelled: transaction.transactionType === 'Reserve' ? transaction.isCancel : 'null',
                 HighDemand: transaction.transactionType === 'Reserve' ? 'null' : transaction.isHighDemand,
                 Renews: transaction.transactionType === 'Reserve' ? 'null' : transaction.renews,
+                RenewDates: transaction.transactionType === 'Reserve' ? 'null' : transaction.renewedOn,
                 Due: transaction.transactionType === 'Reserve' ? 'null' : new Date(transaction.dueDate).toLocaleString(),
                 Returned: transaction.transactionType === 'Reserve' ? 'null' : transaction.returnedOn && new Date(transaction.returnedOn).toLocaleString()
             }
@@ -281,11 +282,11 @@ const TransactionsReport = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('transactionDetails')}</TableCell>
-                                        <TableCell>{t('memberid')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('reservations')}</TableCell>
-                                        <TableCell>{t('borrowDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('transactionDetails')}</TableCell>
+                                        <TableCell width={'15%'}>{t('memberid')}</TableCell>
+                                        <TableCell width={'25%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('reservations')}</TableCell>
+                                        <TableCell width={'20%'}>{t('borrowDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -354,7 +355,7 @@ const TransactionsReport = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 650,
+        minWidth: 900,
         overflowX: 'auto'
     },
     title: {

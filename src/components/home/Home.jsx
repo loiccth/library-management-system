@@ -29,7 +29,7 @@ const Home = (props) => {
     const [loading, setLoading] = useState(true)
     const [books, setBooks] = useState(null)
     const [categories, setCategories] = useState([])
-    const { register, handleSubmit, setValue, control } = useForm({
+    const { register, handleSubmit, errors, setValue, control } = useForm({
         defaultValues: {
             searchType: 'title',
             category: 'All'
@@ -94,7 +94,9 @@ const Home = (props) => {
                                     style={{ width: '85%' }}
                                     name="search"
                                     variant="standard"
-                                    inputRef={register()}
+                                    error={!!errors.search}
+                                    inputRef={register({ required: t('requiredField') })}
+                                    helperText={!!errors.search ? errors.search.message : ""}
                                 />
                                 <IconButton type="submit" className={classes.iconButton} aria-label="search">
                                     <SearchIcon />

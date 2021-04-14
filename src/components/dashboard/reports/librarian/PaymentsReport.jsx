@@ -91,7 +91,10 @@ const PaymentsReport = (props) => {
                 BookISBN: payment.bookid.isbn,
                 BookCopyID: payment.copyid,
                 NumberOfDays: payment.numOfDays,
-                PricePerDay: payment.pricePerDay
+                PricePerDay: payment.pricePerDay,
+                BorrowDate: payment.borrowid.createdAt,
+                DueDate: payment.borrowid.dueDate,
+                ReturnedDate: payment.borrowid.returnedOn
             }
         })
         return temp
@@ -241,16 +244,17 @@ const PaymentsReport = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('paymentDetails')}</TableCell>
-                                        <TableCell>{t('memberid')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('amount')}</TableCell>
+                                        <TableCell width={'25%'}>{t('paymentDetails')}</TableCell>
+                                        <TableCell width={'10%'}>{t('memberid')}</TableCell>
+                                        <TableCell width={'25%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'25%'}>{t('borrowDetails')}</TableCell>
+                                        <TableCell width={'15%'}>{t('amount')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {filteredPayments.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={4} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
                                     {filteredPayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
@@ -258,13 +262,18 @@ const PaymentsReport = (props) => {
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('id')}: {record.PaymentID}</Typography>
                                                 <Typography variant="caption" display="block">{t('paid')}: {record.Paid === true ? 'Yes' : 'No'}</Typography>
-                                                <Typography variant="caption" display="block">{t('date')}: {record.Created}</Typography>
+                                                <Typography variant="caption" display="block">{t('date')}: {new Date(record.Created).toLocaleString()}</Typography>
                                             </TableCell>
                                             <TableCell>{record.MemberID}</TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {record.BookTitle}</Typography>
                                                 <Typography variant="caption" display="block">{t('isbn')}: {record.BookISBN}</Typography>
-                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>}
+                                                <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">{t('borrowDate')}: {new Date(record.BorrowDate).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('dueDate')}: {new Date(record.DueDate).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('returnDate')}: {new Date(record.ReturnedDate).toLocaleString()}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {record.PricePerDay}</Typography>
@@ -274,7 +283,7 @@ const PaymentsReport = (props) => {
                                         </TableRow>
                                     ))}
                                     <TableRow>
-                                        <TableCell colSpan={4}>
+                                        <TableCell colSpan={5}>
                                             <Grid container justifyContent="center">
                                                 <Grid item xs={12}>
                                                     <Pagination
@@ -299,7 +308,7 @@ const PaymentsReport = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 650,
+        minWidth: 900,
         overflowX: 'auto'
     },
     title: {

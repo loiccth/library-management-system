@@ -676,6 +676,7 @@ librarianSchema.methods.getPaymentsReport = function (from, to, res) {
     toDate.setDate(toDate.getDate() + 1)
 
     Payment.find({ createdAt: { $gte: fromDate, $lt: toDate } })
+        .populate('borrowid', ['createdAt', 'returnedOn', 'dueDate'])
         .populate('userid', ['userid'])
         .populate('bookid', ['title', 'isbn'])
         .sort({ createdAt: 1 })

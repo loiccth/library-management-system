@@ -261,6 +261,12 @@ export const TRANSLATIONS_FR = {
     changeLanguage: 'Changer de langue',
     home: 'Maison',
     userMenu: 'Menu utilisateur',
+    flags: 'Drapeaux',
+    transactionHistory: 'Historique des transactions',
+    transactionType: 'Type de transaction',
+    paymentHistory: 'Historique de paiement',
+    reserveDate: 'Date de réservation',
+    cancelDate: "Date d'annulation",
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',

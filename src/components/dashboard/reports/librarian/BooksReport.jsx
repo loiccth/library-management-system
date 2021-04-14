@@ -197,11 +197,11 @@ const BooksReport = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('author')}</TableCell>
-                                        <TableCell>{t('publishDetails')}</TableCell>
-                                        <TableCell>{t('locationDetails')}</TableCell>
-                                        <TableCell>{t('otherDetails')}</TableCell>
+                                        <TableCell width={'25%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('author')}</TableCell>
+                                        <TableCell width={'20%'}>{t('publishDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('locationDetails')}</TableCell>
+                                        <TableCell width={'15%'}>{t('otherDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -259,7 +259,7 @@ const BooksReport = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 650,
+        minWidth: 900,
         overflowX: 'auto'
     },
     title: {
