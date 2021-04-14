@@ -208,7 +208,7 @@ router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => 
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else {
         Payment.find({ paid: false })
-            .populate('borrowid')
+            .populate('borrowid', ['createdAt', 'returnedOn', 'dueDate'])
             .populate('userid', ['userid'])
             .populate('bookid', ['title', 'isbn'])
             .sort({ createdAt: 1 })
@@ -230,6 +230,24 @@ router.post('/membersreport', jwt({ secret, credentialsRequired: true, getToken:
             })
             .catch(err => console.log(err))
     }
+})
+
+// Get list of transactions a user made
+router.get('/transactions_history', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    User.findById(req.user._id)
+        .then(user => {
+            user.transactionsHistory(res)
+        })
+        .catch(err => console.log(err))
+})
+
+// Get list of payments a user made
+router.get('/payments_history', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    User.findById(req.user._id)
+        .then(user => {
+            user.paymentsHistory(res)
+        })
+        .catch(err => console.log(err))
 })
 
 module.exports = router

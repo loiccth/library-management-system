@@ -9,6 +9,7 @@ const Reserve = require('../transactions/reserve.model')
 const Book = require('../book.model')
 const Setting = require('../setting.model')
 const UDM = require('../udm/udm.base')
+const Payment = require('../payment.model')
 const checkHolidays = require('../../function/checkHolidays')
 const sendSMS = require('../../function/sendSMS')
 
@@ -488,6 +489,23 @@ baseUserSchema.methods.getBorrowedBooks = function (res) {
         .then(booksBorrowed => {
             return res.json(booksBorrowed)
         })
+}
+
+baseUserSchema.methods.transactionsHistory = function (res) {
+    Transaction.find({ userid: this._id, status: { $ne: 'active' } })
+        .populate('bookid', ['title', 'isbn'])
+        .sort({ createdAt: -1 })
+        .then(transactions => res.json(transactions))
+        .catch(err => console.log(err))
+}
+
+baseUserSchema.methods.paymentsHistory = function (res) {
+    Payment.find({ userid: this._id })
+        .populate('borrowid', ['createdAt', 'returnedOn', 'dueDate'])
+        .populate('bookid', ['title', 'isbn'])
+        .sort({ createdAt: -1 })
+        .then(payments => res.json(payments))
+        .catch(err => console.log(err))
 }
 
 const User = mongoose.model('User', baseUserSchema)

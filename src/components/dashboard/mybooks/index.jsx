@@ -4,6 +4,8 @@ import { Box, Divider } from '@material-ui/core'
 import RequestBooks from './RequestBooks'
 import BorrowedBooks from './BorrowedBooks'
 import ReservedBooks from './ReservedBooks'
+import TransactionHistory from './TransactionHistory'
+import PaymentHistory from './PaymentHistory'
 
 const MyBooks = (props) => {
     return (
@@ -22,6 +24,14 @@ const MyBooks = (props) => {
                     <Divider />
                 </Box>
                 <ReservedBooks />
+                <Box sx={{ my: 7 }}>
+                    <Divider />
+                </Box>
+                <TransactionHistory />
+                <Box sx={{ my: 7 }}>
+                    <Divider />
+                </Box>
+                <PaymentHistory />
             </Box>
         </>
     )
