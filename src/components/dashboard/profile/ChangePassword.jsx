@@ -27,7 +27,7 @@ const ChangePassword = (props) => {
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const { register, handleSubmit, errors, reset, watch } = useForm()
-    const [showPasswords, setShowPassword] = useState({
+    const [showPasswords, setShowPasswords] = useState({
         oldpassword: false,
         newpassword: false,
         confirmpassword: false
@@ -69,7 +69,7 @@ const ChangePassword = (props) => {
 
     // Show old password
     const handleClickShowOldPassword = () => {
-        setShowPassword({
+        setShowPasswords({
             ...showPasswords,
             oldpassword: !showPasswords.oldpassword,
         })
@@ -77,7 +77,7 @@ const ChangePassword = (props) => {
 
     // Show new password
     const handleClickShowNewPassword = () => {
-        setShowPassword({
+        setShowPasswords({
             ...showPasswords,
             newpassword: !showPasswords.newpassword,
         })
@@ -85,7 +85,7 @@ const ChangePassword = (props) => {
 
     // Show confirm password
     const handleClickShowConfirmPassword = () => {
-        setShowPassword({
+        setShowPasswords({
             ...showPasswords,
             confirmpassword: !showPasswords.confirmpassword,
         })
@@ -114,7 +114,7 @@ const ChangePassword = (props) => {
             </Snackbar>
             <form onSubmit={handleSubmit(onSubmit)} noValidate className={classes.form}>
                 <FormControl fullWidth>
-                    <InputLabel htmlFor="oldpassword">{t('oldPassword')}</InputLabel>
+                    <InputLabel error={!!errors.oldpassword} htmlFor="oldpassword">{t('oldPassword')}</InputLabel>
                     <Input
                         id="oldpassword"
                         name="oldpassword"
@@ -138,7 +138,7 @@ const ChangePassword = (props) => {
                     <FormHelperText error>{!!errors.oldpassword ? errors.oldpassword.message : " "}</FormHelperText>
                 </FormControl>
                 <FormControl fullWidth>
-                    <InputLabel htmlFor="newpassword">{t('newPassword')}</InputLabel>
+                    <InputLabel error={!!errors.newpassword} htmlFor="newpassword">{t('newPassword')}</InputLabel>
                     <Input
                         id="newpassword"
                         name="newpassword"
@@ -168,7 +168,7 @@ const ChangePassword = (props) => {
                     <FormHelperText error>{!!errors.newpassword ? errors.newpassword.message : " "}</FormHelperText>
                 </FormControl>
                 <FormControl fullWidth>
-                    <InputLabel htmlFor="confirmpassword">{t('confirmPassword')}</InputLabel>
+                    <InputLabel error={!!errors.confirmpassword} htmlFor="confirmpassword">{t('confirmPassword')}</InputLabel>
                     <Input
                         id="confirmpassword"
                         name="confirmpassword"

@@ -10,18 +10,28 @@ import {
     Button,
     Checkbox,
     Container,
+    FormControl,
     FormControlLabel,
+    FormHelperText,
+    IconButton,
+    Input,
+    InputAdornment,
+    InputLabel,
     makeStyles,
     Paper,
     Snackbar,
     TextField,
     Typography
 } from '@material-ui/core'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
 const Login = (props) => {
+    const classes = useStyles()
     const { register, handleSubmit, errors, reset } = useForm()
     const [snackbar, setSnackbar] = useState()
     const [open, setOpen] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
     const { t } = useTranslation()
 
     // Open snackbar feedback
@@ -32,6 +42,10 @@ const Login = (props) => {
     // Close snackbar feedback
     const handleClose = () => {
         setOpen(false);
+    }
+
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword)
     }
 
     // Login button pressed send userid and password to server
@@ -49,7 +63,9 @@ const Login = (props) => {
         reset()
     }
 
-    const classes = useStyles()
+    const handleMouseDownPassword = (e) => {
+        e.preventDefault()
+    }
 
     return (
         <React.Fragment>
@@ -78,19 +94,32 @@ const Login = (props) => {
                             inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.userid ? errors.userid.message : " "}
                         />
-                        <TextField
-                            type="password"
-                            variant="standard"
-                            margin="normal"
-                            required
-                            fullWidth
-                            error={!!errors.password}
-                            id="password"
-                            name="password"
-                            label={t('password')}
-                            inputRef={register({ required: t('requiredField') })}
-                            helperText={!!errors.password ? errors.password.message : " "}
-                        />
+                        <FormControl fullWidth style={{ marginTop: 16, marginBottom: 16 }}>
+                            <InputLabel error={!!errors.password} htmlFor="password" required>{t('password')}</InputLabel>
+                            <Input
+                                type={showPassword ? "text" : "password"}
+                                variant="standard"
+                                required
+                                error={!!errors.password}
+                                id="password"
+                                name="password"
+                                label={t('password')}
+                                inputRef={register({ required: t('requiredField') })}
+                                endAdornment={
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            id="passwordtoggle"
+                                            aria-label="toggle password visibility"
+                                            onClick={handleClickShowPassword}
+                                            onMouseDown={handleMouseDownPassword}
+                                        >
+                                            {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                }
+                            />
+                            <FormHelperText error>{!!errors.password ? errors.password.message : " "}</FormHelperText>
+                        </FormControl>
                         <FormControlLabel
                             control={<Checkbox value="remember" color="primary" />}
                             label={t('rememberMe')}
