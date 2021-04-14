@@ -67,7 +67,7 @@ const Users = (props) => {
                         <Table className={classes.table}>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>MemberID</TableCell>
+                                    <TableCell>{t('MemberID')}</TableCell>
                                     <TableCell>{t('memberType')}</TableCell>
                                     <TableCell>{t('status')}</TableCell>
                                     <TableCell></TableCell>

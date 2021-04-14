@@ -96,7 +96,7 @@ const ReservedBooks = () => {
                                         <TableCell>{t('reservations')}</TableCell>
                                         <TableCell>{t('bookDetails')}</TableCell>
                                         <TableCell>{t('availability')}</TableCell>
-                                        <TableCell>Flags</TableCell>
+                                        <TableCell>{t('flags')}</TableCell>
                                         <TableCell></TableCell>
                                     </TableRow>
                                 </TableHead>

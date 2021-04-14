@@ -98,7 +98,7 @@ const AddBook = (props) => {
                                         error={!!errors.isbn}
                                         id="isbn"
                                         name="isbn"
-                                        label="ISBN"
+                                        label={t('isbn')}
                                         inputRef={register({
                                             required: t('requiredField'),
                                             validate: value =>

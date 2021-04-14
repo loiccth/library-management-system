@@ -218,7 +218,7 @@ const Book = (props) => {
                                                     <TableCell><Typography variant="body2">{book.description}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell>ISBN</TableCell>
+                                                    <TableCell>{t('isbn')}</TableCell>
                                                     <TableCell><Typography variant="body2">{book.isbn}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
@@ -255,7 +255,7 @@ const Book = (props) => {
                                                     <TableCell><Typography variant="body2" display="block">{book.copies.length}</Typography></TableCell>
                                                 </TableRow>
                                                 <TableRow>
-                                                    <TableCell style={{ border: 'none' }}>Flags</TableCell>
+                                                    <TableCell style={{ border: 'none' }}>{t('flags')}</TableCell>
                                                     <TableCell style={{ border: 'none' }}>
                                                         {book.isHighDemand &&
                                                             <Tooltip title={t('highDemand')} arrow>

@@ -125,7 +125,7 @@ const ModifyBook = (props) => {
                                         fullWidth
                                         variant="standard"
                                         margin="normal"
-                                        label="ISBN"
+                                        label={t('isbn')}
                                         value={props.book.isbn}
                                         disabled
                                     />
@@ -135,7 +135,6 @@ const ModifyBook = (props) => {
                                         margin="normal"
                                         id="isbn"
                                         name="isbn"
-                                        label="ISBN"
                                         inputRef={register()}
                                     />
                                     <TextField

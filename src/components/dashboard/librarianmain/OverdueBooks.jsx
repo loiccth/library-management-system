@@ -116,10 +116,10 @@ const OverdueBooks = (props) => {
                                         <TableCell>
                                             <Checkbox checked={check} color="primary" onChange={handleCheckAll} />
                                         </TableCell>
-                                        <TableCell>MemberID</TableCell>
+                                        <TableCell>{t('MemberID')}</TableCell>
                                         <TableCell>{t('bookDetails')}</TableCell>
                                         <TableCell>{t('borrowDetails')}</TableCell>
-                                        <TableCell>Flags</TableCell>
+                                        <TableCell>{t('flags')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -138,7 +138,7 @@ const OverdueBooks = (props) => {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {row.title}</Typography>
-                                                <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
+                                                <Typography variant="caption" display="block">{t('isbn')}: {row.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('borrow')}: {row.isHighDemand ? new Date(row.borrowDate).toLocaleString() : new Date(row.borrowDate).toLocaleDateString()}</Typography>

@@ -95,7 +95,7 @@ const Books = (props) => {
         },
         {
             field: 'flags',
-            headerName: 'Flags',
+            headerName: t('flags'),
             width: 90,
             renderCell: (param) => {
                 if (param.value.highDemand && param.value.recentlyAdded) {

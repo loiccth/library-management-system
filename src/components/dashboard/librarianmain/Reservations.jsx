@@ -43,10 +43,10 @@ const Reservations = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>MemberID</TableCell>
+                                        <TableCell>{t('MemberID')}</TableCell>
                                         <TableCell>{t('bookDetails')}</TableCell>
                                         <TableCell>{t('reservations')}</TableCell>
-                                        <TableCell>Flags</TableCell>
+                                        <TableCell>{t('flags')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -62,7 +62,7 @@ const Reservations = (props) => {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {row.title}</Typography>
-                                                <Typography variant="caption" display="block">ISBN: {row.isbn}</Typography>
+                                                <Typography variant="caption" display="block">{t('isbn')}: {row.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('reserve')}: {new Date(row.reserveDate).toLocaleString()}</Typography>

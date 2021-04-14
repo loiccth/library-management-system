@@ -116,7 +116,7 @@ const ReturnBook = (props) => {
                                     autoComplete="off"
                                     id="userid"
                                     name="userid"
-                                    label="MemberID"
+                                    label={t('MemberID')}
                                     fullWidth
                                     variant="standard"
                                     inputRef={register({ required: t('requiredField') })}
@@ -130,7 +130,7 @@ const ReturnBook = (props) => {
                                     autoComplete="off"
                                     id="isbn"
                                     name="isbn"
-                                    label="ISBN"
+                                    label={t('isbn')}
                                     fullWidth
                                     variant="standard"
                                     inputRef={register({ required: t('requiredField') })}

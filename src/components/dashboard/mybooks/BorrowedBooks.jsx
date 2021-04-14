@@ -114,7 +114,7 @@ const BorrowedBooks = () => {
                                         <TableCell>{t('bookDetails')}</TableCell>
                                         <TableCell>{t('loanDetails')}</TableCell>
                                         <TableCell>{t('otherDetails')}</TableCell>
-                                        <TableCell>Flags</TableCell>
+                                        <TableCell>{t('flags')}</TableCell>
                                         <TableCell></TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -128,7 +128,7 @@ const BorrowedBooks = () => {
                                         <TableRow key={row._id}>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('title')}: {row.bookid.title}</Typography>
-                                                <Typography variant="caption" display="block">ISBN: {row.bookid.isbn}</Typography>
+                                                <Typography variant="caption" display="block">{t('isbn')}: {row.bookid.isbn}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="caption" display="block">{t('loanDate')}: {new Date(row.createdAt).toLocaleDateString()}</Typography>
