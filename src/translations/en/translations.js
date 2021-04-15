@@ -267,6 +267,7 @@ export const TRANSLATIONS_EN = {
     paymentHistory: 'Payment History',
     reserveDate: 'Reserve date',
     cancelDate: 'Cancel date',
+    recommendedBooks: 'Recommended Books',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',

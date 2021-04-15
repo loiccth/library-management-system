@@ -23,6 +23,11 @@
 /backend/.env
 /backend/uploads
 
+# recommender system
+/recommendersystem/__pycache__
+/recommendersystem/.env
+/recommendersystem/*.pickle
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

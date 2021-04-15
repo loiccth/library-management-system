@@ -267,6 +267,7 @@ export const TRANSLATIONS_AR = {
     paymentHistory: 'تاريخ الدفع',
     reserveDate: 'تاريخ الحجز',
     cancelDate: 'تاريخ الإلغاء',
+    recommendedBooks: 'كتب موصى بها',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',

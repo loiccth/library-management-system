@@ -297,6 +297,17 @@ router.post('/request', jwt({ secret, credentialsRequired: true, getToken: (req)
     }
 })
 
+// Get list of recommended books
+router.get('/recommended', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    axios.get(`http://localhost:42069/recommend/${req.user._id}`)
+        .then(response => {
+            Book.find().where('isbn').in(response.data)
+                .select(['title', 'isbn', 'thumbnail', 'publisher', 'publishedDate', 'campus'])
+                .then(books => res.json(books.reverse()))
+        })
+        .catch(() => res.json([]))
+})
+
 // Get an individual book by id
 router.get('/:id', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     // Check if the id supplied is a valid ObjectID from mongoose

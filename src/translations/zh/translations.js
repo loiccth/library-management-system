@@ -267,6 +267,7 @@ export const TRANSLATIONS_ZH = {
     paymentHistory: '支付历史',
     reserveDate: '预约日期',
     cancelDate: '取消日期',
+    recommendedBooks: '推荐书籍',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

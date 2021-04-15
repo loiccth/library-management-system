@@ -6,6 +6,7 @@ import BorrowedBooks from './BorrowedBooks'
 import ReservedBooks from './ReservedBooks'
 import TransactionHistory from './TransactionHistory'
 import PaymentHistory from './PaymentHistory'
+import RecommendedBooks from './RecommendedBooks'
 
 const MyBooks = (props) => {
     return (
@@ -20,18 +21,22 @@ const MyBooks = (props) => {
                     </>
                 }
                 <BorrowedBooks />
-                <Box sx={{ my: 7 }}>
+                <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>
                 <ReservedBooks />
-                <Box sx={{ my: 7 }}>
+                <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>
                 <TransactionHistory />
-                <Box sx={{ my: 7 }}>
+                <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>
                 <PaymentHistory />
+                <Box sx={{ my: 3 }}>
+                    <Divider />
+                </Box>
+                <RecommendedBooks />
             </Box>
         </>
     )
