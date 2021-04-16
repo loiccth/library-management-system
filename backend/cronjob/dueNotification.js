@@ -21,7 +21,7 @@ const dueNotifications = new CronJob('0 8 * * *', () => {
                 const mailRegister = {
                     from: 'no-reply@udmlibrary.com',
                     to: borrows[i].userid.udmid.email,
-                    subject: 'Account shutdown',
+                    subject: 'Book due soon',
                     text: `Your book titled ${borrows[i].bookid.title} is due on ${borrows[i].dueDate}.`
                 }
 

@@ -106,16 +106,16 @@ const BorrowedBooks = () => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('loanDetails')}</TableCell>
-                                        <TableCell>{t('otherDetails')}</TableCell>
-                                        <TableCell>{t('flags')}</TableCell>
-                                        <TableCell></TableCell>
+                                        <TableCell width={'30%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'25%'}>{t('loanDetails')}</TableCell>
+                                        <TableCell width={'25%'}>{t('otherDetails')}</TableCell>
+                                        <TableCell width={'10%'}>{t('flags')}</TableCell>
+                                        <TableCell width={'10%'}></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -187,8 +187,7 @@ const BorrowedBooks = () => {
 
 const useStyles = makeStyles(() => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

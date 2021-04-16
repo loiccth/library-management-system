@@ -50,15 +50,15 @@ const PaymentHistory = () => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('paymentDetails')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('borrowDetails')}</TableCell>
-                                        <TableCell>{t('amount')}</TableCell>
+                                        <TableCell width={'28%'}>{t('paymentDetails')}</TableCell>
+                                        <TableCell width={'28%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'28%'}>{t('borrowDetails')}</TableCell>
+                                        <TableCell width={'16%'}>{t('amount')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -116,8 +116,7 @@ const PaymentHistory = () => {
 
 const useStyles = makeStyles(() => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

@@ -38,15 +38,15 @@ const Reservations = (props) => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('MemberID')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('reservations')}</TableCell>
-                                        <TableCell>{t('flags')}</TableCell>
+                                        <TableCell width={'30%'}>{t('MemberID')}</TableCell>
+                                        <TableCell width={'30%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'30%'}>{t('reservations')}</TableCell>
+                                        <TableCell width={'10%'}>{t('flags')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -106,8 +106,7 @@ const useStyles = makeStyles(() => ({
         overflowX: 'auto'
     },
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     highpriority: {
         color: 'red'

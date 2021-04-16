@@ -99,16 +99,16 @@ const RequestedBooks = (props) => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('memberDetails')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('publishDetails')}</TableCell>
-                                        <TableCell>{t('date')}</TableCell>
-                                        <TableCell />
+                                        <TableCell width={'20%'}>{t('memberDetails')}</TableCell>
+                                        <TableCell width={'30%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('publishDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('date')}</TableCell>
+                                        <TableCell width={'10%'} />
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -134,7 +134,7 @@ const RequestedBooks = (props) => {
                                                 <Typography variant="caption" display="block">{t('publishedDate')}: {new Date(row.publishedDate).toLocaleDateString()}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">{t('requestedDate')}: {new Date(row.createdAt).toLocaleString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('requestedDate')}: {new Date(row.createdAt).toLocaleDateString()}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Button variant="contained" onClick={handleToggle}>{t('remove')}</Button>
@@ -196,8 +196,7 @@ const useStyles = makeStyles(() => ({
         overflowX: 'auto'
     },
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     pagination: {
         display: 'flex',

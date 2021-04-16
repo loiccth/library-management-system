@@ -6,6 +6,7 @@ import axios from 'axios'
 import url from '../../../settings/api'
 import {
     Alert,
+    Box,
     Button,
     Checkbox,
     FormControlLabel,
@@ -87,16 +88,16 @@ const Copies = (props) => {
                 </Alert>
             </Snackbar>
             <Grid container justifyContent="center">
-                <Grid item xs={12} md={10}>
+                <Grid item xs={12} md={11} lg={10}>
                     <Paper className={classes.paper}>
                         <form onSubmit={handleSubmit(onSubmit)} noValidate>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('check')}</TableCell>
-                                        <TableCell>{t('copyid')}</TableCell>
-                                        <TableCell>{t('availability')}</TableCell>
-                                        <TableCell>{t('reason')}</TableCell>
+                                        <TableCell width={'10%'}>{t('check')}</TableCell>
+                                        <TableCell width={'25%'}>{t('copyid')}</TableCell>
+                                        <TableCell width={'10%'}>{t('availability')}</TableCell>
+                                        <TableCell width={'55%'}>{t('reason')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -148,11 +149,13 @@ const Copies = (props) => {
                                     ))}
                                 </TableBody>
                             </Table>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                fullWidth
-                            >{t('removeCopies')}</Button>
+                            <Box style={{ padding: 10 }}>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    fullWidth
+                                >{t('removeCopies')}</Button>
+                            </Box>
                         </form>
                     </Paper>
                 </Grid>
@@ -163,8 +166,7 @@ const Copies = (props) => {
 
 const useStyles = makeStyles(() => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     hidden: {
         display: 'none'

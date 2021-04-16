@@ -52,15 +52,15 @@ const LatestLogins = () => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={11} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('memberDetails')}</TableCell>
-                                        <TableCell>{t('geolocation')}</TableCell>
-                                        <TableCell>{t('deviceDetails')}</TableCell>
-                                        <TableCell>{t('time')}</TableCell>
+                                        <TableCell width={'25%'}>{t('memberDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('geolocation')}</TableCell>
+                                        <TableCell width={'40%'}>{t('deviceDetails')}</TableCell>
+                                        <TableCell width={'15%'}>{t('time')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -122,8 +122,7 @@ const useStyles = makeStyles(theme => ({
         overflowX: 'auto'
     },
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     heading: {
         justifyContent: 'flex-end',

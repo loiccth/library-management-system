@@ -122,7 +122,7 @@ const DueBooks = (props) => {
             </Container>
             <Box sx={{ mt: 1 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={11} md={10}>
+                    <Grid item xs={11} lg={10}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
                             <ThemeProvider theme={{ ...theme, direction: 'ltr' }}>
                                 <DateRangePicker
@@ -134,7 +134,7 @@ const DueBooks = (props) => {
                                     onChange={handleDateUpdate}
                                     renderInput={(startProps, endProps) => (
                                         <Grid container className={classes.heading} spacing={1}>
-                                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...startProps}
                                                     variant="standard"
@@ -151,7 +151,7 @@ const DueBooks = (props) => {
                                                     }}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...endProps}
                                                     variant="standard"
@@ -174,7 +174,7 @@ const DueBooks = (props) => {
                             </ThemeProvider>
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -189,18 +189,18 @@ const DueBooks = (props) => {
             </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>
+                                        <TableCell width={'10%'}>
                                             <Checkbox checked={check} color="primary" onChange={handleCheckAll} />
                                         </TableCell>
-                                        <TableCell>{t('MemberID')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('borrowDetails')}</TableCell>
-                                        <TableCell>{t('flags')}</TableCell>
+                                        <TableCell width={'20%'}>{t('MemberID')}</TableCell>
+                                        <TableCell width={'30%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'30%'}>{t('borrowDetails')}</TableCell>
+                                        <TableCell width={'10%'}>{t('flags')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -261,8 +261,7 @@ const DueBooks = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

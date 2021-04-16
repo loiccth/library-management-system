@@ -50,15 +50,15 @@ const TransactionHistory = () => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('transactionDetails')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('date')}</TableCell>
-                                        <TableCell>{t('otherDetails')}</TableCell>
+                                        <TableCell width={'28%'}>{t('transactionDetails')}</TableCell>
+                                        <TableCell width={'28%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'28%'}>{t('date')}</TableCell>
+                                        <TableCell width={'16%'}>{t('otherDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -131,8 +131,7 @@ const TransactionHistory = () => {
 
 const useStyles = makeStyles(() => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

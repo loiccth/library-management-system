@@ -106,7 +106,7 @@ const AnalyticsReport = (props) => {
             </Container>
             <Box sx={{ mt: 1 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={11} md={10}>
+                    <Grid item xs={11} lg={10}>
                         <LocalizationProvider dateAdapter={AdapterDateFns} locale={localeMap[props.locale]}>
                             <ThemeProvider theme={{ ...theme, direction: 'ltr' }}>
                                 <DateRangePicker
@@ -118,7 +118,7 @@ const AnalyticsReport = (props) => {
                                     onChange={handleDateUpdate}
                                     renderInput={(startProps, endProps) => (
                                         <Grid container className={classes.heading} spacing={1}>
-                                            <Grid item xs={12} sm={3} md={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...startProps}
                                                     variant="standard"
@@ -135,7 +135,7 @@ const AnalyticsReport = (props) => {
                                                     }}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12} sm={3} md={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...endProps}
                                                     variant="standard"
@@ -158,7 +158,7 @@ const AnalyticsReport = (props) => {
                             </ThemeProvider>
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                 <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                 <CSVLink
                                     data={analytics.length === 0 ? 'No records found' : csv}
@@ -172,15 +172,15 @@ const AnalyticsReport = (props) => {
             </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell />
-                                        <TableCell>{t('userDetails')}</TableCell>
-                                        <TableCell>{t('geolocation')}</TableCell>
-                                        <TableCell>{t('deviceDetails')}</TableCell>
+                                        <TableCell width={'5%'} />
+                                        <TableCell width={'25%'}>{t('userDetails')}</TableCell>
+                                        <TableCell width={'15%'}>{t('geolocation')}</TableCell>
+                                        <TableCell width={'55%'}>{t('deviceDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -218,8 +218,7 @@ const AnalyticsReport = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

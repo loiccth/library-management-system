@@ -90,7 +90,9 @@ const SearchUsers = () => {
                 </form>
             </Box>
             {showForm &&
-                <Users users={users} toggleUser={toggleUser} />
+                <Box sx={{ mt: 3 }}>
+                    <Users users={users} toggleUser={toggleUser} />
+                </Box>
             }
         </>
     )

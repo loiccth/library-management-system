@@ -62,7 +62,7 @@ const Users = (props) => {
                 </Alert>
             </Snackbar>
             <Grid container justifyContent="center">
-                <Grid item xs={12} md={10}>
+                <Grid item xs={12} md={11} lg={10}>
                     <Paper className={classes.paper}>
                         <Table className={classes.table}>
                             <TableHead>
@@ -76,10 +76,10 @@ const Users = (props) => {
                             <TableBody>
                                 {props.users.map((user) => (
                                     <TableRow key={user._id}>
-                                        <TableCell>{user.userid}</TableCell>
-                                        <TableCell>{user.memberType}</TableCell>
-                                        <TableCell>{user.status}</TableCell>
-                                        <TableCell>
+                                        <TableCell width={'30%'}>{user.userid}</TableCell>
+                                        <TableCell width={'30%'}>{user.memberType}</TableCell>
+                                        <TableCell width={'30%'}>{user.status}</TableCell>
+                                        <TableCell width={'10%'}>
                                             <Button
                                                 variant="contained"
                                                 onClick={() => handleToggle(user._id)}
@@ -101,8 +101,7 @@ const Users = (props) => {
 
 const useStyles = makeStyles(() => ({
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 600,
     },
     hidden: {
         display: 'none'

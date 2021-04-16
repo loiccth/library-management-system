@@ -94,16 +94,16 @@ const DuePayments = (props) => {
             </Container>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('memberid')}</TableCell>
-                                        <TableCell>{t('bookDetails')}</TableCell>
-                                        <TableCell>{t('fineDetails')}</TableCell>
-                                        <TableCell>{t('borrowDetails')}</TableCell>
-                                        <TableCell></TableCell>
+                                        <TableCell width={'15%'}>{t('memberid')}</TableCell>
+                                        <TableCell width={'28%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'28%'}>{t('borrowDetails')}</TableCell>
+                                        <TableCell width={'19%'}>{t('fineDetails')}</TableCell>
+                                        <TableCell width={'10%'}></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -123,27 +123,25 @@ const DuePayments = (props) => {
                                                 <Typography variant="caption" display="block">{t('copyid')}: {row.copyid}</Typography>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography variant="caption" display="block">{t('date')}: {new Date(row.date).toLocaleString()}</Typography>
-                                                <Typography variant="caption" display="block">{t('daysOverdue')}: {row.days}</Typography>
-                                                <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {row.price}</Typography>
-                                                <Typography variant="caption" display="block">{t('total')}: Rs {row.price * row.days}</Typography>
-                                            </TableCell>
-                                            <TableCell>
                                                 <Typography variant="caption" display="block">{t('borrowDate')}: {new Date(row.borrowDate).toLocaleString()}</Typography>
                                                 <Typography variant="caption" display="block">{t('dueDate')}: {new Date(row.dueDate).toLocaleString()}</Typography>
                                                 <Typography variant="caption" display="block">{t('returnDate')}: {new Date(row.returnedDate).toLocaleString()}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="caption" display="block">{t('date')}: {new Date(row.date).toLocaleDateString()}</Typography>
+                                                <Typography variant="caption" display="block">{t('daysOverdue')}: {row.days}</Typography>
+                                                <Typography variant="caption" display="block">{t('pricePerDay')}: Rs {row.price}</Typography>
+                                                <Typography variant="caption" display="block">{t('total')}: Rs {row.price * row.days}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Button variant="contained" onClick={handleToggle}>{t('paid')}</Button>
                                                 <Dialog
                                                     open={openDialog}
                                                     onClose={handleToggle}
-                                                    aria-labelledby="alert-dialog-title"
-                                                    aria-describedby="alert-dialog-description"
                                                     style={{ direction: theme.direction }}
                                                 >
                                                     <DialogContent>
-                                                        <DialogContentText id="alert-dialog-description">
+                                                        <DialogContentText>
                                                             {t('paidDialog')}
                                                         </DialogContentText>
                                                     </DialogContent>
@@ -193,8 +191,7 @@ const useStyles = makeStyles(() => ({
         overflowX: 'auto'
     },
     table: {
-        minWidth: 650,
-        overflowX: 'auto'
+        minWidth: 850
     },
     pagination: {
         display: 'flex',
