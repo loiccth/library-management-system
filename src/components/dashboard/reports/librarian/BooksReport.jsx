@@ -26,6 +26,7 @@ import {
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
+import Row from './Row'
 
 const localeMap = {
     enUS: enGB,
@@ -45,6 +46,7 @@ const BooksReport = (props) => {
     const csvlink = useRef()
     const classes = useStyles()
     const [books, setBooks] = useState([])
+    const [csv, setCsv] = useState([])
     const [date, setDate] = useState([new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()])
     const { t } = useTranslation()
     const theme = useTheme()
@@ -71,7 +73,7 @@ const BooksReport = (props) => {
 
     // Function to get books data
     const getBooksReport = async (from, to) => {
-        const getBooks = await axios.post(`${url}/books/booksreport`, { from, to }, { withCredentials: true })
+        const getBooks = await axios.post(`${url}/books/report`, { from, to }, { withCredentials: true })
 
         const temp = getBooks.data.map(book => {
             let temp = ''
@@ -79,21 +81,12 @@ const BooksReport = (props) => {
             for (let i = 0; i < book.author.length; i++) {
                 temp += book.author[i]
                 if (book.author.length - 1 > i)
-                    temp += '; '
+                    temp += ', '
             }
 
             return {
-                BookID: book._id,
-                ISBN: book.isbn,
-                Title: book.title.replace(/,/g, '; '),
-                Author: temp,
-                Publisher: book.publisher.replace(/,/g, '; '),
-                PublishedDate: new Date(book.publishedDate).toLocaleDateString(),
-                Category: book.category.replace(/,/g, '; '),
-                Campus: book.campus === 'rhill' ? 'Rose-Hill Campus' : 'Swami Dayanand Campus',
-                Location: book.location.replace(/,/g, '; '),
-                NumOfCopies: book.copies.length,
-                DateAdded: new Date(book.createdAt).toLocaleDateString(),
+                ...book,
+                author: temp
             }
         })
         return temp
@@ -109,7 +102,11 @@ const BooksReport = (props) => {
 
     // Download csv file
     const handleDownloadCSV = () => {
-        csvlink.current.link.click()
+        axios.post(`${url}/books/reportcsv`, { from: date[0], to: date[1] }, { withCredentials: true })
+            .then(books => {
+                setCsv(books.data)
+                csvlink.current.link.click()
+            })
     }
 
     // Change page
@@ -138,7 +135,7 @@ const BooksReport = (props) => {
                                     onChange={handleDateUpdate}
                                     renderInput={(startProps, endProps) => (
                                         <Grid container className={classes.heading} spacing={1}>
-                                            <Grid item xs={12} sm={3} md={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...startProps}
                                                     variant="standard"
@@ -155,7 +152,7 @@ const BooksReport = (props) => {
                                                     }}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12} sm={3} md={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...endProps}
                                                     variant="standard"
@@ -178,10 +175,10 @@ const BooksReport = (props) => {
                             </ThemeProvider>
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                 <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
                                 <CSVLink
-                                    data={books.length === 0 ? 'No records found' : books}
+                                    data={csv.length === 0 ? 'No records found' : csv}
                                     filename={`Books_Report_${new Date().toLocaleDateString()}.csv`}
                                     ref={csvlink}
                                 />
@@ -192,49 +189,30 @@ const BooksReport = (props) => {
             </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={12} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell width={'25%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'5%'} />
+                                        <TableCell width={'20%'}>{t('bookDetails')}</TableCell>
                                         <TableCell width={'20%'}>{t('author')}</TableCell>
                                         <TableCell width={'20%'}>{t('publishDetails')}</TableCell>
-                                        <TableCell width={'20%'}>{t('locationDetails')}</TableCell>
-                                        <TableCell width={'15%'}>{t('otherDetails')}</TableCell>
+                                        <TableCell width={'15%'}>{t('locationDetails')}</TableCell>
+                                        <TableCell width={'20%'}>{t('otherDetails')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {books.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={6} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
-                                    {books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(record => (
-                                        <TableRow key={record.BookID}>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('title')}: {record.Title}</Typography>
-                                                <Typography variant="caption" display="block">{t('isbn')}: {record.ISBN}</Typography>
-                                                <Typography variant="caption" display="block">{t('category')}: {record.Category}</Typography>
-                                            </TableCell>
-                                            <TableCell>{record.Author}</TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('publisher')}: {record.Publisher}</Typography>
-                                                <Typography variant="caption" display="block">{t('publishedDate')}: {record.PublishedDate}</Typography>
-                                                {record.Transaction === 'Borrow' && <Typography variant="caption" display="block">{t('copyId')}: {record.BookCopyID}</Typography>}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('campus')}: {record.Campus}</Typography>
-                                                <Typography variant="caption" display="block">{t('location')}: {record.Location}</Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption" display="block">{t('addedDate')}: {record.DateAdded}</Typography>
-                                                <Typography variant="caption" display="block">{t('copies')}: {record.NumOfCopies}</Typography>
-                                            </TableCell>
-                                        </TableRow>
+                                    {books.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map((row, index) => (
+                                        <Row key={index} row={row} />
                                     ))}
                                     <TableRow>
-                                        <TableCell colSpan={5}>
+                                        <TableCell colSpan={6}>
                                             <Grid container justifyContent="center">
                                                 <Grid item xs={12}>
                                                     <Pagination
@@ -259,8 +237,7 @@ const BooksReport = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 900,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

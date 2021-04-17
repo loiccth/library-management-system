@@ -268,6 +268,10 @@ export const TRANSLATIONS_ZH = {
     reserveDate: '预约日期',
     cancelDate: '取消日期',
     recommendedBooks: '推荐书籍',
+    removedBooks: '删除的书',
+    removedDate: '删除日期',
+    removed: '已移除',
+    filterMemberID: '过滤会员编号',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',

@@ -5,6 +5,7 @@ const Analytics = require('../models/analytics.model')
 const User = require('../models/users/user.base')
 const axios = require('axios')
 const secret = process.env.JWT_SECRET
+const mongoose = require('mongoose')
 
 // Records every page visit and action that a client does
 router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
@@ -347,6 +348,17 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
         const toDate = new Date(new Date(req.body.to).toDateString())
         toDate.setDate(toDate.getDate() + 1)
 
+        // Set default userid filter
+        let id = { $ne: 'lol' }
+
+        // If there is a filter, get the id of the user
+        if (req.body.userid) {
+            id = await User.findOne({ userid: req.body.userid })
+
+            id = id ? { $eq: mongoose.Types.ObjectId(id._id) } : { $ne: 'lol' }
+
+        }
+
         // Get data from database
         // Group data by userid, session, sessiondate
         // Sort by ascending order
@@ -356,7 +368,8 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                     createdAt: {
                         $gte: fromDate,
                         $lt: toDate
-                    }
+                    },
+                    userid: id
                 }
             },
             {
@@ -387,7 +400,6 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                 User.populate(analytics, { path: '_id.userid', select: ['userid'] })
                     .then(analytics => {
                         const anal = []
-                        const csv = []
                         let events = []
 
                         // Format the data for frontend to display
@@ -398,19 +410,6 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                                     type: analytics[i].events[j].event.type,
                                     info: analytics[i].events[j].event.info,
                                     date: analytics[i].events[j].date
-                                })
-
-                                // Format data to output in a csv file
-                                csv.push({
-                                    user: j === 0 ? analytics[i]._id.userid === null ? 'Guest' : analytics[i]._id.userid.userid : null,
-                                    sessionid: j === 0 ? analytics[i]._id.sessionid : null,
-                                    sessionDate: j === 0 ? analytics[i]._id.sessionDate : null,
-                                    ip: j === 0 ? analytics[i]._id.ip : null,
-                                    geolocation: j === 0 && analytics[i].geolocation !== null ? analytics[i].geolocation.regionName + ', ' + analytics[i].geolocation.countryName + ', ' + analytics[i].geolocation.continentName : null,
-                                    device: j === 0 ? analytics[i]._id.device : null,
-                                    userAgent: j === 0 ? analytics[i]._id.userAgent : null,
-                                    eventTime: analytics[i].events[j].date,
-                                    events: analytics[i].events[j].event.type + ' - ' + analytics[i].events[j].event.info
                                 })
                             }
 
@@ -428,12 +427,101 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
                         }
 
                         // Response with both formatted data
-                        res.json({
-                            analytics: anal,
-                            csv
-                        })
+                        res.json(anal)
+                    })
+                    .catch(err => console.log(err))
+            })
+            .catch(err => console.log(err))
+    }
+})
 
+// Generate csf for analytics report within the date range specified
+router.post('/csv', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
+    if (req.user.memberType !== 'Admin') return res.sendStatus(403)
+    // Check if user is an admin and if from and to date is available
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
+    else {
+        // Set date range
+        const fromDate = new Date(new Date(req.body.from).toDateString())
+        const toDate = new Date(new Date(req.body.to).toDateString())
+        toDate.setDate(toDate.getDate() + 1)
 
+        // Set default userid filter
+        let id = { $ne: 'lol' }
+
+        // If there is a filter, get the id of the user
+        if (req.body.userid) {
+            id = await User.findOne({ userid: req.body.userid })
+
+            id = id ? { $eq: mongoose.Types.ObjectId(id._id) } : { $ne: 'lol' }
+
+        }
+
+        // Get data from database
+        // Group data by userid, session, sessiondate
+        // Sort by ascending order
+        Analytics.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: fromDate,
+                        $lt: toDate
+                    },
+                    userid: id
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        userid: "$userid",
+                        sessionid: "$sessionid",
+                        sessionDate: "$sessionDate",
+                        ip: "$ip",
+                        device: "$device",
+                        userAgent: "$userAgent"
+                    },
+                    events: {
+                        $push: {
+                            event: "$event",
+                            date: "$createdAt"
+                        }
+                    },
+                    geolocation: {
+                        $first: "$geolocation"
+                    }
+                }
+            },
+            { $sort: { '_id.sessionDate': 1 } },
+        ])
+            .then(analytics => {
+                // Populate the users details in the analytics records
+                User.populate(analytics, { path: '_id.userid', select: ['userid'] })
+                    .then(analytics => {
+                        const csv = []
+
+                        // Format the data for frontend to display
+                        for (let i = 0; i < analytics.length; i++) {
+                            csv.push({
+                                User: analytics[i]._id.userid === null ? 'Guest' : analytics[i]._id.userid.userid,
+                                SessionID: analytics[i]._id.sessionid,
+                                "Session date": analytics[i]._id.sessionDate,
+                                ip: analytics[i]._id.ip,
+                                Geolocation: analytics[i].geolocation !== null ? analytics[i].geolocation.regionName + ', ' + analytics[i].geolocation.countryName + ', ' + analytics[i].geolocation.continentName : null,
+                                Device: analytics[i]._id.device,
+                                "User agent": analytics[i]._id.userAgent,
+                            })
+
+                            for (let j = 0; j < analytics[i].events.length; j++) {
+                                // Format data to output in a csv file
+                                csv.push({
+                                    eventTime: analytics[i].events[j].date,
+                                    events: analytics[i].events[j].event.type + ' - ' + analytics[i].events[j].event.info
+                                })
+                            }
+                        }
+
+                        // Response with both formatted data
+                        res.json(csv)
                     })
                     .catch(err => console.log(err))
             })

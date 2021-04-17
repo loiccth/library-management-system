@@ -195,7 +195,7 @@ router.post('/paymentssreport', jwt({ secret, credentialsRequired: true, getToke
 })
 
 // Get book reports within date range
-router.post('/booksreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
     else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
@@ -206,6 +206,71 @@ router.post('/booksreport', jwt({ secret, credentialsRequired: true, getToken: (
             .catch(err => console.log(err))
     }
 })
+
+// Get book reports csv within date range
+router.post('/reportcsv', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
+    else {
+        // Get all book records within the range
+        const fromDate = new Date(new Date(req.body.from).toDateString())
+        const toDate = new Date(new Date(req.body.to).toDateString())
+        toDate.setDate(toDate.getDate() + 1)
+
+        Book.find({ createdAt: { $gte: fromDate, $lt: toDate } })
+            .sort({ createdAt: 1 })
+            .then(books => {
+                const csv = []
+
+                for (let i = 0; i < books.length; i++) {
+                    details = []
+
+                    let temp = ''
+
+                    for (let z = 0; z < books[i].author.length; z++) {
+                        temp += books[i].author[z]
+                        if (books[i].author.length - 1 > z)
+                            temp += '; '
+                    }
+
+                    csv.push({
+                        ID: books[i]._id,
+                        ISBN: books[i].isbn,
+                        Title: books[i].title.replace(/,/g, '; '),
+                        Author: temp,
+                        Publisher: books[i].publisher.replace(/,/g, '; '),
+                        "Published date": new Date(books[i].publishedDate).toLocaleDateString(),
+                        Category: books[i].category.replace(/,/g, '; '),
+                        Campus: books[i].campus === 'rhill' ? 'Rose-Hill Campus' : 'Swami Dayanand Campus',
+                        Location: books[i].location.replace(/,/g, '; '),
+                        "Number of copies": books[i].copies.length,
+                        "Number of copies removed": books[i].removed.length,
+                        "Date added": new Date(books[i].createdAt).toLocaleDateString(),
+                    })
+
+                    for (let j = 0; j < books[i].removed.length; j++) {
+                        csv.push({
+                            CopyID: books[i].removed[j]._id,
+                            Status: 'Removed',
+                            "Removed date": books[i].removed[j].createdAt,
+                            Reason: books[i].removed[j].reason
+                        })
+                    }
+
+                    for (let k = 0; k < books[i].copies.length; k++) {
+                        csv.push({
+                            CopyID: books[i].copies[k]._id,
+                            Status: 'Active'
+                        })
+                    }
+                }
+
+                res.json(csv)
+            })
+            .catch(err => console.log(err))
+    }
+})
+
 
 // Get list of books due
 router.post('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {

@@ -268,6 +268,10 @@ export const TRANSLATIONS_EN = {
     reserveDate: 'Reserve date',
     cancelDate: 'Cancel date',
     recommendedBooks: 'Recommended Books',
+    removedBooks: 'Removed books',
+    removedDate: 'Removed date',
+    removed: 'Removed',
+    filterMemberID: 'Filter MemberID',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',

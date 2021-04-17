@@ -268,6 +268,10 @@ export const TRANSLATIONS_FR = {
     reserveDate: 'Date de réservation',
     cancelDate: "Date d'annulation",
     recommendedBooks: 'Livres recommandés',
+    removedBooks: 'Livres supprimés',
+    removedDate: 'Date supprimée',
+    removed: 'Supprimé',
+    filterMemberID: 'Filter MemberID',
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',

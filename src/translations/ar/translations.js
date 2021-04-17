@@ -268,6 +268,10 @@ export const TRANSLATIONS_AR = {
     reserveDate: 'تاريخ الحجز',
     cancelDate: 'تاريخ الإلغاء',
     recommendedBooks: 'كتب موصى بها',
+    removedBooks: 'الكتب المحذوفة',
+    removedDate: 'تاريخ الإزالة',
+    removed: 'إزالة',
+    filterMemberID: 'تصفية MemberID',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',

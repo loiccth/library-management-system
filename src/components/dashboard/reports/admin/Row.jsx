@@ -58,9 +58,9 @@ const Row = (props) => {
                             <Table size="small" aria-label="events">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>{t('date')}</TableCell>
-                                        <TableCell>{t('type')}</TableCell>
-                                        <TableCell>{t('information')}</TableCell>
+                                        <TableCell width={'33%'}>{t('date')}</TableCell>
+                                        <TableCell width={'33%'}>{t('type')}</TableCell>
+                                        <TableCell width={'33%'}>{t('information')}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>

@@ -183,7 +183,7 @@ const TransactionsReport = (props) => {
                                     onChange={handleDateUpdate}
                                     renderInput={(startProps, endProps) => (
                                         <Grid container className={classes.heading} spacing={1}>
-                                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...startProps}
                                                     variant="standard"
@@ -200,7 +200,7 @@ const TransactionsReport = (props) => {
                                                     }}
                                                 />
                                             </Grid>
-                                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                                 <TextField
                                                     {...endProps}
                                                     variant="standard"
@@ -223,7 +223,7 @@ const TransactionsReport = (props) => {
                             </ThemeProvider>
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                 <Box sx={{
                                     display: 'flex',
                                     justifyContent: 'center',
@@ -238,7 +238,7 @@ const TransactionsReport = (props) => {
                                     />
                                 </Box>
                             </Grid>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                 <TextField
                                     name="type"
                                     fullWidth
@@ -253,7 +253,7 @@ const TransactionsReport = (props) => {
                                     <MenuItem value="Borrow">{t('borrow')}</MenuItem>
                                 </TextField>
                             </Grid>
-                            <Grid item xs={12} sm={5} md={3} lg={2}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
                                 <TextField
                                     name="status"
                                     fullWidth
@@ -277,7 +277,7 @@ const TransactionsReport = (props) => {
 
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
-                    <Grid item xs={11} md={10}>
+                    <Grid item xs={12} md={11} lg={10}>
                         <Paper className={classes.paper}>
                             <Table className={classes.table}>
                                 <TableHead>
@@ -355,8 +355,7 @@ const TransactionsReport = (props) => {
 
 const useStyles = makeStyles(theme => ({
     table: {
-        minWidth: 900,
-        overflowX: 'auto'
+        minWidth: 850
     },
     title: {
         flex: 1

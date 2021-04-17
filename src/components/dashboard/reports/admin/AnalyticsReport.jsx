@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
+import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../../settings/api'
@@ -8,7 +9,12 @@ import {
     Box,
     Button,
     Container,
+    FormControl,
     Grid,
+    IconButton,
+    Input,
+    InputLabel,
+    InputAdornment,
     makeStyles,
     Pagination,
     Paper,
@@ -23,6 +29,7 @@ import {
     Typography,
     useTheme
 } from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
 import { LocalizationProvider, DateRangePicker } from '@material-ui/lab'
 import AdapterDateFns from '@material-ui/lab/AdapterDateFns'
 import { enGB, fr, zhCN, arSA } from 'date-fns/locale'
@@ -54,6 +61,7 @@ const AnalyticsReport = (props) => {
     const [analytics, setAnalytics] = useState([])
     const [csv, setCsv] = useState([])
     const rowPerPage = 5
+    const { register, handleSubmit, getValues } = useForm()
 
     // Change date range
     const handleDateUpdate = (date) => {
@@ -72,29 +80,36 @@ const AnalyticsReport = (props) => {
     }, [])
 
     // Get analytics report within range
-    const getAnalyticsReport = (from, to) => {
-        axios.post(`${url}/analytics/report`, { from, to }, { withCredentials: true })
+    const getAnalyticsReport = (from, to, userid = '') => {
+        axios.post(`${url}/analytics/report`, { from, to, userid }, { withCredentials: true })
             .then(result => {
-                setAnalytics(result.data.analytics)
-                setCsv(result.data.csv)
+                setAnalytics(result.data)
             })
     }
 
     // Get new data for analytics when date range is updated
     const getNewAnalyticsReport = (date) => {
         if (date[0] instanceof Date && !isNaN(date[0].getTime()) && date[1] instanceof Date && !isNaN(date[1].getTime())) {
-            getAnalyticsReport(date[0], date[1])
+            getAnalyticsReport(date[0], date[1], getValues('userid'))
         }
     }
 
     // Download csv file
     const handleDownloadCSV = () => {
-        csvlink.current.link.click()
+        axios.post(`${url}/analytics/csv`, { from: date[0], to: date[1], userid: getValues('userid') }, { withCredentials: true })
+            .then(response => {
+                setCsv(response.data)
+                csvlink.current.link.click()
+            })
     }
 
     // Change page
     const handlePagination = (e, value) => {
         setPage(value)
+    }
+
+    const onSubmit = (data) => {
+        getAnalyticsReport(date[0], date[1], data.userid)
     }
 
     return (
@@ -159,12 +174,40 @@ const AnalyticsReport = (props) => {
                         </LocalizationProvider>
                         <Grid container className={classes.heading} spacing={1}>
                             <Grid item xs={12} sm={4} md={3} lg={2}>
-                                <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
-                                <CSVLink
-                                    data={analytics.length === 0 ? 'No records found' : csv}
-                                    filename={`Analytics_Report_${new Date().toLocaleDateString()}.csv`}
-                                    ref={csvlink}
-                                />
+                                <Box sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    height: '100%'
+                                }}>
+                                    <Button variant="contained" fullWidth onClick={handleDownloadCSV}>{t('downloadcsv')}</Button>
+                                    <CSVLink
+                                        data={csv.length === 0 ? 'No records found' : csv}
+                                        filename={`Analytics_Report_${new Date().toLocaleDateString()}.csv`}
+                                        ref={csvlink}
+                                    />
+                                </Box>
+                            </Grid>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
+                                <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                                    <FormControl fullWidth>
+                                        <InputLabel htmlFor="userid">{t('filterMemberID')}</InputLabel>
+                                        <Input
+                                            autoComplete="off"
+                                            id="userid"
+                                            name="userid"
+                                            fullWidth
+                                            type="text"
+                                            inputRef={register()}
+                                            endAdornment={
+                                                <InputAdornment position="end">
+                                                    <IconButton type="submit">
+                                                        <SearchIcon />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                        />
+                                    </FormControl>
+                                </form>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -239,9 +282,6 @@ const useStyles = makeStyles(theme => ({
 }))
 
 AnalyticsReport.propTypes = {
-    analytics: PropTypes.array.isRequired,
-    getNewAnalyticsReport: PropTypes.func.isRequired,
-    csv: PropTypes.array.isRequired,
     locale: PropTypes.string.isRequired
 }
 
