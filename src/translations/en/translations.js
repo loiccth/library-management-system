@@ -272,6 +272,9 @@ export const TRANSLATIONS_EN = {
     removedDate: 'Removed date',
     removed: 'Removed',
     filterMemberID: 'Filter MemberID',
+    course: 'Course',
+    restore: 'Restore',
+    restoreDialog: 'Are you sure you want to restore this copy?',
 
     msgMissingParams: 'Missing params',
     msgLoginSuccess: 'Successfully logged in.',
@@ -373,5 +376,6 @@ export const TRANSLATIONS_EN = {
     msgThumbnail404: 'Thumbnail not found',
     msgGoogleAPI404Params: 'Missing book details in GoogleAPI',
     msgBookAlreadyRequested: 'Book already requested',
-    msgLibraryClosedTomorrow: 'Library is closed tomorrow'
+    msgLibraryClosedTomorrow: 'Library is closed tomorrow',
+    msgCopiesRestored: 'Copy restored'
 }

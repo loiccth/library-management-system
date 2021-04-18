@@ -243,7 +243,7 @@ adminSchema.methods.getMembersReport = function (from, to, res) {
     // Get data within range and send response to the client
     User.find({ createdAt: { $gte: fromDate, $lt: toDate } })
         .select(['status', 'createdAt', 'userid'])
-        .populate('udmid', ['firstName', 'lastName', 'email', 'phone', 'staffType', 'academic', 'faculty', 'contractEndDate', 'studentType'])
+        .populate('udmid', ['firstName', 'lastName', 'email', 'phone', 'staffType', 'academic', 'faculty', 'course', 'contractEndDate', 'studentType'])
         .sort({ createdAt: 1 })
         .then(users => {
             res.json(users)

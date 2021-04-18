@@ -45,7 +45,7 @@ const ManageBooks = ({ user, locale }) => {
     return (
         <>
             <Box sx={{ my: 5 }}>
-                <AddBookMain locations={locations} categories={categories} />
+                <AddBookMain locations={locations} categories={categories} locale={locale} />
                 <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>

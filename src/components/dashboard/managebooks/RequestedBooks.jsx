@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import url from '../../../settings/api'
@@ -27,7 +26,7 @@ import {
     useTheme
 } from '@material-ui/core'
 
-const RequestedBooks = (props) => {
+const RequestedBooks = () => {
     const classes = useStyles()
     const { t } = useTranslation()
     const [books, setBooks] = useState([])
@@ -203,10 +202,5 @@ const useStyles = makeStyles(() => ({
         justifyContent: 'center'
     }
 }))
-
-RequestedBooks.propTypes = {
-    books: PropTypes.array.isRequired,
-    handleRemove: PropTypes.func.isRequired
-}
 
 export default RequestedBooks

@@ -272,6 +272,9 @@ export const TRANSLATIONS_AR = {
     removedDate: 'تاريخ الإزالة',
     removed: 'إزالة',
     filterMemberID: 'تصفية MemberID',
+    course: 'مسار',
+    restore: 'يعيد',
+    restoreDialog: 'هل أنت متأكد أنك تريد استعادة هذه النسخة؟',
 
     msgMissingParams: 'المعلمات المفقودة',
     msgLoginSuccess: 'تم تسجيل الدخول بنجاح.',
@@ -373,5 +376,6 @@ export const TRANSLATIONS_AR = {
     msgThumbnail404: 'لم يتم العثور على الصورة المصغرة',
     msgGoogleAPI404Params: 'تفاصيل الكتاب مفقودة في Google API',
     msgBookAlreadyRequested: 'الكتاب مطلوب بالفعل',
-    msgLibraryClosedTomorrow: 'المكتبة مغلقة غدا'
+    msgLibraryClosedTomorrow: 'المكتبة مغلقة غدا',
+    msgCopiesRestored: 'تمت استعادة النسخ'
 }

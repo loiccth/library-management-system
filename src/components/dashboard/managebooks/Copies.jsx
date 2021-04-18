@@ -30,11 +30,11 @@ const Copies = (props) => {
     const { t } = useTranslation()
 
     const handleClick = () => {
-        setOpen(true);
+        setOpen(true)
     }
 
     const handleClose = () => {
-        setOpen(false);
+        setOpen(false)
     }
 
     // When remove copies form is submit check if any copies is checked before
@@ -63,7 +63,7 @@ const Copies = (props) => {
                         type: 'success',
                         msg: t(result.data.message, { amount: result.data.amount })
                     })
-                    props.deleteCopies(data)
+                    props.formatData(result.data.book)
                 })
                 .catch(err => {
                     setSnackbar({
@@ -127,6 +127,7 @@ const Copies = (props) => {
                                             <TableCell>{copy.availability}</TableCell>
                                             <TableCell>
                                                 <TextField
+                                                    autoComplete="off"
                                                     fullWidth
                                                     variant="standard"
                                                     margin="normal"
@@ -179,7 +180,7 @@ const useStyles = makeStyles(() => ({
 Copies.propTypes = {
     copies: PropTypes.array.isRequired,
     isbn: PropTypes.string.isRequired,
-    deleteCopies: PropTypes.func.isRequired,
+    formatData: PropTypes.func.isRequired
 }
 
 export default Copies

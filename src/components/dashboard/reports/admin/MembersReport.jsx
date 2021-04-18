@@ -108,7 +108,7 @@ const MembersReport = (props) => {
 
     // Function to get data
     const getMembersReport = async (from, to) => {
-        const getMembers = await axios.post(`${url}/users/membersreport`, { from, to }, { withCredentials: true })
+        const getMembers = await axios.post(`${url}/users/report`, { from, to }, { withCredentials: true })
 
         const temp = getMembers.data.map(member => {
             return {
@@ -124,8 +124,9 @@ const MembersReport = (props) => {
                 udmType: member.udmid.udmType,
                 staffType: member.udmid.udmType === 'Staff' ? member.udmid.staffType : null,
                 studentType: member.udmid.udmType === 'Student' ? member.udmid.studentType : null,
-                academic: member.udmid.academic === true ? 'Yes' : 'No',
+                academic: member.udmid.udmType === 'Staff' ? member.udmid.academic === true ? 'Yes' : 'No' : null,
                 faculty: member.udmid.faculty,
+                course: member.udmid.course,
                 contractEndDate: (member.udmid.udmType === 'Staff' && member.udmid.staffType === 'pt') ? member.udmid.contractEndDate : null
             }
         })
@@ -276,6 +277,7 @@ const MembersReport = (props) => {
                                                 {record.udmType === 'Staff' && <Typography variant="caption" display="block">{t('academic')}: {record.academic}</Typography>}
                                                 {record.udmType === 'Student' && <Typography variant="caption" display="block">{t('mode')}: {record.studentType}</Typography>}
                                                 {record.faculty && <Typography variant="caption" display="block">{t('faculty')}: {record.faculty}</Typography>}
+                                                {record.udmType === 'Student' && <Typography variant="caption" display="block">{t('course')}: {record.course}</Typography>}
                                                 {record.contractEndDate && <Typography variant="caption" display="block">{t('contract')}: {new Date(record.contractEndDate).toLocaleDateString()}</Typography>}
                                             </TableCell>
                                         </TableRow>

@@ -355,7 +355,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
         if (req.body.userid) {
             id = await User.findOne({ userid: req.body.userid })
 
-            id = id ? { $eq: mongoose.Types.ObjectId(id._id) } : { $ne: 'lol' }
+            id = id ? { $eq: mongoose.Types.ObjectId(id._id) } : { $eq: 'lol' }
 
         }
 
@@ -453,7 +453,7 @@ router.post('/csv', jwt({ secret, credentialsRequired: true, getToken: (req) => 
         if (req.body.userid) {
             id = await User.findOne({ userid: req.body.userid })
 
-            id = id ? { $eq: mongoose.Types.ObjectId(id._id) } : { $ne: 'lol' }
+            id = id ? { $eq: mongoose.Types.ObjectId(id._id) } : { $eq: 'lol' }
 
         }
 

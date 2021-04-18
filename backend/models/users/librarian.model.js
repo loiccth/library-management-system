@@ -589,34 +589,71 @@ librarianSchema.methods.removeBook = function (bookCopies, res) {
     // Remove book copies and insert the reason they were removed
     Book.findOne({ isbn: bookCopies.isbn })
         .then(book => {
-
-            // Find the copy selected and remove from copies array and add them to the removed array
-            for (let i = 0; i < copies.length; i++) {
-                if (!copies[i].checked)
-                    continue
-                for (let j = 0; j < book.copies.length; j++) {
-                    if (copies[i]._id === book.copies[j]._id.toString()) {
-                        book.copies.splice(j, 1)
-                        book.removed.push({
-                            _id: copies[i]._id,
-                            reason: copies[i].reason,
-                            createdAt: Date()
-                        })
-                        count++
+            if (book) {
+                // Find the copy selected and remove from copies array and add them to the removed array
+                for (let i = 0; i < copies.length; i++) {
+                    if (!copies[i].checked)
+                        continue
+                    for (let j = 0; j < book.copies.length; j++) {
+                        if (copies[i]._id === book.copies[j]._id.toString()) {
+                            book.copies.splice(j, 1)
+                            book.removed.push({
+                                _id: copies[i]._id,
+                                reason: copies[i].reason,
+                                createdAt: Date()
+                            })
+                            count++
+                        }
                     }
                 }
-            }
 
-            // Saved to database and send response
-            book.save()
-                .then(() => {
-                    res.json({
-                        message: 'msgCopiesRemove',
-                        amount: count
+                // Saved to database and send response
+                book.save()
+                    .then(book => {
+                        res.json({
+                            message: 'msgCopiesRemove',
+                            amount: count,
+                            book
+                        })
                     })
-                })
-                .catch(err => console.log(err))
+                    .catch(err => console.log(err))
+            }
+            else
+                res.status(404).json({ error: 'msgSearchBook404' })
         })
+        .catch(err => console.log(err))
+}
+
+librarianSchema.methods.restoreBook = function (isbn, id, res) {
+    // Find book to restore copy
+    Book.findOne({ isbn: isbn })
+        .then(book => {
+            if (book) {
+                // Find the copy and remove from removed array and add it to the copies array
+                for (let i = 0; i < book.removed.length; i++) {
+                    if (id === book.removed[i]._id.toString()) {
+                        book.copies.push({
+                            availability: 'available',
+                            _id: id
+                        })
+                        book.removed.splice(i, 1)
+                    }
+                }
+
+                // Saved to database and send response
+                book.save()
+                    .then(book => {
+                        res.json({
+                            message: 'msgCopiesRestored',
+                            book
+                        })
+                    })
+                    .catch(err => console.log(err))
+            }
+            else
+                res.status(404).json({ error: 'msgSearchBook404' })
+        })
+        .catch(err => console.log(err))
 }
 
 librarianSchema.methods.notify = async function (books, type, res) {

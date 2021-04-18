@@ -144,13 +144,18 @@ router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req)
     if (!req.body.search) return res.json({ 'error': 'Empty search query' })
     else {
         // Create a regex to do fuzzy search
+
+        let cond = { $exists: true }
+        if (req.body.edit)
+            cond = { $ne: { lol: 'xd' } }
+
         const regex = new RegExp(escapeRegExp(req.body.search), 'gi')
         if (!req.body.category || req.body.category === 'All')
-            Book.find({ [req.body.searchType]: regex, 'copies.0': { $exists: true } })
+            Book.find({ [req.body.searchType]: regex, 'copies.0': cond })
                 .sort({ 'title': 1 })
                 .then(books => res.json(books))
         else
-            Book.find({ [req.body.searchType]: regex, category: req.body.category, 'copies.0': { $exists: true } })
+            Book.find({ [req.body.searchType]: regex, category: req.body.category, 'copies.0': cond })
                 .sort({ 'title': 1 })
                 .then(books => res.json(books))
     }
@@ -308,6 +313,19 @@ router.post('/remove', jwt({ secret, credentialsRequired: true, getToken: (req) 
             })
     }
 })
+
+// Restore book
+router.post('/restore', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+    if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
+    else if (!req.body.isbn || !req.body.id) return res.status(400).json({ error: 'msgMissingParams' })
+    else {
+        Librarian.findById(req.user._id)
+            .then(librarian => {
+                librarian.restoreBook(req.body.isbn, req.body.id, res)
+            })
+    }
+})
+
 
 // Get list of books
 router.get('/', (req, res) => {

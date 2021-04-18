@@ -19,19 +19,18 @@ import {
 import SearchIcon from '@material-ui/icons/Search'
 import ModifyBook from './ModifyBook'
 import Copies from './Copies'
+import RestoreCopies from './RestoreCopies'
+import { BookOnline } from '@material-ui/icons'
 
 const SearchBook = (props) => {
     const classes = useStyles()
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const [showForm, setShowForm] = useState(false)
-    const [book, setBook] = useState()
-    const [copies, setCopies] = useState()
-    const { register, handleSubmit, errors } = useForm({
-        defaultValues: {
-            searchType: 'isbn'
-        }
-    })
+    const [book, setBook] = useState([])
+    const [copies, setCopies] = useState([])
+    const [removed, setRemoved] = useState([])
+    const { register, handleSubmit, errors } = useForm()
     const { t } = useTranslation()
 
     // Open snackbar feedback
@@ -46,24 +45,10 @@ const SearchBook = (props) => {
 
     // Search book to edit
     const onSubmit = (data) => {
-        axios.post(`${url}/books/search`, data)
+        axios.post(`${url}/books/search`, { edit: true, searchType: 'isbn', search: data.search })
             .then(book => {
                 if (book.data.length > 0) {
-                    setBook({
-                        title: book.data[0].title,
-                        isbn: book.data[0].isbn,
-                        author: book.data[0].author.join(', '),
-                        category: book.data[0].category,
-                        publisher: book.data[0].publisher,
-                        publishedDate: book.data[0].publishedDate,
-                        noOfPages: book.data[0].noOfPages,
-                        campus: book.data[0].campus,
-                        location: book.data[0].location,
-                        description: book.data[0].description
-                    })
-                    setCopies(
-                        book.data[0].copies
-                    )
+                    formatData(book.data[0])
                     setShowForm(true)
                 }
                 else {
@@ -73,14 +58,22 @@ const SearchBook = (props) => {
             })
     }
 
-    // Remove copies from table after removing from database
-    const deleteCopies = (data) => {
-        for (let i = 0; i < data.copies.length; i++) {
-            if (!data.copies[i].checked)
-                continue
-
-            setCopies(copies.filter(({ _id }) => _id !== data.copies[i]._id))
-        }
+    // Format data and put in state
+    const formatData = (book) => {
+        setBook({
+            title: book.title,
+            isbn: book.isbn,
+            author: book.author.join(', '),
+            category: book.category,
+            publisher: book.publisher,
+            publishedDate: book.publishedDate,
+            noOfPages: book.noOfPages,
+            campus: book.campus,
+            location: book.location,
+            description: book.description
+        })
+        setCopies(book.copies)
+        setRemoved(book.removed)
     }
 
     return (
@@ -108,11 +101,6 @@ const SearchBook = (props) => {
                             inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.search ? errors.search.message : " "}
                         />
-                        <TextField
-                            className={classes.hidden}
-                            name="searchType"
-                            inputRef={register()}
-                        />
                         <IconButton type="submit" className={classes.iconButton} aria-label="search">
                             <SearchIcon />
                         </IconButton>
@@ -122,10 +110,22 @@ const SearchBook = (props) => {
             {showForm &&
                 <>
                     <ModifyBook book={book} locations={props.locations} categories={props.categories} locale={props.locale} />
-                    <Box sx={{ my: 3 }}>
-                        <Divider />
-                    </Box>
-                    <Copies copies={copies} isbn={book.isbn} deleteCopies={deleteCopies} />
+                    {copies.length > 0 &&
+                        <>
+                            <Box sx={{ my: 3 }}>
+                                <Divider />
+                            </Box>
+                            <Copies copies={copies} isbn={book.isbn} formatData={formatData} />
+                        </>
+                    }
+                    {removed.length > 0 &&
+                        <>
+                            <Box sx={{ my: 3 }}>
+                                <Divider />
+                            </Box>
+                            <RestoreCopies copies={removed} isbn={book.isbn} formatData={formatData} />
+                        </>
+                    }
                 </>
             }
         </>
@@ -133,9 +133,6 @@ const SearchBook = (props) => {
 }
 
 const useStyles = makeStyles(() => ({
-    hidden: {
-        display: 'none !important'
-    },
     iconButton: {
         padding: 10
     },

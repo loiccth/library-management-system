@@ -272,6 +272,9 @@ export const TRANSLATIONS_ZH = {
     removedDate: '删除日期',
     removed: '已移除',
     filterMemberID: '过滤会员编号',
+    course: '课程',
+    restore: '恢复',
+    restoreDialog: '您确定要还原此副本吗？',
 
     msgMissingParams: '缺少参数',
     msgLoginSuccess: '已成功登录',
@@ -373,5 +376,6 @@ export const TRANSLATIONS_ZH = {
     msgThumbnail404: '找不到缩略图',
     msgGoogleAPI404Params: 'Google API中缺少书籍详细信息',
     msgBookAlreadyRequested: '已预订的书',
-    msgLibraryClosedTomorrow: '图书馆明天关闭'
+    msgLibraryClosedTomorrow: '图书馆明天关闭',
+    msgCopiesRestored: '复制已还原'
 }

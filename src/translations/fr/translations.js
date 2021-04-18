@@ -272,6 +272,9 @@ export const TRANSLATIONS_FR = {
     removedDate: 'Date supprimée',
     removed: 'Supprimé',
     filterMemberID: 'Filter MemberID',
+    course: 'Cours',
+    restore: 'Restaurer',
+    restoreDialog: 'Voulez-vous vraiment restaurer cette copie?',
 
     msgMissingParams: 'Paramètres manquants',
     msgLoginSuccess: 'Connexion réussie.',
@@ -373,5 +376,6 @@ export const TRANSLATIONS_FR = {
     msgThumbnail404: 'Vignette introuvable',
     msgGoogleAPI404Params: "Détails du livre manquants dans l'API Google",
     msgBookAlreadyRequested: 'Réservez déjà demandé',
-    msgLibraryClosedTomorrow: 'La bibliothèque est fermée demain'
+    msgLibraryClosedTomorrow: 'La bibliothèque est fermée demain',
+    msgCopiesRestored: 'Copie restaurée'
 }

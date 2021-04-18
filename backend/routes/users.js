@@ -220,7 +220,7 @@ router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => 
 })
 
 // Generate members report
-router.post('/membersreport', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
+router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     else if (!req.body.from || !req.body.to) return res.status(400).json({ error: 'msgMissingParams' })
     else {
