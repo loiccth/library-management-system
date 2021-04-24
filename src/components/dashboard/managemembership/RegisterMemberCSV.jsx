@@ -21,6 +21,7 @@ const RegisterMemberCSV = () => {
         success: [],
         fail: []
     })
+    const [disable, setDisable] = useState(false)
     const { handleSubmit, errors, reset, control } = useForm()
     const { t } = useTranslation()
 
@@ -40,12 +41,14 @@ const RegisterMemberCSV = () => {
 
     // Upload csv file to register members
     const onSubmit = (data) => {
+        setDisable(true)
         const dataForm = new FormData()
         dataForm.append('csv', data.csv[0])
         axios.post(`${url}/users/register_csv`, dataForm, { withCredentials: true })
             .then(result => {
                 setResult(result.data)
                 handleClick()
+                setDisable(false)
             })
         reset()
     }
@@ -79,6 +82,7 @@ const RegisterMemberCSV = () => {
                                 <Button
                                     type="submit"
                                     variant="contained"
+                                    disabled={disable}
                                     fullWidth
                                 >{t('registerMembers')}</Button>
                             </form>

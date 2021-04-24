@@ -74,8 +74,6 @@ const Copies = (props) => {
                 .finally(() => {
                     handleClick()
                 })
-            // Call deleteCopies function to remove from table
-            props.deleteCopies(data)
             reset()
         }
     }

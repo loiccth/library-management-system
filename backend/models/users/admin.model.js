@@ -87,21 +87,23 @@ adminSchema.methods.registerMember = function (email, res) {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
                                         subject: 'Account registration',
-                                        text: `Account registered on https://udmlibrary.com/ \nMemberID: ${userid} \nPassword: ${password}`
+                                        text: `Account registered on https://udmlibrary.com/ \nMemberID: ${userid} \nTemporary password: ${password}`
                                     }
 
                                     // Send SMS notification with userid and temporary password
-                                    sendSMS(`Account registered on https://udmlibrary.com/\nMemberID: ${userid}\nPassword: ${password}`,
+                                    sendSMS(`Account registered on https://udmlibrary.com/\nMemberID: ${userid}\nTemporary password: ${password}`,
                                         `+230${udm.phone}`)
 
                                     // Send email notification with userid and temporary password
                                     transporter.sendMail(mailRegister, (err, info) => {
                                         if (err) return res.status(500).json({ error: 'msgErrorSendingMail' })
-                                        else
+                                        else {
+                                            console.log(info)
                                             res.status(201).json({
                                                 message: 'msgUserRegistrationSuccess',
                                                 member
                                             })
+                                        }
                                     })
                                 })
                                 .catch(err => console.log(err))

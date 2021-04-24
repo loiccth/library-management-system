@@ -6,7 +6,7 @@ const Schema = mongoose.Schema
 // Student schema
 // This schema inherits attribute of the base udm schema
 const studentSchema = new Schema({
-    studentid: { type: String, required: true, trim: true },
+    studentid: { type: String, required: true, trim: true, unique: true },
     studentType: { type: String, required: true, enum: ['ft', 'pt'] },
     faculty: { type: String, required: true, enum: ['ict', 'ba', "eng"] },
     course: { type: String, required: true },

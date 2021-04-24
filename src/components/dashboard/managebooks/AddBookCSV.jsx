@@ -21,6 +21,7 @@ const AddBookCSV = () => {
         success: [],
         fail: []
     })
+    const [disable, setDisable] = useState(false)
     const { handleSubmit, errors, reset, control } = useForm()
     const { t } = useTranslation()
 
@@ -40,12 +41,14 @@ const AddBookCSV = () => {
 
     // Send csv file to the server
     const onSubmit = (data) => {
+        setDisable(true)
         const dataForm = new FormData()
         dataForm.append('csv', data.csv[0])
         axios.post(`${url}/books/add`, dataForm, { withCredentials: true })
             .then(result => {
                 setResult(result.data)
                 handleClick()
+                setDisable(false)
             })
         reset()
     }
@@ -79,6 +82,7 @@ const AddBookCSV = () => {
                                 <Button
                                     type="submit"
                                     variant="contained"
+                                    disabled={disable}
                                     fullWidth
                                 >{t('addBooks')}</Button>
                             </form>

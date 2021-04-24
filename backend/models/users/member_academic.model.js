@@ -6,6 +6,7 @@ const UDM = require('../udm/udm.base')
 const Book = require('../book.model')
 const Request = require('../request.model')
 const borrowBook = require('../../function/borrowBook')
+const axios = require('axios')
 
 const Schema = mongoose.Schema
 
@@ -54,7 +55,7 @@ memberASchema.methods.requestBook = async function (isbn, res) {
                                         // if book details missing in GoogleAPI, catch error
                                         try {
                                             const newRequest = new Request({
-                                                userid: req.user._id,
+                                                userid: this._id,
                                                 isbn,
                                                 title: result.data.items[0].volumeInfo.title,
                                                 author: result.data.items[0].volumeInfo.authors,

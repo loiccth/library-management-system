@@ -60,7 +60,7 @@ const BookSettings = ({ bookSettings, handleUpdateBookSettings }) => {
                 .then(result => {
                     setSnackbar({
                         type: 'success',
-                        msg: result.data.message
+                        msg: t(result.data.message)
                     })
                     handleUpdateBookSettings(data.settings)
                     handleClick()

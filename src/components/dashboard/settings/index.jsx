@@ -46,12 +46,26 @@ const Settings = ({ user }) => {
 
     // Update book settings
     const handleUpdateBookSettings = (data) => {
-        setBooks(data)
+        const temp = []
+        for (let i = 0; i < data.length; i++) {
+            temp.push({
+                ...data[i],
+                id: books[i].id
+            })
+        }
+        setBooks(temp)
     }
 
     // Update user settings
     const handleUpdateUserSettings = (data) => {
-        setUsers(data)
+        const temp = []
+        for (let i = 0; i < data.length; i++) {
+            temp.push({
+                ...data[i],
+                id: users[i].id
+            })
+        }
+        setUsers(temp)
     }
 
     // Update categories settings
