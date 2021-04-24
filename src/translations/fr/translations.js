@@ -377,5 +377,7 @@ export const TRANSLATIONS_FR = {
     msgGoogleAPI404Params: "Détails du livre manquants dans l'API Google",
     msgBookAlreadyRequested: 'Réservez déjà demandé',
     msgLibraryClosedTomorrow: 'La bibliothèque est fermée demain',
-    msgCopiesRestored: 'Copie restaurée'
+    msgCopiesRestored: 'Copie restaurée',
+    msgErrorSendingMail: "Erreur lors de l'envoi de l'e-mail",
+    msgBorrow404: "Enregistrement d'emprunt introuvable"
 }

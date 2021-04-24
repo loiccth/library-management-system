@@ -377,5 +377,7 @@ export const TRANSLATIONS_ZH = {
     msgGoogleAPI404Params: 'Google API中缺少书籍详细信息',
     msgBookAlreadyRequested: '已预订的书',
     msgLibraryClosedTomorrow: '图书馆明天关闭',
-    msgCopiesRestored: '复制已还原'
+    msgCopiesRestored: '复制已还原',
+    msgErrorSendingMail: '发送电子邮件时出错',
+    msgBorrow404: '找不到借阅记录'
 }

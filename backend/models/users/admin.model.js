@@ -38,7 +38,11 @@ adminSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
             limit: bookLimit
         })
         else
-            borrowBook(this._id, bookid, libraryOpenTime, res)
+            UDM.findById(this.udmid)
+                .select(['email', 'phone'])
+                .then(result => {
+                    borrowBook(this._id, result.email, result.phone, bookid, libraryOpenTime, res)
+                })
     }
 }
 
@@ -83,16 +87,16 @@ adminSchema.methods.registerMember = function (email, res) {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
                                         subject: 'Account registration',
-                                        text: `Account credentials for https://udmlibrary.com/ \nMemberID: ${userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
+                                        text: `Account registered on https://udmlibrary.com/ \nMemberID: ${userid} \nPassword: ${password}`
                                     }
 
                                     // Send SMS notification with userid and temporary password
-                                    sendSMS(`Account credentials for https://udmlibrary.com/\nMemberID: ${userid}\nPassword: ${password}\nTemporary password is valid for 24 hours.`,
+                                    sendSMS(`Account registered on https://udmlibrary.com/\nMemberID: ${userid}\nPassword: ${password}`,
                                         `+230${udm.phone}`)
 
                                     // Send email notification with userid and temporary password
                                     transporter.sendMail(mailRegister, (err, info) => {
-                                        if (err) return res.status(500).json({ error: 'msgUserRegistrationUnexpectedError' })
+                                        if (err) return res.status(500).json({ error: 'msgErrorSendingMail' })
                                         else
                                             res.status(201).json({
                                                 message: 'msgUserRegistrationSuccess',
@@ -163,12 +167,12 @@ adminSchema.methods.registerCSV = function (file, res) {
                                     const mailRegister = {
                                         from: 'no-reply@udmlibrary.com',
                                         to: email,
-                                        subject: 'Register password',
-                                        text: `Account credentials for https://udmlibrary.com/ \nMemberID: ${member.userid} \nPassword: ${password} \nTemporary password is valid for 24 hours.`
+                                        subject: 'Account registration',
+                                        text: `Account registered on https://udmlibrary.com/ \nMemberID: ${member.userid} \nTemporary password: ${password}`
                                     }
 
                                     // Send SMS notification
-                                    sendSMS(`Account credentials for https://udmlibrary.com/\nMemberID: ${member.userid}\nPassword: ${password}\nTemporary password is valid for 24 hours.`,
+                                    sendSMS(`Account registered on https://udmlibrary.com/\nMemberID: ${member.userid}\nTemporary password: ${password}`,
                                         `+230${udm.phone}`)
 
                                     // Send email notification

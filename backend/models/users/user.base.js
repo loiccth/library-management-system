@@ -453,6 +453,8 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
             }
         }
     }
+    else
+        res.status(404).json({ error: 'msgBorrow404' })
 }
 
 baseUserSchema.methods.getReservedBooks = function (res) {

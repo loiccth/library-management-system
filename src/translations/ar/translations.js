@@ -377,5 +377,7 @@ export const TRANSLATIONS_AR = {
     msgGoogleAPI404Params: 'تفاصيل الكتاب مفقودة في Google API',
     msgBookAlreadyRequested: 'الكتاب مطلوب بالفعل',
     msgLibraryClosedTomorrow: 'المكتبة مغلقة غدا',
-    msgCopiesRestored: 'تمت استعادة النسخ'
+    msgCopiesRestored: 'تمت استعادة النسخ',
+    msgErrorSendingMail: 'خطأ في إرسال البريد الإلكتروني',
+    msgBorrow404: 'سجل الاستعارة غير موجود'
 }

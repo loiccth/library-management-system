@@ -435,7 +435,7 @@ router.post('/report', jwt({ secret, credentialsRequired: true, getToken: (req) 
     }
 })
 
-// Generate csf for analytics report within the date range specified
+// Generate csv for analytics report within the date range specified
 router.post('/csv', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), async (req, res) => {
     if (req.user.memberType !== 'Admin') return res.sendStatus(403)
     // Check if user is an admin and if from and to date is available

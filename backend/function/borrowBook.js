@@ -3,8 +3,10 @@ const Reserve = require('../models/transactions/reserve.model')
 const Borrow = require('../models/transactions/borrow.model')
 const checkDate = require('./checkDate')
 const checkHolidays = require('./checkHolidays')
+const transporter = require('../config/mail.config')
+const sendSMS = require('../function/sendSMS')
 
-const borrowBook = async (userid, bookid, libraryOpenTime, res, academic = false) => {
+const borrowBook = async (userid, email, phone, bookid, libraryOpenTime, res, academic = false) => {
     // Get reservation of the book
     const bookReserved = await Reserve.findOne({ bookid, userid, status: 'active', expireAt: { $gte: new Date() } })
 
@@ -65,12 +67,28 @@ const borrowBook = async (userid, bookid, libraryOpenTime, res, academic = false
                                     dueDate,
                                     isHighDemand: book.isHighDemand
                                 })
+
+                                const mailRegister = {
+                                    from: 'no-reply@udmlibrary.com',
+                                    to: email,
+                                    subject: 'Book issued',
+                                    text: `Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`
+                                }
+
+                                // Send email notification to the member
+                                transporter.sendMail(mailRegister, (err, info) => {
+                                    if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
+                                })
+
+                                // Send SMS notification to the member
+                                sendSMS(`Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`, `+230${phone}`)
+
                                 // Save the record and send response to the client
                                 newBorrow.save().catch(err => console.log(err))
                                 return res.status(201).json({
                                     message: 'msgBorrowSuccess',
                                     title: book.title,
-                                    dueDate: new Date(dueDate),
+                                    dueDate: dueDate,
                                     reservationid: bookReserved._id
                                 })
                             }
@@ -107,6 +125,22 @@ const borrowBook = async (userid, bookid, libraryOpenTime, res, academic = false
                                 dueDate,
                                 isHighDemand: book.isHighDemand
                             })
+
+                            const mailRegister = {
+                                from: 'no-reply@udmlibrary.com',
+                                to: email,
+                                subject: 'Book issued',
+                                text: `Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`
+                            }
+
+                            // Send email notification to the member
+                            transporter.sendMail(mailRegister, (err, info) => {
+                                if (err) return res.status(500).json({ error: 'msgUnexpectedError' })
+                            })
+
+                            // Send SMS notification to the member
+                            sendSMS(`Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`, `+230${phone}`)
+
                             newBorrow.save().catch(err => console.log(err))
                             return res.status(201).json({
                                 message: 'msgBorrowSuccess',

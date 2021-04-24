@@ -141,7 +141,7 @@ router.post('/issue', jwt({ secret, credentialsRequired: true, getToken: (req) =
 
 // Search book
 router.post('/search', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
-    if (!req.body.search) return res.json({ 'error': 'Empty search query' })
+    if (!req.body.search) return res.json({ error: 'Empty search query' })
     else {
         // Create a regex to do fuzzy search
 
@@ -276,7 +276,6 @@ router.post('/reportcsv', jwt({ secret, credentialsRequired: true, getToken: (re
     }
 })
 
-
 // Get list of books due
 router.post('/due', jwt({ secret, credentialsRequired: true, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
     if (req.user.memberType !== 'Librarian') return res.sendStatus(403)
@@ -325,7 +324,6 @@ router.post('/restore', jwt({ secret, credentialsRequired: true, getToken: (req)
             })
     }
 })
-
 
 // Get list of books
 router.get('/', (req, res) => {

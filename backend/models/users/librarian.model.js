@@ -7,6 +7,7 @@ const Borrow = require('../transactions/borrow.model')
 const Reserve = require('../transactions/reserve.model')
 const Payment = require('../payment.model')
 const Setting = require('../setting.model')
+const UDM = require('../udm/udm.base')
 const csv = require('csv-parser')
 const fs = require('fs')
 const transporter = require('../../config/mail.config')
@@ -38,7 +39,11 @@ librarianSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
             limit: bookLimit
         })
         else
-            borrowBook(this._id, bookid, libraryOpenTime, res)
+            UDM.findById(this.udmid)
+                .select(['email', 'phone'])
+                .then(result => {
+                    borrowBook(this._id, result.email, result.phone, bookid, libraryOpenTime, res)
+                })
     }
 }
 
@@ -377,7 +382,7 @@ librarianSchema.methods.returnBook = async function (isbn, userid, campus, res) 
                                                 if (numOfDays > 0) {
 
                                                     const newPayment = new Payment({
-                                                        borrowid: borrow_id,
+                                                        borrowid: borrow._id,
                                                         userid: borrow.userid,
                                                         bookid: borrow.bookid,
                                                         copyid: borrow.copyid,

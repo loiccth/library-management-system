@@ -34,8 +34,6 @@ const ChangePassword = (props) => {
     })
     const { t } = useTranslation()
 
-    // TODO: Add form validation to check new pwd = old pwd
-
     // Change password
     const onSubmit = (data) => {
         axios.patch(`${url}/users`, data, { withCredentials: true })

@@ -377,5 +377,7 @@ export const TRANSLATIONS_EN = {
     msgGoogleAPI404Params: 'Missing book details in GoogleAPI',
     msgBookAlreadyRequested: 'Book already requested',
     msgLibraryClosedTomorrow: 'Library is closed tomorrow',
-    msgCopiesRestored: 'Copy restored'
+    msgCopiesRestored: 'Copy restored',
+    msgErrorSendingMail: 'Error sending email',
+    msgBorrow404: 'Borrow record not found'
 }

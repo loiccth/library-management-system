@@ -20,7 +20,6 @@ import SearchIcon from '@material-ui/icons/Search'
 import ModifyBook from './ModifyBook'
 import Copies from './Copies'
 import RestoreCopies from './RestoreCopies'
-import { BookOnline } from '@material-ui/icons'
 
 const SearchBook = (props) => {
     const classes = useStyles()

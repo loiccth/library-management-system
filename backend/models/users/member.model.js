@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const User = require('./user.base')
 const Borrow = require('../transactions/borrow.model')
 const Setting = require('../setting.model')
+const UDM = require('../udm/udm.base')
 const borrowBook = require('../../function/borrowBook')
 
 const Schema = mongoose.Schema
@@ -24,9 +25,12 @@ memberSchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
             error: 'msgBorrowMemberLimit',
             limit: bookLimit
         })
-        else {
-            borrowBook(this._id, bookid, libraryOpenTime, res)
-        }
+        else
+            UDM.findById(this.udmid)
+                .select(['email', 'phone'])
+                .then(result => {
+                    borrowBook(this._id, result.email, result.phone, bookid, libraryOpenTime, res)
+                })
     }
 }
 
