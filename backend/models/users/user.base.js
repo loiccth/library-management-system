@@ -59,6 +59,10 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
         .then(async (result) => {
             // Result match
             if (result) {
+                // Check if account is suspended
+                if (this.status === 'suspended') {
+                    return res.status(401).json({ error: 'msgLoginAccSuspended' })
+                }
                 // User using temporary password
                 if (this.temporaryPassword) {
                     // Check if password expired
@@ -68,10 +72,6 @@ baseUserSchema.methods.login = async function (candidatePassword, email, phone, 
                     const now = new Date()
                     const expireDate = new Date(new Date(this.updatedAt).getTime() + (temporaryTimer * 1000))
                     if (now > expireDate) return res.status(401).json({ error: 'msgLoginPasswordExp' })
-                }
-                // Check if account is suspended
-                else if (this.status === 'suspended') {
-                    return res.status(401).json({ error: 'msgLoginAccSuspended' })
                 }
                 const { _id, userid, memberType, temporaryPassword } = this
                 // Sign jsonwebtoken and send it via cookie
