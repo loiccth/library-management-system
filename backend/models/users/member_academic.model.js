@@ -32,7 +32,7 @@ memberASchema.methods.borrow = async function (bookid, libraryOpenTime, res) {
             UDM.findById(this.udmid)
                 .select(['email', 'phone'])
                 .then(result => {
-                    borrowBook(this._id, result.email, result.phone, bookid, libraryOpenTime, res)
+                    borrowBook(this._id, result.email, result.phone, bookid, libraryOpenTime, res, true)
                 })
     }
 }
