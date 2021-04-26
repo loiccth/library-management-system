@@ -201,8 +201,6 @@ baseUserSchema.methods.resetPassword = async function (res) {
     this.temporaryPassword = true
     this.updatedAt = Date()
 
-    const email = await User.findById(this._id).populate('udmid', 'email')
-
     this.save()
         .then(() => {
             UDM.findById(this.udmid)
@@ -210,12 +208,12 @@ baseUserSchema.methods.resetPassword = async function (res) {
                     // Send email notificaion with new temporary password
                     const mailForgotPassword = {
                         from: 'no-reply@udmlibrary.com',
-                        to: email.udmid.email,
-                        subject: 'Password Reset - UDMLibrary',
-                        text: `Your new credentials for https://udmlibrary.com/ \nMemberID: ${this.userid} \nPassword: ${pwd} \nTemporary password is valid for 24 hours.`
+                        to: udm.email,
+                        subject: 'Password Reset',
+                        text: `Your new credentials for https://udmlibrary.com/ \nMemberID: ${this.userid} \nTemporary password: ${pwd}`
                     }
 
-                    sendSMS(`Your new credentials for https://udmlibrary.com/\nMemberID: ${this.userid}\nPassword: ${pwd}\nTemporary password is valid for 24 hours.`,
+                    sendSMS(`Your new credentials for https://udmlibrary.com/\nMemberID: ${this.userid}\nTemporary password: ${pwd}`,
                         `+230${udm.phone}`)
 
                     // Send SMS notificaion with new temporary password
@@ -420,6 +418,7 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                 // Book overdue cannot renew
                 else if (numOfDays < 0) return res.status(400).json({ error: 'msgRenewOverdue', days: numOfDays * -1 })
                 else {
+                    const oldDueDate = borrow.dueDate
                     let newDueDate = new Date(borrow.dueDate.getTime() + 7 * 24 * 60 * 60 * 1000)
 
                     // Check if new due date is a public holiday or Sunday
@@ -430,7 +429,7 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                     borrow.dueDate = newDueDate
                     borrow.renewedOn.push(Date())
 
-                    Book.findOne({ _id: borrow.bookid })
+                    Book.findById(borrow.bookid)
                         .then(book => {
                             for (let i = 0; i < book.copies.length; i++) {
                                 if (book.copies[i].borrower.userid.toString() === this._id.toString()) {
@@ -439,8 +438,32 @@ baseUserSchema.methods.renewBook = async function (borrowid, res) {
                                     break
                                 }
                             }
+
+                            UDM.findById(this.udmid)
+                                .select(['email', 'phone'])
+                                .then(udm => {
+                                    // Send email notificaion with new due date
+                                    const mailForgotPassword = {
+                                        from: 'no-reply@udmlibrary.com',
+                                        to: udm.email,
+                                        subject: 'Book renewed',
+                                        text: `Book titled ${book.title} due on ${new Date(oldDueDate)} was renewed and is due on ${new Date(newDueDate)}`
+                                    }
+
+                                    sendSMS(`Book titled ${book.title} due on ${new Date(oldDueDate)} was renewed and is due on ${new Date(newDueDate)}`,
+                                        `+230${udm.phone}`)
+
+                                    // Send SMS notificaion with new due date
+                                    transporter.sendMail(mailForgotPassword, (err, info) => {
+                                        if (err) return res.status(500).json({ error: 'msgResetPwdUnexpectedError' })
+                                        else res.json({ message: 'msgResetPwdSuccess' })
+                                    })
+                                })
+
                             book.save().catch(err => console.log(err))
                         })
+
+
 
                     // Send response to the client
                     borrow.save()

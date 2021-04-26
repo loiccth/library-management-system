@@ -7,6 +7,7 @@ import {
     Box,
     Container,
     Grid,
+    Link,
     makeStyles,
     Table,
     TableBody,
@@ -17,6 +18,7 @@ import {
 } from '@material-ui/core'
 import Navbar from '../navbar/Navbar'
 import Footer from '../navbar/Footer'
+import manual from '../../other/User_manual.pdf'
 
 const Info = (props) => {
     const classes = useStyles()
@@ -54,6 +56,11 @@ const Info = (props) => {
                                             {t('missionMsg')}
                                         </Typography>
                                     </Grid>
+
+                                    <Grid item xs={10} sm={10} md={8} lg={8} xl={7}>
+                                        Click <Link href={manual} target="_blank">here</Link> to download User Manual
+                                    </Grid>
+
                                     <Grid item xs={10} sm={7} md={5} lg={5} xl={6}>
                                         <Table>
                                             <TableHead>

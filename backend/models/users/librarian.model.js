@@ -240,7 +240,7 @@ librarianSchema.methods.addBookCSV = async function (file, res) {
                                 for (let i = 0; i < noOfCopies; i++)
                                     book.copies.push({})
                                 await book.save()
-                                    .then(() => resolve(success.push(`Row ${count}: ${isbn} - ${title}`)))
+                                    .then(() => resolve(success.push(`Row ${count}: ${isbn} - ${book.title}`)))
                                     .catch(err => resolve(fail.push(`Row ${count}: ${isbn} - ${err.message}`)))
                             }
                         })
