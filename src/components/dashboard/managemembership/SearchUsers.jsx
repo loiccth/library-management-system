@@ -83,7 +83,7 @@ const SearchUsers = () => {
                             inputRef={register({ required: t('requiredField') })}
                             helperText={!!errors.userid ? errors.userid.message : " "}
                         />
-                        <IconButton type="submit" className={classes.iconButton} aria-label="search">
+                        <IconButton type="submit" className={classes.iconButton} >
                             <SearchIcon />
                         </IconButton>
                     </Container>

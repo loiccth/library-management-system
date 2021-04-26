@@ -72,7 +72,7 @@ const borrowBook = async (userid, email, phone, bookid, libraryOpenTime, res, ac
                                     from: 'no-reply@udmlibrary.com',
                                     to: email,
                                     subject: 'Book issued',
-                                    text: `Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`
+                                    text: `Book titled ${book.title} issued to your account and is due on ${dueDate}.`
                                 }
 
                                 // Send email notification to the member
@@ -81,7 +81,7 @@ const borrowBook = async (userid, email, phone, bookid, libraryOpenTime, res, ac
                                 })
 
                                 // Send SMS notification to the member
-                                sendSMS(`Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`, `+230${phone}`)
+                                sendSMS(`Book titled ${book.title} issued to your account and is due on ${dueDate}.`, `+230${phone}`)
 
                                 // Save the record and send response to the client
                                 newBorrow.save().catch(err => console.log(err))
@@ -130,7 +130,7 @@ const borrowBook = async (userid, email, phone, bookid, libraryOpenTime, res, ac
                                 from: 'no-reply@udmlibrary.com',
                                 to: email,
                                 subject: 'Book issued',
-                                text: `Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`
+                                text: `Book titled ${book.title} issued to your account and is due on ${dueDate}.`
                             }
 
                             // Send email notification to the member
@@ -139,7 +139,7 @@ const borrowBook = async (userid, email, phone, bookid, libraryOpenTime, res, ac
                             })
 
                             // Send SMS notification to the member
-                            sendSMS(`Book titled ${bookid.title} issed to your account and is due on ${dueDate}.`, `+230${phone}`)
+                            sendSMS(`Book titled ${book.title} issued to your account and is due on ${dueDate}.`, `+230${phone}`)
 
                             newBorrow.save().catch(err => console.log(err))
                             return res.status(201).json({

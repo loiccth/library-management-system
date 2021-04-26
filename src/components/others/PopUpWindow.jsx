@@ -21,7 +21,7 @@ const PopUpWindow = (props) => {
 
     return (
         <>
-            <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
+            <Dialog open={props.open} onClose={props.handleClose} maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="form-dialog-title">{t('csvMenuTitle')}</DialogTitle>
                 <DialogContent>
                     <Box sx={{ mb: 2 }}>

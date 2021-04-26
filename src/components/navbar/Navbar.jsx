@@ -95,7 +95,6 @@ const Navbar = (props) => {
                     <Tooltip title={t('toggleDarkMode')} arrow>
                         {props.darkMode ?
                             <IconButton
-                                aria-haspopup="false"
                                 color="inherit"
                                 onClick={() => props.handleToggleTheme()}
                             >
@@ -103,7 +102,6 @@ const Navbar = (props) => {
                             </IconButton>
                             :
                             <IconButton
-                                aria-haspopup="false"
                                 color="inherit"
                                 onClick={() => props.handleToggleTheme()}
                             >
@@ -113,9 +111,6 @@ const Navbar = (props) => {
                     </Tooltip>
                     <Tooltip title={t('changeLanguage')} arrow>
                         <IconButton
-                            aria-label="change language"
-                            aria-controls="menu-language"
-                            aria-haspopup="true"
                             onClick={handleLanguage}
                             color="inherit"
                         >
@@ -160,7 +155,6 @@ const Navbar = (props) => {
                     </Menu>
                     <Tooltip title={t('home')} arrow>
                         <IconButton
-                            aria-haspopup="false"
                             color="inherit"
                             component={Link}
                             to="/"
@@ -172,9 +166,6 @@ const Navbar = (props) => {
                         <div>
                             <Tooltip title={t('userMenu')} arrow>
                                 <IconButton
-                                    aria-label="user menu"
-                                    aria-controls="menu-appbar"
-                                    aria-haspopup="true"
                                     onClick={handleMenu}
                                     color="inherit"
                                 >

@@ -13,7 +13,6 @@ const CustomNoRowsOverlay = () => {
                 width="120"
                 height="100"
                 viewBox="0 0 184 152"
-                aria-hidden
                 focusable="false"
             >
                 <g fill="none" fillRule="evenodd">

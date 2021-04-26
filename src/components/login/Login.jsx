@@ -109,7 +109,6 @@ const Login = (props) => {
                                     <InputAdornment position="end">
                                         <IconButton
                                             id="passwordtoggle"
-                                            aria-label="toggle password visibility"
                                             onClick={handleClickShowPassword}
                                             onMouseDown={handleMouseDownPassword}
                                         >

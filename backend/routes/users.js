@@ -209,7 +209,7 @@ router.get('/fine', jwt({ secret, credentialsRequired: true, getToken: (req) => 
     else {
         Payment.find({ paid: false })
             .populate('borrowid', ['createdAt', 'returnedOn', 'dueDate'])
-            .populate('userid', ['userid'])
+            .populate({ path: 'userid', select: 'userid', populate: { path: 'udmid', select: ['email', 'phone'] } })
             .populate('bookid', ['title', 'isbn'])
             .sort({ createdAt: 1 })
             .then(payments => {

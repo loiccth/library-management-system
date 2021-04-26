@@ -25,7 +25,7 @@ const Row = (props) => {
         <>
             <TableRow className={classes.root}>
                 <TableCell>
-                    <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+                    <IconButton size="small" onClick={() => setOpen(!open)}>
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
@@ -55,7 +55,7 @@ const Row = (props) => {
                             <Typography variant="h6" gutterBottom component="div">
                                 {t('events')}
                             </Typography>
-                            <Table size="small" aria-label="events">
+                            <Table size="small" >
                                 <TableHead>
                                     <TableRow>
                                         <TableCell width={'33%'}>{t('date')}</TableCell>

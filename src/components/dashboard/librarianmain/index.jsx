@@ -82,7 +82,10 @@ const LibrarianMain = (props) => {
                 // Format data
                 getDuePayments.data.map(payment => {
                     return {
+                        checked: false,
                         _id: payment._id,
+                        phone: payment.userid.udmid.phone,
+                        email: payment.userid.udmid.email,
                         borrowDate: payment.borrowid.createdAt,
                         returnedDate: payment.borrowid.returnedOn,
                         dueDate: payment.borrowid.dueDate,
@@ -195,6 +198,38 @@ const LibrarianMain = (props) => {
         )
     }
 
+    // Check checkbox for due payment
+    const handleCheckDuePayments = (e) => {
+        setDuePayments(
+            duePayments.map(payment => {
+                if (payment._id === e.target.value) {
+                    payment.checked = e.target.checked
+                }
+                return payment
+            })
+        )
+    }
+
+    // Check all checkboxes for due paymentss
+    const handleCheckAllDuePayments = (e) => {
+        setDuePayments(
+            duePayments.map(payment => {
+                payment.checked = e.target.checked
+                return payment
+            })
+        )
+    }
+
+    // Uncheck all checkboxes for due books
+    const handleUncheckAllDuePayments = () => {
+        setDuePayments(
+            duePayments.map(payment => {
+                payment.checked = false
+                return payment
+            })
+        )
+    }
+
     // Remove from table after fine is paid
     const handleFinePayment = (payment) => {
         setDuePayments(duePayments.filter(due => due._id !== payment._id))
@@ -253,7 +288,7 @@ const LibrarianMain = (props) => {
                 <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>
-                <DuePayments duePayments={duePayments} handleFinePayment={handleFinePayment} />
+                <DuePayments duePayments={duePayments} handleFinePayment={handleFinePayment} handleCheckDuePayments={handleCheckDuePayments} handleCheckAllDuePayments={handleCheckAllDuePayments} handleUncheckAllDuePayments={handleUncheckAllDuePayments} />
                 <Box sx={{ my: 3 }}>
                     <Divider />
                 </Box>

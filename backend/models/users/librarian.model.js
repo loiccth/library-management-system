@@ -669,12 +669,18 @@ librarianSchema.methods.notify = async function (books, type, res) {
             const mailRegister = {
                 from: 'no-reply@udmlibrary.com',
                 to: books[i].email,
-                subject: type === 'overdue' ? 'NOTIFY: Book overdue' : 'NOTIFY: Book due',
-                text: type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`
+                subject: type === 'overdue' ? 'NOTIFY: Book overdue' :
+                    type === 'due' ? 'NOTIFY: Book due' :
+                        'NOTIFY: Fine due',
+                text: type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${new Date(books[i].dueDate)}` :
+                    type === 'due' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${new Date(books[i].dueDate)}` :
+                        `Fine total amount Rs ${books[i].days * books[i].price} is due since ${new Date(books[i].date)} for book ${books[i].title}\nFine per day: Rs ${books[i].price}\nDays overdue: ${books[i].days}`
             }
 
             // Send SMS notification
-            sendSMS(type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${books[i].dueDate}` : `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${books[i].dueDate}`,
+            sendSMS(type === 'overdue' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due since ${new Date(books[i].dueDate)}` :
+                type === 'due' ? `Your book titled ${books[i].title} with ISBN ${books[i].isbn} is due on ${new Date(books[i].dueDate)}` :
+                    `Fine total amount Rs ${books[i].days * books[i].price} is due since ${new Date(books[i].date)} for book ${books[i].title}\nFine per day: Rs ${books[i].price}\nDays overdue: ${books[i].days}`,
                 `+230${books[i].phone}`)
 
             try {

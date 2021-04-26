@@ -124,7 +124,6 @@ const ChangePassword = (props) => {
                             <InputAdornment position="end">
                                 <IconButton
                                     id="oldpasswordtoggle"
-                                    aria-label="toggle password visibility"
                                     onClick={handleClickShowOldPassword}
                                     onMouseDown={handleMouseDownPassword}
                                 >
@@ -154,7 +153,6 @@ const ChangePassword = (props) => {
                             <InputAdornment position="end">
                                 <IconButton
                                     id="newpasswordtoggle"
-                                    aria-label="toggle password visibility"
                                     onClick={handleClickShowNewPassword}
                                     onMouseDown={handleMouseDownPassword}
                                 >
@@ -182,7 +180,6 @@ const ChangePassword = (props) => {
                             <InputAdornment position="end">
                                 <IconButton
                                     id="confirmpasswordtoggle"
-                                    aria-label="toggle password visibility"
                                     onClick={handleClickShowConfirmPassword}
                                     onMouseDown={handleMouseDownPassword}
                                 >

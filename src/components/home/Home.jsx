@@ -98,7 +98,7 @@ const Home = (props) => {
                                     inputRef={register({ required: t('requiredField') })}
                                     helperText={!!errors.search ? errors.search.message : ""}
                                 />
-                                <IconButton type="submit" className={classes.iconButton} aria-label="search">
+                                <IconButton type="submit" className={classes.iconButton} >
                                     <SearchIcon />
                                 </IconButton>
 

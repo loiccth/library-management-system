@@ -154,8 +154,6 @@ const BorrowedBooks = () => {
                                                 <Dialog
                                                     open={open}
                                                     onClose={handleToggle}
-                                                    aria-labelledby="alert-dialog-title"
-                                                    aria-describedby="alert-dialog-description"
                                                     style={{ direction: theme.direction }}
                                                 >
                                                     <DialogContent>

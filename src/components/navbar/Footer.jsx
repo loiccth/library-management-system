@@ -48,7 +48,7 @@ const Footer = (props) => {
             <Button component={Link} to="/info" className={classes.btn} variant="contained" disableRipple disableElevation>
                 {t('information')}
             </Button>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="rules-and-regulations" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="rules-and-regulations">{t('rules')}</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" paragraph>{t('rulesParagraph')}</Typography>

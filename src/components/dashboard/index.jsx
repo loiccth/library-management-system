@@ -172,7 +172,6 @@ const Dashboard = (props) => {
                     <Toolbar>
                         <IconButton
                             color="inherit"
-                            aria-label="open drawer"
                             edge="start"
                             onClick={handleDrawerToggle}
                             className={classes.menuButton}
@@ -190,7 +189,6 @@ const Dashboard = (props) => {
                         <Tooltip title={t('toggleDarkMode')} arrow>
                             {props.darkMode ?
                                 <IconButton
-                                    aria-haspopup="false"
                                     color="inherit"
                                     onClick={() => props.handleToggleTheme()}
                                 >
@@ -198,7 +196,6 @@ const Dashboard = (props) => {
                                 </IconButton>
                                 :
                                 <IconButton
-                                    aria-haspopup="false"
                                     color="inherit"
                                     onClick={() => props.handleToggleTheme()}
                                 >
@@ -208,9 +205,6 @@ const Dashboard = (props) => {
                         </Tooltip>
                         <Tooltip title={t('changeLanguage')} arrow>
                             <IconButton
-                                aria-label="change language"
-                                aria-controls="menu-language"
-                                aria-haspopup="true"
                                 onClick={handleLanguage}
                                 color="inherit"
                             >
@@ -255,7 +249,6 @@ const Dashboard = (props) => {
                         </Menu>
                         <Tooltip title={t('home')} arrow>
                             <IconButton
-                                aria-haspopup="false"
                                 color="inherit"
                                 component={Link}
                                 to="/"
@@ -265,9 +258,6 @@ const Dashboard = (props) => {
                         </Tooltip>
                         <Tooltip title={t('userMenu')} arrow>
                             <IconButton
-                                aria-label="user menu"
-                                aria-controls="menu-appbar"
-                                aria-haspopup="true"
                                 onClick={handleMenu}
                                 color="inherit"
                             >
@@ -294,7 +284,7 @@ const Dashboard = (props) => {
                         </Menu>
                     </Toolbar>
                 </AppBar>
-                <nav className={classes.drawer} aria-label="mailbox folders">
+                <nav className={classes.drawer} >
                     <Hidden lgUp implementation="css">
                         <Drawer
                             container={container}

@@ -85,7 +85,7 @@ const IssueBook = (props) => {
             <Button variant="contained" fullWidth onClick={handleClickOpen}>
                 {t('issueBook')}
             </Button>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth style={{ direction: theme.direction }}>
                 <DialogTitle id="form-dialog-title">{t('issueBook')}</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>

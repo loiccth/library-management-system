@@ -7,6 +7,7 @@ import {
     Alert,
     Box,
     Button,
+    Checkbox,
     Container,
     Dialog,
     DialogActions,
@@ -30,6 +31,7 @@ import {
 const DuePayments = (props) => {
     const classes = useStyles()
     const { t } = useTranslation()
+    const [check, setCheck] = useState(false)
     const [snackbar, setSnackbar] = useState({ type: null })
     const [open, setOpen] = useState(false)
     const [page, setPage] = useState(1)
@@ -75,6 +77,35 @@ const DuePayments = (props) => {
             })
     }
 
+    // Send notifications to selected due book records
+    const handleOnClick = () => {
+        axios.post(`${url}/users/notify`, { type: 'fine', books: props.duePayments }, { withCredentials: true })
+            .then(result => {
+                setSnackbar({
+                    type: 'success',
+                    msg: t(result.data.message, { amount: result.data.users.length })
+                })
+            })
+            .catch(err => {
+                setSnackbar({
+                    type: 'warning',
+                    msg: t(err.response.data.error)
+                })
+            })
+            .finally(() => {
+                // Uncheck all and show snackbar feedback
+                handleClick()
+                props.handleUncheckAllDuePayments()
+                setCheck(false)
+            })
+    }
+
+    // Uncheck all checkboxes
+    const handleCheckAll = (e) => {
+        setCheck(e.target.checked)
+        props.handleCheckAllDuePayments(e)
+    }
+
     // Change page
     const handlePagination = (e, value) => {
         setPage(value)
@@ -92,6 +123,23 @@ const DuePayments = (props) => {
                     <Typography variant="h6">{t('duePayments')}</Typography>
                 </Toolbar>
             </Container>
+            <Box sx={{ mt: 1 }}>
+                <Grid container justifyContent="center">
+                    <Grid item xs={11} lg={10}>
+                        <Grid container className={classes.heading} spacing={1}>
+                            <Grid item xs={12} sm={4} md={3} lg={2}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    onClick={handleOnClick}
+                                >
+                                    {t('reminder')}
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Box>
             <Box sx={{ mt: 3 }}>
                 <Grid container justifyContent="center">
                     <Grid item xs={12} md={11} lg={10}>
@@ -99,22 +147,28 @@ const DuePayments = (props) => {
                             <Table className={classes.table}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell width={'15%'}>{t('memberid')}</TableCell>
-                                        <TableCell width={'28%'}>{t('bookDetails')}</TableCell>
-                                        <TableCell width={'28%'}>{t('borrowDetails')}</TableCell>
-                                        <TableCell width={'19%'}>{t('fineDetails')}</TableCell>
+                                        <TableCell width={'10%'}>
+                                            <Checkbox checked={check} color="primary" onChange={handleCheckAll} />
+                                        </TableCell>
+                                        <TableCell width={'11%'}>{t('memberid')}</TableCell>
+                                        <TableCell width={'26%'}>{t('bookDetails')}</TableCell>
+                                        <TableCell width={'26%'}>{t('borrowDetails')}</TableCell>
+                                        <TableCell width={'17%'}>{t('fineDetails')}</TableCell>
                                         <TableCell width={'10%'}></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {props.duePayments.length === 0 &&
                                         <TableRow>
-                                            <TableCell colSpan={5} align="center">{t('noRecords')}</TableCell>
+                                            <TableCell colSpan={6} align="center">{t('noRecords')}</TableCell>
                                         </TableRow>
                                     }
                                     {props.duePayments.slice((page - 1) * rowPerPage, (page - 1) * rowPerPage + rowPerPage).map(row => (
                                         <TableRow key={row._id}>
                                             <TableCell component="th" scope="row">
+                                                <Checkbox value={row._id} checked={row.checked} color="primary" onChange={props.handleCheckDuePayments} />
+                                            </TableCell>
+                                            <TableCell>
                                                 {row.userid}
                                             </TableCell>
                                             <TableCell>
@@ -163,7 +217,7 @@ const DuePayments = (props) => {
                                         </TableRow>
                                     ))}
                                     <TableRow>
-                                        <TableCell colSpan={5}>
+                                        <TableCell colSpan={6}>
                                             <Grid container justifyContent="center">
                                                 <Grid item xs={12}>
                                                     <Pagination
@@ -186,12 +240,18 @@ const DuePayments = (props) => {
     )
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
     paper: {
         overflowX: 'auto'
     },
     table: {
         minWidth: 850
+    },
+    heading: {
+        justifyContent: 'flex-end',
+        [theme.breakpoints.down("sm")]: {
+            justifyContent: 'center'
+        }
     },
     pagination: {
         display: 'flex',
