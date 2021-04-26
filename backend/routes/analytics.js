@@ -6,6 +6,7 @@ const User = require('../models/users/user.base')
 const axios = require('axios')
 const secret = process.env.JWT_SECRET
 const mongoose = require('mongoose')
+const escapeRegExp = require('../function/escapeRegExp')
 
 // Records every page visit and action that a client does
 router.post('/', jwt({ secret, credentialsRequired: false, getToken: (req) => { return req.cookies.jwttoken }, algorithms: ['HS256'] }), (req, res) => {
@@ -271,8 +272,10 @@ router.get('/stats', jwt({ secret, credentialsRequired: true, getToken: (req) =>
         const yesterday = new Date(new Date().getTime() - (24 * 60 * 60 * 1000))
 
         // Get failed login count and password reset count
-        const failedLogin = await Analytics.countDocuments({ 'event.type': 'action', 'event.info': 'login failed', createdAt: { $gte: yesterday } })
-        const passwordReset = await Analytics.countDocuments({ 'event.type': 'action', 'event.info': 'password reset success', createdAt: { $gte: yesterday } })
+        const regexLogin = new RegExp(escapeRegExp('login attempt failed'), 'gi')
+        const regexReset = new RegExp(escapeRegExp('password reset success'), 'gi')
+        const failedLogin = await Analytics.countDocuments({ 'event.type': 'action', 'event.info': regexLogin, createdAt: { $gte: yesterday } })
+        const passwordReset = await Analytics.countDocuments({ 'event.type': 'action', 'event.info': regexReset, createdAt: { $gte: yesterday } })
 
         // Get the number of users
         const users = await Analytics.aggregate([

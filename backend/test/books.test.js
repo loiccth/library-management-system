@@ -10,7 +10,8 @@ beforeEach(done => {
         useCreateIndex: true,
         useUnifiedTopology: true,
         useFindAndModify: false
-    }).catch(() => console.log("MongoDB database connection failed"))
+    })
+        .catch(() => console.log("MongoDB database connection failed"))
         .then(() => done())
 })
 

@@ -10,15 +10,14 @@ beforeEach(done => {
         useCreateIndex: true,
         useUnifiedTopology: true,
         useFindAndModify: false
-    }).catch(() => console.log("MongoDB database connection failed"))
+    })
+        .catch(() => console.log("MongoDB database connection failed"))
         .then(() => done())
 })
 
 afterEach(done => {
     mongoose.connection.close(() => done())
 })
-
-let tokencookie = null
 
 describe('POST Endpoint for /users/login', () => {
     test('Using correct userid and password', done => {
@@ -31,7 +30,6 @@ describe('POST Endpoint for /users/login', () => {
             .then(res => {
                 expect(res.statusCode).toBe(200)
                 expect(res.body.userid).toBe('admin')
-                tokencookie = res.header['set-cookie']
                 done()
             })
     })

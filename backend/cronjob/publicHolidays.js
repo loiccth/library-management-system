@@ -5,7 +5,7 @@ const axios = require('axios')
 // This function is called everyday at midnight
 // It gets all public holidays in Mauritius
 // and saves it in the database
-const highDemand = new CronJob('0 0 * * *', () => {
+const publicHoliday = new CronJob('0 0 * * *', () => {
     const now = new Date()
 
     // Get list of holidays fron calendarific
@@ -41,4 +41,4 @@ const highDemand = new CronJob('0 0 * * *', () => {
         })
 }, null, true, 'Indian/Mauritius')
 
-module.exports = highDemand
+module.exports = publicHoliday
